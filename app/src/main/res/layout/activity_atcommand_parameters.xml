@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ATCommandParametersActivity">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="5dp"
+        android:orientation="vertical"
+        tools:ignore="MissingConstraints">
+        <!-- Title -->
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:text="AT-COMMAND Configuration"
+            android:textStyle="bold"
+            android:textSize="20sp"
+            android:layout_marginTop="5dp"
+            tools:ignore="MissingConstraints" />
+        <!-- Line -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:layout_marginTop="2dp"
+            android:background="#FFFFFF"
+            />
+
+        <!-- layout_parameters -->
+        <LinearLayout
+            android:id="@+id/layout_parameters"
+            android:layout_marginTop="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+            <!-- module type checkbox -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Module Name: " />
+                <TextView
+                    android:id="@+id/deviceName_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textStyle="bold"
+                    android:text="" />
+            </LinearLayout>
+            <!--editText cint min and max -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:orientation="horizontal">
+                <EditText
+                    android:id="@+id/cintMin"
+                    android:layout_width="match_parent"
+                    android:layout_weight="1"
+                    android:hint="CINT(MIN)"
+                    android:textSize="15dp"
+                    android:inputType="number"
+                    android:layout_height="match_parent" />
+                <EditText
+                    android:id="@+id/cintMax"
+                    android:layout_width="match_parent"
+                    android:layout_weight="1"
+                    android:hint="CINT(MAX)"
+                    android:inputType="number"
+                    android:textSize="15dp"
+                    android:layout_height="match_parent" />
+            </LinearLayout>
+            <!--editText rfpm,aint,ctout inputs-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="10dp">
+
+                <EditText
+                    android:id="@+id/rfpm"
+                    android:layout_width="match_parent"
+                    android:layout_weight="1"
+                    android:textSize="15dp"
+                    android:hint="@string/rfpm"
+                    android:inputType="number"
+                    android:layout_height="match_parent" />
+                <EditText
+                    android:id="@+id/aint"
+                    android:layout_width="match_parent"
+                    android:layout_weight="1"
+                    android:textSize="15dp"
+                    android:hint="@string/aint"
+                    android:inputType="number"
+                    android:layout_height="match_parent" />
+                <EditText
+                    android:id="@+id/ctout"
+                    android:layout_width="match_parent"
+                    android:layout_weight="1"
+                    android:hint="@string/ctout"
+                    android:textSize="15dp"
+                    android:inputType="number"
+                    android:layout_height="match_parent" />
+            </LinearLayout>
+
+            <!--layout_baud_rate -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_height="wrap_content"
+                    android:textStyle="bold"
+                    android:text="Baud Rate:" />
+                <LinearLayout
+                    android:id="@+id/layout_baud_rate"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="10dp">
+                    <Spinner
+                        android:id="@+id/baud_rate"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:scrollbarSize="@android:dimen/app_icon_size"
+                        tools:ignore="MissingConstraints" />
+                    <Spinner
+                        android:id="@+id/parity"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:scrollbarSize="@android:dimen/app_icon_size"
+                        android:layout_weight="1"
+                        tools:ignore="MissingConstraints" />
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!--checkboxes-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:orientation="vertical">
+                <!-- switch new_setting,factory_setting-->
+                <CheckBox
+                    android:id="@+id/LED"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="3dp"
+                    android:checked="true"
+                    android:text="@string/led"/>
+                <CheckBox
+                    android:id="@+id/checkbox_factorySetting"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="3dp"
+                    android:layout_weight="1"
+                    android:text="@string/restore_factory_setting" />
+            </LinearLayout>
+
+            <!--Btn-->
+            <Button
+                android:id="@+id/btn_Save_Transmission_parameter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="@string/save" />
+
+        </LinearLayout>
+      </LinearLayout>
+
+
+
+  </android.support.constraint.ConstraintLayout>

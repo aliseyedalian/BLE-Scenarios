@@ -1,0 +1,30 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.tonydicola.bleSenarios.app.MainActivity" >
+
+    <item android:id="@+id/action_scan"
+        android:title="Scan BLE Devices"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
+    <item android:id="@+id/Transmission_setting"
+        android:title="AT-COMMAND Configuration"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
+    <item android:id="@+id/Environmental_setting"
+        android:title="Scenario Information"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
+    <item android:id="@+id/Transmissions_History"
+        android:title="Scenarios Reports"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
+    <item android:id="@+id/disconnect"
+        android:title="@string/disconnect"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
+    <item android:id="@+id/exit"
+        android:title="Exit"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
+</menu>

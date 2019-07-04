@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">BLE Scenarios</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="ble_not_supported">BLE not supported !</string>
+    <string name="action_scan">Scan devices</string>
+    <string name="send">Send</string>
+    <string name="disconnected">Disconnected</string>
+    <string name="connected">Connected</string>
+    <string name="environmental_parameters">Environmental Parameters</string>
+    <string name="transmission_parameters">Transmission Parameters</string>
+    <string name="transmissions_history">Transmissions History</string>
+    <string name="input">input</string>
+    <string name="transmission_parameters_setting">Transmission Parameters Settings</string>
+    <string name="revise_rf_power">Revise RF power</string>
+    <string name="connection_interval">Connection Interval</string>
+    <string name="communication_information">Communication Information</string>
+    <string name="cint">CINT</string>
+    <string name="rfpm">RFPM</string>
+    <string name="aint">AINT</string>
+    <string name="restore_factory_setting">Restore factory setting</string>
+    <string name="led">LED</string>
+    <string name="save">Save</string>
+    <string name="ctout">CTOUT</string>
+    <string name="transmissions_reports">Transmissions Reports</string>
+    <string name="send_at_commands">send At-commands</string>
+    <string name="disconnect">Disconnect</string>
+
+</resources>
