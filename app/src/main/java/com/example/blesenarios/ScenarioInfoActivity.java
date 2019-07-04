@@ -26,7 +26,6 @@ public class ScenarioInfoActivity extends AppCompatActivity {
     EditText input_obstacle_count;
     CheckBox wifi_cb;
     CheckBox ipv6_cb;
-    CheckBox humid_cb;
     Button save_btn;
     EditText input_moreExplanation;
     SharedPreferences pref_currentScenario_info;
@@ -56,7 +55,6 @@ public class ScenarioInfoActivity extends AppCompatActivity {
         String moreExplanation = input_moreExplanation.getText().toString().trim();
         String wifi_status;
         String ipv6_status;
-        String humid_status;
         if(wifi_cb.isChecked()){
             wifi_status = "1";
         } else{
@@ -67,11 +65,6 @@ public class ScenarioInfoActivity extends AppCompatActivity {
         } else{
             ipv6_status = "0";
         }
-        if(humid_cb.isChecked()){
-            humid_status="1";
-        }else {
-            humid_status="0";
-        }
 
         if(isValidParameters(distance,obstacle_count)){
             SharedPreferences.Editor editor = pref_currentScenario_info.edit();
@@ -81,7 +74,6 @@ public class ScenarioInfoActivity extends AppCompatActivity {
             editor.putString("obstacle_count",obstacle_count);
             editor.putString("inOut_door",inOut_door);
             editor.putString("obstacle",obstacle);
-            editor.putString("humidity",humid_status);
             editor.putString("wifi_status",wifi_status);
             editor.putString("ipv6_status",ipv6_status);
             editor.putString("PhoneModel",android.os.Build.MODEL);
@@ -123,7 +115,6 @@ public class ScenarioInfoActivity extends AppCompatActivity {
         input_moreExplanation = findViewById(R.id.moreExplanation);
         wifi_cb =findViewById(R.id.wifi_cb);
         ipv6_cb =findViewById(R.id.ipv6_cb);
-        humid_cb =findViewById(R.id.humidity);
         save_btn = findViewById(R.id.btn_Save);
     }
     @Override

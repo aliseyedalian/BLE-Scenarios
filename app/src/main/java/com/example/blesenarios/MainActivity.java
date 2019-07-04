@@ -262,6 +262,24 @@ public class MainActivity extends Activity {
                 sent_received_data_tv.setText("");
             }
         });
+        clear_tv_btn.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                commInfo_tv.setText("");
+                at_commands_tv.setText("");
+                sent_received_data_tv.setText("");
+                SharedPreferences.Editor editor1;
+                editor1 = pref_currentATCommands.edit();
+                editor1.clear();
+                editor1.apply();
+                SharedPreferences.Editor editor2;
+                editor2 = pref_currentScenario_info.edit();
+                editor2.clear();
+                editor2.apply();
+
+                return false;
+            }
+        });
         pref_currentScenario_info = getSharedPreferences("currentScenario_info",MODE_PRIVATE);
         pref_currentATCommands = getSharedPreferences("currentATCommands",MODE_PRIVATE);
         isReceivedDataPong = false;
@@ -273,6 +291,7 @@ public class MainActivity extends Activity {
             }
         });
     }
+
 
 
     // Main BTLE device callback where much of the logic occurs.
@@ -365,6 +384,54 @@ public class MainActivity extends Activity {
         }
     };
 
+    // Handler for mouse click on the send button.
+    public void sendClick(){
+        String message = input.getText().toString();
+        if (tx == null || message.isEmpty()) {
+            // Do nothing if there is no device or message to send.
+            return;
+        }
+        //send DATA_STRING_PING
+        if(message.trim().equals("ping")){
+            tsLong = System.currentTimeMillis()/1000;
+            //get timeStamp
+            String ts = tsLong.toString();
+            //writeLine("#Sending DATA_PING...");
+            String out = "#("+ts+")DATA_PING SESSION:\n";
+            sent_received_data_tv.setText(out);
+            DATA_PONG="";
+            tx.setValue(DATA_PING.getBytes(Charset.forName("UTF-8")));
+            //tx.setValue(DATA_PING);
+            if(bluetoothGatt.writeCharacteristic(tx)) {
+                //writeLine("#At "+ts+" DATA_PING Sent");
+                //sent_received_data_tv.append(ts+":  DATA_PING Sent\nRECEIVED:\n");
+                input.getText().clear();
+            }
+            //save ts timestamp
+            SharedPreferences.Editor editor = pref_currentScenario_info.edit();
+            editor.putString("TS",ts);
+            editor.apply();
+            loadScenarioParameters();
+        }
+        //send test input
+        else if(message.trim().equals("p")){
+
+        }
+        else {
+            // Update TX characteristic value.  Note the setValue overload that takes a byte array must be used.
+            tx.setValue(message.getBytes(Charset.forName("UTF-8")));
+            if (bluetoothGatt.writeCharacteristic(tx)) {
+                writeLine("#Sent: " + message);
+                sent_received_data_tv.append("\n------------\n" +
+                        "#NEW TEST SESSION:\n\nSENT:\n{"+message+"}\n\nRECEIVED:\n");
+                input.getText().clear();
+            }
+            else {
+                writeLine("#Couldn't write TX characteristic!");
+                bluetoothGatt.disconnect();
+            }
+        }
+    }
 
     public void calculateBER(){
         if(DATA_PONG==null || DATA_PING==null){
@@ -423,55 +490,6 @@ public class MainActivity extends Activity {
         }
         return -1;
     }
-
-
-    // Handler for mouse click on the send button.
-    public void sendClick(){
-        String message = input.getText().toString();
-        if (tx == null || message.isEmpty()) {
-            // Do nothing if there is no device or message to send.
-            return;
-        }
-        //send DATA_STRING_PING
-        if(message.trim().equals("ping")){
-            tsLong = System.currentTimeMillis()/1000;
-            //get timeStamp
-            String ts = tsLong.toString();
-            //writeLine("#Sending DATA_PING...");
-            String out = "#("+ts+")DATA_PING SESSION:\n";
-            sent_received_data_tv.setText(out);
-            DATA_PONG="";
-            tx.setValue(DATA_PING.getBytes(Charset.forName("UTF-8")));
-            //tx.setValue(DATA_PING);
-            if(bluetoothGatt.writeCharacteristic(tx)) {
-                //writeLine("#At "+ts+" DATA_PING Sent");
-                //sent_received_data_tv.append(ts+":  DATA_PING Sent\nRECEIVED:\n");
-                input.getText().clear();
-            }
-            //save ts timestamp
-            SharedPreferences.Editor editor = pref_currentScenario_info.edit();
-            editor.putString("TS",ts);
-            editor.apply();
-            loadScenarioParameters();
-        }
-        //send test input
-        else {
-            // Update TX characteristic value.  Note the setValue overload that takes a byte array must be used.
-            tx.setValue(message.getBytes(Charset.forName("UTF-8")));
-            if (bluetoothGatt.writeCharacteristic(tx)) {
-                writeLine("#Sent: " + message);
-                sent_received_data_tv.append("\n------------\n" +
-                        "#NEW TEST SESSION:\n\nSENT:\n{"+message+"}\n\nRECEIVED:\n");
-                input.getText().clear();
-            }
-            else {
-                writeLine("#Couldn't write TX characteristic!");
-                bluetoothGatt.disconnect();
-            }
-        }
-    }
-
-
     
     // BLE device scanning callback.
     // run when a new device found in scanning.

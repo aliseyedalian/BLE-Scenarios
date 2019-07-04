@@ -15,7 +15,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 public class ATCommandParametersActivity extends AppCompatActivity {
-    Spinner Module_spinner;
     Spinner baud_rate_spinner;
     Spinner parity_spinner;
 
@@ -93,10 +92,8 @@ public class ATCommandParametersActivity extends AppCompatActivity {
             }
         }else{
             //send restore factory setting
-            String Module = Module_spinner.getSelectedItem().toString().trim();
             SharedPreferences.Editor editor = pref_currentATCommands.edit();
             editor.clear();
-            editor.putString("Module",Module);
             editor.putString("RestoreFactory","AT+DEFAULT");
             editor.apply();
             finish();

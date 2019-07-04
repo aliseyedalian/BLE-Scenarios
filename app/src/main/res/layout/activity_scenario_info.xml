@@ -105,23 +105,17 @@
 
                 <CheckBox
                     android:id="@+id/wifi_cb"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="20dp"
                     android:text="Wi-Fi"/>
 
                 <CheckBox
                     android:id="@+id/ipv6_cb"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="20dp"
                     android:text="IP-v6"/>
-                <CheckBox
-                    android:id="@+id/humidity"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="20dp"
-                    android:text="Humid"/>
             </LinearLayout>
             <EditText
                 android:id="@+id/moreExplanation"
