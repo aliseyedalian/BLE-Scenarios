@@ -33,8 +33,11 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.lang.reflect.Array;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 public class MainActivity extends Activity {
@@ -46,10 +49,8 @@ public class MainActivity extends Activity {
     // UUID for the BLE client characteristic which is necessary for notifications:
     public static UUID CLIENT_UUID = UUID.fromString("00002902-0000-1000-8000-00805F9B34FB");
 
-    //DATA_PING is a STRING with length = 1000.
-    //DATA_PING terminated with 01011
-    public static String DATA_PING = "abcdefghijklmnopqrstuvwxyz01234567890fin";
-    // Stops scanning after 10 seconds.
+
+    //For Energy efficiency stops scanning after 7 seconds.
     private static final long SCAN_PERIOD = 7000;
     // UI elements:
     private TextView logs;
@@ -73,14 +74,14 @@ public class MainActivity extends Activity {
     TextView sent_received_data_tv;
     Button clear_tv_btn;
     Button cal_BER_btn;
+    Button saveToDB_btn;
     SharedPreferences pref_currentScenario_info;
     SharedPreferences pref_currentATCommands;
     Boolean isReceivedDataPong;
-    String DATA_PONG;
-    float charLoss;
-    float diff_length;
-    float BER;
     Long tsLong;
+    String inComingValue;
+    private List<String> org_strList = new ArrayList<>();
+
     private void loadScenarioParameters() {
         commInfo_tv.setText("");
         if(pref_currentScenario_info==null){
@@ -134,9 +135,9 @@ public class MainActivity extends Activity {
             commInfo_tv.append("BER = " + BER);
             commInfo_tv.append("\n");
         }
-        String TS =pref_currentScenario_info.getString("TS",null);
+        String TS =pref_currentScenario_info.getString("TimeStamp",null);
         if(TS != null){
-            commInfo_tv.append("Send TimeStamp= " + TS);
+            commInfo_tv.append("TimeStamp= " + TS);
             commInfo_tv.append("\n");
         }
     }
@@ -190,6 +191,109 @@ public class MainActivity extends Activity {
             at_commands_tv.append(RestoreFactory);
             at_commands_tv.append("\n");
         }
+    }
+    private void prepare_org_strList() {
+        org_strList.add("salam");
+        org_strList.add("golab");
+        org_strList.add("IRANI");
+        org_strList.add("rodbar");
+        org_strList.add("Bravo");
+        org_strList.add("abcde");
+        org_strList.add("mahdi");
+        org_strList.add("ordoo");
+        org_strList.add("FARSI");
+        org_strList.add("Tehran");
+        org_strList.add("99883");
+        org_strList.add("12345");
+        org_strList.add("44444");
+        org_strList.add("09123");
+        org_strList.add("75532");
+        org_strList.add("42311");
+        org_strList.add("54362");
+        org_strList.add("56654");
+        org_strList.add("42314");
+        org_strList.add("13451");
+        org_strList.add("ebram");
+        org_strList.add("quran");
+        org_strList.add("Ishagh");
+        org_strList.add("Kerm");
+        org_strList.add("Risman");
+        org_strList.add("Koodak");
+        org_strList.add("Zebra");
+        org_strList.add("Havij");
+        org_strList.add("DASTAN");
+        org_strList.add("Project");
+        org_strList.add("4560");
+        org_strList.add("54213");
+        org_strList.add("54374");
+        org_strList.add("09123");
+        org_strList.add("177120");
+        org_strList.add("08642");
+        org_strList.add("19191");
+        org_strList.add("42345");
+        org_strList.add("76876");
+        org_strList.add("23214");
+        org_strList.add("rest");
+        org_strList.add("golab");
+        org_strList.add("IRANI");
+        org_strList.add("Semnan");
+        org_strList.add("Bravo");
+        org_strList.add("abcde");
+        org_strList.add("mahdi");
+        org_strList.add("ordoo");
+        org_strList.add("FARSI");
+        org_strList.add("Tehran");
+        org_strList.add("23421");
+        org_strList.add("12345");
+        org_strList.add("44444");
+        org_strList.add("09123");
+        org_strList.add("75532");
+        org_strList.add("42311");
+        org_strList.add("54362");
+        org_strList.add("56654");
+        org_strList.add("42314");
+        org_strList.add("13451");
+        org_strList.add("javad");
+        org_strList.add("window");
+        org_strList.add("oij");
+        org_strList.add("tadbir");
+        org_strList.add("omid");
+        org_strList.add("pirlo");
+        org_strList.add("ronaldo");
+        org_strList.add("messi");
+        org_strList.add("tabriz");
+        org_strList.add("Your");
+        org_strList.add("42121");
+        org_strList.add("98132");
+        org_strList.add("42141");
+        org_strList.add("423231");
+        org_strList.add("00000");
+        org_strList.add("534");
+        org_strList.add("7654456");
+        org_strList.add("3122");
+        org_strList.add("98763");
+        org_strList.add("123123");
+        org_strList.add("mohammad");
+        org_strList.add("kerem");
+        org_strList.add("tibala");
+        org_strList.add("farda");
+        org_strList.add("ukrain");
+        org_strList.add("majid");
+        org_strList.add("webtel");
+        org_strList.add("lolaie");
+        org_strList.add("DASTAN");
+        org_strList.add("Kamyab");
+        org_strList.add("5391");
+        org_strList.add("2131");
+        org_strList.add("54374");
+        org_strList.add("46782");
+        org_strList.add("09390");
+        org_strList.add("02323");
+        org_strList.add("98765");
+        org_strList.add("9452");
+        org_strList.add("9352");
+        org_strList.add("10000");
+
     }
 
 
@@ -265,18 +369,7 @@ public class MainActivity extends Activity {
         clear_tv_btn.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                commInfo_tv.setText("");
-                at_commands_tv.setText("");
-                sent_received_data_tv.setText("");
-                SharedPreferences.Editor editor1;
-                editor1 = pref_currentATCommands.edit();
-                editor1.clear();
-                editor1.apply();
-                SharedPreferences.Editor editor2;
-                editor2 = pref_currentScenario_info.edit();
-                editor2.clear();
-                editor2.apply();
-
+                cleanTextViewsAndPreferences();
                 return false;
             }
         });
@@ -290,8 +383,34 @@ public class MainActivity extends Activity {
                 calculateBER();
             }
         });
+        saveToDB_btn = findViewById(R.id.btn_saveToDB);
+        saveToDB_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                saveToDB();
+            }
+        });
+        prepare_org_strList();
     }
 
+
+
+    private void saveToDB() {
+    }
+
+    private void cleanTextViewsAndPreferences() {
+        commInfo_tv.setText("");
+        at_commands_tv.setText("");
+        sent_received_data_tv.setText("");
+        SharedPreferences.Editor editor1;
+        editor1 = pref_currentATCommands.edit();
+        editor1.clear();
+        editor1.apply();
+        SharedPreferences.Editor editor2;
+        editor2 = pref_currentScenario_info.edit();
+        editor2.clear();
+        editor2.apply();
+    }
 
 
     // Main BTLE device callback where much of the logic occurs.
@@ -379,8 +498,8 @@ public class MainActivity extends Activity {
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
             super.onCharacteristicChanged(gatt, characteristic);
             //writeLine("#Received: " + characteristic.getStringValue(0))
-            sent_received_data_tv.append(characteristic.getStringValue(0));
-            DATA_PONG = DATA_PONG + characteristic.getStringValue(0);
+            inComingValue = characteristic.getStringValue(0);
+            sent_received_data_tv.append(inComingValue);
         }
     };
 
@@ -392,103 +511,50 @@ public class MainActivity extends Activity {
             return;
         }
         //send DATA_STRING_PING
-        if(message.trim().equals("ping")){
-            tsLong = System.currentTimeMillis()/1000;
+        sent_received_data_tv.setText("");
+        if(message.trim().equals("p")){
+            //tsLong = System.currentTimeMillis()/1000;
+            tsLong = System.nanoTime();
             //get timeStamp
             String ts = tsLong.toString();
             //writeLine("#Sending DATA_PING...");
-            String out = "#("+ts+")DATA_PING SESSION:\n";
-            sent_received_data_tv.setText(out);
-            DATA_PONG="";
-            tx.setValue(DATA_PING.getBytes(Charset.forName("UTF-8")));
-            //tx.setValue(DATA_PING);
+            //save timestamp to preferences
+            SharedPreferences.Editor editor = pref_currentScenario_info.edit();
+            editor.putString("TimeStamp",ts);
+            editor.apply();
+            loadScenarioParameters(); //update scenario info and show TimeStamp
+
+            tx.setValue(message.getBytes(Charset.forName("UTF-8")));
             if(bluetoothGatt.writeCharacteristic(tx)) {
-                //writeLine("#At "+ts+" DATA_PING Sent");
-                //sent_received_data_tv.append(ts+":  DATA_PING Sent\nRECEIVED:\n");
                 input.getText().clear();
             }
-            //save ts timestamp
-            SharedPreferences.Editor editor = pref_currentScenario_info.edit();
-            editor.putString("TS",ts);
-            editor.apply();
-            loadScenarioParameters();
         }
         //send test input
-        else if(message.trim().equals("p")){
-
-        }
         else {
             // Update TX characteristic value.  Note the setValue overload that takes a byte array must be used.
             tx.setValue(message.getBytes(Charset.forName("UTF-8")));
             if (bluetoothGatt.writeCharacteristic(tx)) {
                 writeLine("#Sent: " + message);
-                sent_received_data_tv.append("\n------------\n" +
-                        "#NEW TEST SESSION:\n\nSENT:\n{"+message+"}\n\nRECEIVED:\n");
+                sent_received_data_tv.append("#NEW TEST SESSION:\n\nSENT:\n{"+message+"}\n\nRECEIVED:\n");
                 input.getText().clear();
-            }
-            else {
-                writeLine("#Couldn't write TX characteristic!");
-                bluetoothGatt.disconnect();
             }
         }
     }
 
     public void calculateBER(){
-        if(DATA_PONG==null || DATA_PING==null){
-            return;
+        float rcv_ack = 0;
+        String received_data = sent_received_data_tv.getText().toString().trim();
+        List<String> rcv_strList = Arrays.asList(received_data.split("-"));
+        for(int i = 0; i< rcv_strList.size(); i++) {
+            if(org_strList.contains(rcv_strList.get(i))){
+                rcv_ack++;
+            }
         }
-        String diff = difference(DATA_PING,DATA_PONG);
-        diff_length = diff.length();
-        charLoss = DATA_PING.length() - DATA_PONG.length();
-        if(charLoss>0 && diff_length>0){  //maybe difference is because char loss.
-            BER = (charLoss)/DATA_PING.length();
-        }else{
-            BER = (diff_length+charLoss)/DATA_PING.length();
-        }
-        //save BER in scenario preference
-        String out =
-                "\nDATA_PING:\n"+DATA_PING
-                        +"\nDATA_PONG:\n"+DATA_PONG
-                        +"\ndiff:"+ diff
-                        +"\ndiff_length:"+diff_length
-                        +"\ncharLoss: "+charLoss
-                        +"\nBER: "+BER +"\n------------";
-        sent_received_data_tv.append(out);
+        float BER = 1 - (rcv_ack/org_strList.size());
         SharedPreferences.Editor editor = pref_currentScenario_info.edit();
         editor.putString("BER",Float.toString(BER));
         editor.apply();
         loadScenarioParameters();
-    }
-    public static String difference(String str1, String str2) {
-        if (str1 == null) {
-            return str2;
-        }
-        if (str2 == null) {
-            return str1;
-        }
-        int at = indexOfDifference(str1, str2);
-        if (at == -1) {
-            return EMPTY; //
-        }
-        return str1.substring(at);
-    }
-    public static int indexOfDifference(String str1, String str2) {
-        if (str1 == str2) {
-            return -1;
-        }
-        if (str1 == null || str2 == null) {
-            return 0;
-        }
-        int i;
-        for (i = 0; i < str1.length() && i < str2.length(); i++) {
-            if (str1.charAt(i) != str2.charAt(i)) {
-                break;//i found
-            }
-        }
-        if (i < str2.length() || i < str1.length()) {
-            return i;
-        }
-        return -1;
     }
     
     // BLE device scanning callback.
@@ -500,13 +566,13 @@ public class MainActivity extends Activity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    if(!discoveredBluetoothDevice.contains(bluetoothDevice)){
+                    if(!discoveredBluetoothDevice.contains(bluetoothDevice)) {
                         discoveredBluetoothDevice.add(bluetoothDevice);
                         //BLEdevice class which have each BLE device's name and mac address Strings
                         BLEdevice BLEdevice = new BLEdevice();
                         BLEdevice.setName(bluetoothDevice.getName());
                         BLEdevice.setMac(bluetoothDevice.getAddress());
-                        BLEdevice.setRssi("RSSI: "+String.valueOf(rssi));
+                        BLEdevice.setRssi("RSSI: "+ rssi +"dBm");
                         //discoveredDevices has device name and address and rssi
                         discoveredDevices.add(BLEdevice);
                         discoveredDevicesAdapter.notifyDataSetChanged();
