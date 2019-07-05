@@ -24,9 +24,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="#1D1C22"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:layout_marginTop="10dp"
+            android:layout_margin="10dp"
             android:orientation="horizontal">
             <ScrollView
                 android:layout_width="0dp"
@@ -38,16 +36,16 @@
                     android:layout_height="match_parent"
                     android:inputType="textPersonName"
                     android:textColor="#FFFFFF"
-                    android:hint="@string/input" />
+                    android:hint="Test Input" />
             </ScrollView>
             <Button
                 android:id="@+id/btn_send"
                 android:layout_width="0dp"
                 android:textColor="#FFFFFF"
                 android:layout_height="match_parent"
-                android:layout_margin="3dp"
                 android:layout_weight="1"
-                android:text="@string/send" />
+                android:text="@string/send"
+                android:textSize="12dp"/>
         </LinearLayout>
 
         <LinearLayout
@@ -71,7 +69,8 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="3dp"
                     android:textColor="#FFFFFF"
-                    android:text="@string/send_at_commands" />
+                    android:text="@string/send_at_commands"
+                    android:textSize="12dp"/>
                 <TextView
                     android:text="$AT-Commands:"
                     android:layout_marginLeft="5dp"
@@ -121,7 +120,7 @@
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:layout_marginTop="3dp"
-            android:layout_marginBottom="20dp"
+            android:layout_marginBottom="10dp"
             android:orientation="vertical">
             <LinearLayout
                 android:layout_width="match_parent"
@@ -134,21 +133,32 @@
                     android:layout_weight="1"
                     android:layout_height="match_parent"
                     android:textColor="#FFFFFF"
-                    android:text="Clear" />
+                    android:text="Clear"
+                    android:textSize="12dp"/>
                 <Button
                     android:id="@+id/btn_saveToDB"
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="match_parent"
                     android:textColor="#FFFFFF"
-                    android:text="Save to DB" />
+                    android:text="Save to DB"
+                    android:textSize="12dp"/>
                 <Button
                     android:id="@+id/cal_BER_btn"
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:textColor="#FFFFFF"
                     android:layout_height="match_parent"
-                    android:text="BER" />
+                    android:text="BER"
+                    android:textSize="12dp"/>
+                <Button
+                    android:id="@+id/get_humidity_btn"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:textColor="#FFFFFF"
+                    android:layout_height="match_parent"
+                    android:text="Get Humidity"
+                    android:textSize="12dp"/>
             </LinearLayout>
 
             <TextView

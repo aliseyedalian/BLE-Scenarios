@@ -33,7 +33,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.lang.reflect.Array;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -65,6 +64,7 @@ public class MainActivity extends Activity {
     private ArrayList< BluetoothDevice > discoveredBluetoothDevice;
     ListView listView;
     ArrayAdapter<BLEdevice> discoveredDevicesAdapter;
+    private List<String> org_strList = new ArrayList<>();
     private ProgressDialog progressDialog;
     private Handler handler;
     private EditText input;
@@ -75,12 +75,15 @@ public class MainActivity extends Activity {
     Button clear_tv_btn;
     Button cal_BER_btn;
     Button saveToDB_btn;
+    Button get_humidity_btn;
     SharedPreferences pref_currentScenario_info;
     SharedPreferences pref_currentATCommands;
     Boolean isReceivedDataPong;
     Long tsLong;
     String inComingValue;
-    private List<String> org_strList = new ArrayList<>();
+    String buffer;
+
+
 
     private void loadScenarioParameters() {
         commInfo_tv.setText("");
@@ -110,9 +113,9 @@ public class MainActivity extends Activity {
             commInfo_tv.append("Obstacle: " + obstacle_count + " x " + obstacle);
             commInfo_tv.append("\n");
         }
-        String humidity = pref_currentScenario_info.getString("humidity", null);
-        if (humidity != null) {
-            commInfo_tv.append("humidity=" + humidity);
+        String Humidity = pref_currentScenario_info.getString("Humidity", null);
+        if (Humidity != null) {
+            commInfo_tv.append("Humidity=" + Humidity+"%");
             commInfo_tv.append("\n");
         }
         String wifi_status = pref_currentScenario_info.getString("wifi_status", null);
@@ -380,7 +383,7 @@ public class MainActivity extends Activity {
         cal_BER_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                calculateBER();
+                BER();
             }
         });
         saveToDB_btn = findViewById(R.id.btn_saveToDB);
@@ -390,9 +393,45 @@ public class MainActivity extends Activity {
                 saveToDB();
             }
         });
+        get_humidity_btn=findViewById(R.id.get_humidity_btn);
+        get_humidity_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getHumidity();
+            }
+        });
         prepare_org_strList();
     }
 
+
+
+    private void getHumidity() {
+        if (tx == null) {
+            return;
+        }
+        sent_received_data_tv.setText("");
+        try {
+            Thread.sleep(150);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        String message = "%";
+        tx.setValue(message.getBytes(Charset.forName("UTF-8")));
+        if(bluetoothGatt.writeCharacteristic(tx)) {
+            input.getText().clear();
+        }
+        try {
+            Thread.sleep(150);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        String humidity = sent_received_data_tv.getText().toString().trim();
+        SharedPreferences.Editor editor = pref_currentScenario_info.edit();
+        editor.putString("Humidity",humidity);
+        editor.apply();
+        loadScenarioParameters(); //update scenario info and show Humidity
+        sent_received_data_tv.setText("");
+    }
 
 
     private void saveToDB() {
@@ -499,26 +538,31 @@ public class MainActivity extends Activity {
             super.onCharacteristicChanged(gatt, characteristic);
             //writeLine("#Received: " + characteristic.getStringValue(0))
             inComingValue = characteristic.getStringValue(0);
+            buffer = buffer + inComingValue;
             sent_received_data_tv.append(inComingValue);
         }
     };
 
     // Handler for mouse click on the send button.
     public void sendClick(){
+        //get message from input
         String message = input.getText().toString();
         if (tx == null || message.isEmpty()) {
             // Do nothing if there is no device or message to send.
             return;
         }
-        //send DATA_STRING_PING
+        //clear send and received data text view
         sent_received_data_tv.setText("");
-        if(message.trim().equals("p")){
+        buffer="";
+
+        //send DATA_STRING_PING
+        if(message.trim().equals("$")){
+            //get timeStamp:
             //tsLong = System.currentTimeMillis()/1000;
             tsLong = System.nanoTime();
-            //get timeStamp
             String ts = tsLong.toString();
             //writeLine("#Sending DATA_PING...");
-            //save timestamp to preferences
+            //save timestamp to preferences:
             SharedPreferences.Editor editor = pref_currentScenario_info.edit();
             editor.putString("TimeStamp",ts);
             editor.apply();
@@ -541,7 +585,11 @@ public class MainActivity extends Activity {
         }
     }
 
-    public void calculateBER(){
+
+
+
+    public void BER(){
+        //calculate bit errors:
         float rcv_ack = 0;
         String received_data = sent_received_data_tv.getText().toString().trim();
         List<String> rcv_strList = Arrays.asList(received_data.split("-"));
@@ -556,7 +604,11 @@ public class MainActivity extends Activity {
         editor.apply();
         loadScenarioParameters();
     }
-    
+
+
+
+
+
     // BLE device scanning callback.
     // run when a new device found in scanning.
     private LeScanCallback leScanCallback = new LeScanCallback() {
