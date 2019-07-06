@@ -64,12 +64,13 @@
                 android:id="@+id/send_buttons"
                 android:orientation="vertical">
                 <Button
+                    android:visibility="gone"
                     android:id="@+id/btn_sendATCommands"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="3dp"
                     android:textColor="#FFFFFF"
-                    android:text="@string/send_at_commands"
+                    android:text="Send AT-Commands"
                     android:textSize="12dp"/>
                 <TextView
                     android:text="$AT-Commands:"

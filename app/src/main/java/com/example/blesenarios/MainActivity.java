@@ -25,6 +25,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -94,54 +95,54 @@ public class MainActivity extends Activity {
         String PhoneManufacturer = pref_currentScenario_info.getString("PhoneManufacturer", null);
         String phoneBleVersion = pref_currentScenario_info.getString("phoneBleVersion",null);
         if (PhoneModel != null && PhoneManufacturer != null && phoneBleVersion!=null) {
-            commInfo_tv.append("Phone=" + PhoneModel+" "+"BLE "+phoneBleVersion+" "+PhoneManufacturer);
+            commInfo_tv.append(PhoneManufacturer+" "+PhoneModel+" "+"\nBLE Version:"+phoneBleVersion);
             commInfo_tv.append("\n");
         }
         String distance = pref_currentScenario_info.getString("distance", null);
         if (distance != null) {
-            commInfo_tv.append("Distance=" + distance);
+            commInfo_tv.append("Distance= " +distance+" meters");
             commInfo_tv.append("\n");
         }
         String inOut_door = pref_currentScenario_info.getString("inOut_door", null);
         if (inOut_door != null) {
-            commInfo_tv.append("Place=" + inOut_door);
+            commInfo_tv.append(inOut_door);
             commInfo_tv.append("\n");
         }
         String obstacle_count = pref_currentScenario_info.getString("obstacle_count", null);
         String obstacle = pref_currentScenario_info.getString("obstacle", null);
         if (obstacle_count != null && obstacle != null) {
-            commInfo_tv.append("Obstacle: " + obstacle_count + " x " + obstacle);
+            commInfo_tv.append(obstacle_count + "x " + obstacle);
             commInfo_tv.append("\n");
         }
         String Humidity = pref_currentScenario_info.getString("Humidity", null);
         if (Humidity != null) {
-            commInfo_tv.append("Humidity=" + Humidity+"%");
+            commInfo_tv.append("Humidity= " + Humidity);
             commInfo_tv.append("\n");
         }
         String wifi_status = pref_currentScenario_info.getString("wifi_status", null);
         if (wifi_status != null) {
-            commInfo_tv.append("Wi-Fi= " + wifi_status);
+            commInfo_tv.append("Wi-Fi: " + wifi_status);
             commInfo_tv.append("\n");
         }
         String ipv6_status = pref_currentScenario_info.getString("ipv6_status", null);
         if (ipv6_status != null) {
-            commInfo_tv.append("IP-v6= " + ipv6_status);
-            commInfo_tv.append("\n");
-        }
-        String moreExplanation = pref_currentScenario_info.getString("moreExplanation", null);
-        if (moreExplanation != null) {
-            commInfo_tv.append(moreExplanation);
-            commInfo_tv.append("\n");
-        }
-        String BER = pref_currentScenario_info.getString("BER",null);
-        if(BER != null){
-            commInfo_tv.append("BER = " + BER);
+            commInfo_tv.append("IP-v6: " + ipv6_status);
             commInfo_tv.append("\n");
         }
         String TS =pref_currentScenario_info.getString("TimeStamp",null);
         if(TS != null){
-            commInfo_tv.append("TimeStamp= " + TS);
+            commInfo_tv.append("ts:" + TS);
             commInfo_tv.append("\n");
+        }
+        String BER = pref_currentScenario_info.getString("BER",null);
+        if(BER != null){
+            commInfo_tv.append("BER= " + BER);
+            commInfo_tv.append("\n");
+        }
+        String moreExplanation = pref_currentScenario_info.getString("moreExplanation", null);
+        if (moreExplanation != null) {
+            commInfo_tv.append("Explanation: "+moreExplanation);
+            //commInfo_tv.append("\n");
         }
     }
     private void loadAtCommandsParameters() {
@@ -149,11 +150,6 @@ public class MainActivity extends Activity {
         if(pref_currentATCommands==null) {
             return;
         }
-//        String ModuleName = pref_currentATCommands.getString("ModuleName", null);
-//        if (ModuleName != null) {
-//            at_commands_tv.append(ModuleName);
-//            at_commands_tv.append("\n");
-//        }
         String CINT = pref_currentATCommands.getString("CINT", null);
         if (CINT != null) {
             at_commands_tv.append(CINT);
@@ -298,6 +294,8 @@ public class MainActivity extends Activity {
         org_strList.add("10000");
 
     }
+    private void saveToDB() {
+    }
 
 
 
@@ -306,6 +304,8 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+        //Prevent the keyboard from displaying on activity start:
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
         setContentView(R.layout.activity_main);
         setProgressBarIndeterminate(true);
         //handler for scanning timing delay
@@ -403,39 +403,6 @@ public class MainActivity extends Activity {
         prepare_org_strList();
     }
 
-
-
-    private void getHumidity() {
-        if (tx == null) {
-            return;
-        }
-        sent_received_data_tv.setText("");
-        try {
-            Thread.sleep(150);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        String message = "%";
-        tx.setValue(message.getBytes(Charset.forName("UTF-8")));
-        if(bluetoothGatt.writeCharacteristic(tx)) {
-            input.getText().clear();
-        }
-        try {
-            Thread.sleep(150);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        String humidity = sent_received_data_tv.getText().toString().trim();
-        SharedPreferences.Editor editor = pref_currentScenario_info.edit();
-        editor.putString("Humidity",humidity);
-        editor.apply();
-        loadScenarioParameters(); //update scenario info and show Humidity
-        sent_received_data_tv.setText("");
-    }
-
-
-    private void saveToDB() {
-    }
 
     private void cleanTextViewsAndPreferences() {
         commInfo_tv.setText("");
@@ -558,8 +525,8 @@ public class MainActivity extends Activity {
         //send DATA_STRING_PING
         if(message.trim().equals("$")){
             //get timeStamp:
-            //tsLong = System.currentTimeMillis()/1000;
-            tsLong = System.nanoTime();
+            tsLong = System.currentTimeMillis()/1000;
+            //tsLong = System.nanoTime();
             String ts = tsLong.toString();
             //writeLine("#Sending DATA_PING...");
             //save timestamp to preferences:
@@ -585,13 +552,13 @@ public class MainActivity extends Activity {
         }
     }
 
-
-
-
     public void BER(){
-        //calculate bit errors:
+        //calculate bit error rate(BER) after ping
+        if(buffer==null){
+            return;
+        }
         float rcv_ack = 0;
-        String received_data = sent_received_data_tv.getText().toString().trim();
+        String received_data = buffer;
         List<String> rcv_strList = Arrays.asList(received_data.split("-"));
         for(int i = 0; i< rcv_strList.size(); i++) {
             if(org_strList.contains(rcv_strList.get(i))){
@@ -601,13 +568,38 @@ public class MainActivity extends Activity {
         float BER = 1 - (rcv_ack/org_strList.size());
         SharedPreferences.Editor editor = pref_currentScenario_info.edit();
         editor.putString("BER",Float.toString(BER));
+        //editor.putString("TimeStamp",ts);
         editor.apply();
         loadScenarioParameters();
+//        //show buffer result:
+//        sent_received_data_tv.setText(buffer);
     }
 
-
-
-
+    private void getHumidity() {
+        if (tx == null) {
+            return;
+        }
+        buffer="";
+        //send request for humidity...
+        String message = "%";
+        tx.setValue(message.getBytes(Charset.forName("UTF-8")));
+        if(bluetoothGatt.writeCharacteristic(tx)) {
+            input.getText().clear();
+        }
+        //wait until respond received...
+        try {
+            Thread.sleep(150);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        //save respond to preference:
+        String humidity = buffer.trim()+"%";
+        SharedPreferences.Editor editor = pref_currentScenario_info.edit();
+        editor.putString("Humidity",humidity);
+        editor.apply();
+        loadScenarioParameters(); //update scenario info and show Humidity
+        sent_received_data_tv.setText("");
+    }
 
     // BLE device scanning callback.
     // run when a new device found in scanning.

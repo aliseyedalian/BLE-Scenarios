@@ -56,19 +56,18 @@ public class ScenarioInfoActivity extends AppCompatActivity {
         String wifi_status;
         String ipv6_status;
         if(wifi_cb.isChecked()){
-            wifi_status = "1";
+            wifi_status = "yes";
         } else{
-            wifi_status = "0";
+            wifi_status = "no";
         }
         if(ipv6_cb.isChecked()){
-            ipv6_status = "1";
+            ipv6_status = "yes";
         } else{
-            ipv6_status = "0";
+            ipv6_status = "no";
         }
 
         if(isValidParameters(distance,obstacle_count)){
             SharedPreferences.Editor editor = pref_currentScenario_info.edit();
-            editor.clear();
             editor.putString("phoneBleVersion",phoneBleVersion);
             editor.putString("distance",distance);
             editor.putString("obstacle_count",obstacle_count);
