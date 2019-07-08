@@ -1,0 +1,6 @@
+ObstacleType(obstacleId(p),obstacle);
+Phone(phoneId(p),phoneName,manufacturer,bleVersion);
+Module(moduleId(p),moduleName,bleVersion);
+Config(configId(p),cintMin,cintMax,rfpm,aint,ctout,led,baudRate,parity);
+ConfigModule(configId,moduleId);
+Scenario(scenId(p),moduleId,distance,place,obstacleNo,obstacleId,humidityPercent,wifi,ipv6,timeStamp,explanation)

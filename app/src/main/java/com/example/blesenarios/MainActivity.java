@@ -521,7 +521,6 @@ public class MainActivity extends Activity {
         //clear send and received data text view
         sent_received_data_tv.setText("");
         buffer="";
-
         //send DATA_STRING_PING
         if(message.trim().equals("$")){
             //get timeStamp:
