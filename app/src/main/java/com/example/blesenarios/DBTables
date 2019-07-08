@@ -1,6 +1,16 @@
 ObstacleType(obstacleId(p),obstacle);
-Phone(phoneId(p),phoneName,manufacturer,bleVersion);
+Phone(phoneId(p),phoneName,phoneManufacturer,phoneBLEVersion);
 Module(moduleId(p),moduleName,bleVersion);
-Config(configId(p),cintMin,cintMax,rfpm,aint,ctout,led,baudRate,parity);
+Config(configId(p),ATDEFAULT,cintMin,cintMax,rfpm,aint,ctout,led,baudRate,parity);
 ConfigModule(configId,moduleId);
-Scenario(scenId(p),moduleId,distance,place,obstacleNo,obstacleId,humidityPercent,wifi,ipv6,timeStamp,explanation)
+Scenario(scenId(p),moduleId,distance,place,obstacleNo,obstacleId,humidityPercent,wifi,ipv6,timeStamp,BER,explanation)
+
+
+obstacleId:
+(1,'LOS(Without Obstacles)')
+(2,'Glass')
+(3,'Wood')
+(4,'Metal')
+(5,'Brick')
+(6,'Concrete')
+(7,'Body')

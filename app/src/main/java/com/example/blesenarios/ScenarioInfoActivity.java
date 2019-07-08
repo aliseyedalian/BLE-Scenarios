@@ -21,9 +21,9 @@ public class ScenarioInfoActivity extends AppCompatActivity {
     String [] indoor_outdoor_list = {"Indoor","Outdoor"};
     Spinner obstacle_spinner;
     ArrayAdapter<String> obstacle_adapter;
-    String [] obstacle_list = {"LOS(No obstacle)","Glass","Wood","Metal","Concrete wall","Simple wall","Human Body"};
+    String [] obstacle_list = {"LOS(Without Obstacles)","Glass","Wood","Metal","Brick","Concrete","Body"};
     EditText input_distance;
-    EditText input_obstacle_count;
+    EditText input_obstacleNo;
     CheckBox wifi_cb;
     CheckBox ipv6_cb;
     Button save_btn;
@@ -47,50 +47,60 @@ public class ScenarioInfoActivity extends AppCompatActivity {
     }
 
     private void saveParameters() {
+        //save all input data in string data type:
         String phoneBleVersion = phoneBleVersion_spinner.getSelectedItem().toString().trim();
         String distance = input_distance.getText().toString().trim();
-        String obstacle_count = input_obstacle_count.getText().toString().trim();
-        String inOut_door = indoor_outdoor_spinner.getSelectedItem().toString().trim();
+        String obstacleNo = input_obstacleNo.getText().toString().trim();
         String obstacle = obstacle_spinner.getSelectedItem().toString().trim();
-        String moreExplanation = input_moreExplanation.getText().toString().trim();
-        String wifi_status;
-        String ipv6_status;
+        String place = indoor_outdoor_spinner.getSelectedItem().toString().trim();
+        String explanation = input_moreExplanation.getText().toString().trim();
+        String wifi;
+        String ipv6;
         if(wifi_cb.isChecked()){
-            wifi_status = "yes";
+            wifi = "Yes";
         } else{
-            wifi_status = "no";
+            wifi = "No";
         }
         if(ipv6_cb.isChecked()){
-            ipv6_status = "yes";
+            ipv6 = "Yes";
         } else{
-            ipv6_status = "no";
+            ipv6 = "No";
+        }
+        if(obstacle == "LOS(Without Obstacles)"){
+            obstacleNo="0";
         }
 
-        if(isValidParameters(distance,obstacle_count)){
+        if(isNotEmptyParameters(distance,obstacleNo,obstacle)){
             SharedPreferences.Editor editor = pref_currentScenario_info.edit();
+
+            editor.putString("phoneName",android.os.Build.MODEL);
+            editor.putString("phoneManufacturer", Build.MANUFACTURER);
             editor.putString("phoneBleVersion",phoneBleVersion);
             editor.putString("distance",distance);
-            editor.putString("obstacle_count",obstacle_count);
-            editor.putString("inOut_door",inOut_door);
+            editor.putString("place",place);
+            editor.putString("obstacleNo",obstacleNo);
             editor.putString("obstacle",obstacle);
-            editor.putString("wifi_status",wifi_status);
-            editor.putString("ipv6_status",ipv6_status);
-            editor.putString("PhoneModel",android.os.Build.MODEL);
-            editor.putString("PhoneManufacturer", Build.MANUFACTURER);
-            if(!moreExplanation.isEmpty()){
-                editor.putString("moreExplanation",moreExplanation);
-            }
+            editor.putString("wifi",wifi);
+            editor.putString("ipv6",ipv6);
+            editor.putString("explanation",explanation);
+
             editor.apply();
             finish();
         }
     }
 
-    private boolean isValidParameters(String distance, String obstacle_count) {
+    private boolean isNotEmptyParameters(String distance, String obstacle_count,String obstacle) {
         //check validation of inputs
-        if(distance.isEmpty() || obstacle_count.isEmpty()){
+        if(distance.isEmpty()){
+            input_distance.requestFocus();
             return false;
         }
-        return true;
+        else if(obstacle_count.isEmpty() && !obstacle.equals("LOS(Without Obstacles)")){
+            input_obstacleNo.requestFocus();
+            return false;
+        }else {
+            return true;
+        }
     }
     private void init() {
         phoneBleVersion_spinner = findViewById(R.id.phoneBleVersion);
@@ -110,7 +120,7 @@ public class ScenarioInfoActivity extends AppCompatActivity {
 
 
         input_distance = findViewById(R.id.distance);
-        input_obstacle_count=findViewById(R.id.obstacle_count);
+        input_obstacleNo =findViewById(R.id.obstacle_count);
         input_moreExplanation = findViewById(R.id.moreExplanation);
         wifi_cb =findViewById(R.id.wifi_cb);
         ipv6_cb =findViewById(R.id.ipv6_cb);

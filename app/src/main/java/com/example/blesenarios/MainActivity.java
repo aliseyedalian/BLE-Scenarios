@@ -49,7 +49,6 @@ public class MainActivity extends Activity {
     // UUID for the BLE client characteristic which is necessary for notifications:
     public static UUID CLIENT_UUID = UUID.fromString("00002902-0000-1000-8000-00805F9B34FB");
 
-
     //For Energy efficiency stops scanning after 7 seconds.
     private static final long SCAN_PERIOD = 7000;
     // UI elements:
@@ -70,7 +69,7 @@ public class MainActivity extends Activity {
     private Handler handler;
     private EditText input;
     TextView at_commands_tv;
-    TextView commInfo_tv;
+    TextView scenarioInfo_tv;
     TextView connectionStatus_tv;
     TextView sent_received_data_tv;
     Button clear_tv_btn;
@@ -85,112 +84,6 @@ public class MainActivity extends Activity {
     String buffer;
 
 
-
-    private void loadScenarioParameters() {
-        commInfo_tv.setText("");
-        if(pref_currentScenario_info==null){
-            return;
-        }
-        String PhoneModel = pref_currentScenario_info.getString("PhoneModel", null);
-        String PhoneManufacturer = pref_currentScenario_info.getString("PhoneManufacturer", null);
-        String phoneBleVersion = pref_currentScenario_info.getString("phoneBleVersion",null);
-        if (PhoneModel != null && PhoneManufacturer != null && phoneBleVersion!=null) {
-            commInfo_tv.append(PhoneManufacturer+" "+PhoneModel+" "+"\nBLE Version:"+phoneBleVersion);
-            commInfo_tv.append("\n");
-        }
-        String distance = pref_currentScenario_info.getString("distance", null);
-        if (distance != null) {
-            commInfo_tv.append("Distance= " +distance+" meters");
-            commInfo_tv.append("\n");
-        }
-        String inOut_door = pref_currentScenario_info.getString("inOut_door", null);
-        if (inOut_door != null) {
-            commInfo_tv.append(inOut_door);
-            commInfo_tv.append("\n");
-        }
-        String obstacle_count = pref_currentScenario_info.getString("obstacle_count", null);
-        String obstacle = pref_currentScenario_info.getString("obstacle", null);
-        if (obstacle_count != null && obstacle != null) {
-            commInfo_tv.append(obstacle_count + "x " + obstacle);
-            commInfo_tv.append("\n");
-        }
-        String Humidity = pref_currentScenario_info.getString("Humidity", null);
-        if (Humidity != null) {
-            commInfo_tv.append("Humidity= " + Humidity);
-            commInfo_tv.append("\n");
-        }
-        String wifi_status = pref_currentScenario_info.getString("wifi_status", null);
-        if (wifi_status != null) {
-            commInfo_tv.append("Wi-Fi: " + wifi_status);
-            commInfo_tv.append("\n");
-        }
-        String ipv6_status = pref_currentScenario_info.getString("ipv6_status", null);
-        if (ipv6_status != null) {
-            commInfo_tv.append("IP-v6: " + ipv6_status);
-            commInfo_tv.append("\n");
-        }
-        String TS =pref_currentScenario_info.getString("TimeStamp",null);
-        if(TS != null){
-            commInfo_tv.append("ts:" + TS);
-            commInfo_tv.append("\n");
-        }
-        String BER = pref_currentScenario_info.getString("BER",null);
-        if(BER != null){
-            commInfo_tv.append("BER= " + BER);
-            commInfo_tv.append("\n");
-        }
-        String moreExplanation = pref_currentScenario_info.getString("moreExplanation", null);
-        if (moreExplanation != null) {
-            commInfo_tv.append("Explanation: "+moreExplanation);
-            //commInfo_tv.append("\n");
-        }
-    }
-    private void loadAtCommandsParameters() {
-        at_commands_tv.setText("");
-        if(pref_currentATCommands==null) {
-            return;
-        }
-        String CINT = pref_currentATCommands.getString("CINT", null);
-        if (CINT != null) {
-            at_commands_tv.append(CINT);
-            at_commands_tv.append("\n");
-        }
-        String RFPM = pref_currentATCommands.getString("RFPM", null);
-        if (RFPM != null) {
-            at_commands_tv.append(RFPM);
-            at_commands_tv.append("\n");
-        }
-        String AINT = pref_currentATCommands.getString("AINT", null);
-        if (AINT != null) {
-            at_commands_tv.append(AINT);
-            at_commands_tv.append("\n");
-        }
-        String CTOUT = pref_currentATCommands.getString("CTOUT", null);
-        if (CTOUT != null) {
-            at_commands_tv.append(CTOUT);
-            at_commands_tv.append("\n");
-        }
-        String Baud = pref_currentATCommands.getString("Baud", null);
-        if (Baud != null) {
-            at_commands_tv.append(Baud);
-            at_commands_tv.append("\n");
-        }
-        String Uart = pref_currentATCommands.getString("Uart", null);
-        if (Uart != null) {
-            at_commands_tv.append(Uart);
-            at_commands_tv.append("\n");
-        }
-        String LED = pref_currentATCommands.getString("LED", null);
-        if (LED != null) {
-            at_commands_tv.append(LED);
-            at_commands_tv.append("\n");
-        }
-        String RestoreFactory = pref_currentATCommands.getString("RestoreFactory", null);
-        if (RestoreFactory != null) {
-            at_commands_tv.append(RestoreFactory);
-            at_commands_tv.append("\n");
-        }
-    }
     private void prepare_org_strList() {
         org_strList.add("salam");
         org_strList.add("golab");
@@ -294,7 +187,124 @@ public class MainActivity extends Activity {
         org_strList.add("10000");
 
     }
+
+
+    private void loadScenarioInformation() {
+        scenarioInfo_tv.setText("");
+        if(pref_currentScenario_info==null){
+            return;
+        }
+        //obtain parameters from preferences
+        String phoneName = pref_currentScenario_info.getString("phoneName", null);
+        String phoneManufacturer = pref_currentScenario_info.getString("phoneManufacturer", null);
+        String phoneBleVersion = pref_currentScenario_info.getString("phoneBleVersion",null);
+        String distance = pref_currentScenario_info.getString("distance", null);
+        String place = pref_currentScenario_info.getString("place", null); //indoor/outdoor
+        String obstacleNo = pref_currentScenario_info.getString("obstacleNo", null);
+        String obstacle = pref_currentScenario_info.getString("obstacle", null);
+        String wifi = pref_currentScenario_info.getString("wifi", null);
+        String ipv6 = pref_currentScenario_info.getString("ipv6", null);
+        String explanation = pref_currentScenario_info.getString("explanation", null);
+        String humidityPercent = pref_currentScenario_info.getString("humidityPercent", null);
+        String timeStamp =pref_currentScenario_info.getString("timeStamp",null);
+        String BER = pref_currentScenario_info.getString("BER",null);
+        //show parameters in scenarioInfo textView
+        if (phoneName != null && phoneManufacturer != null && phoneBleVersion!=null) {
+            scenarioInfo_tv.append(phoneManufacturer+" "+phoneName+" "+"\nBLE Version: "+phoneBleVersion);
+            scenarioInfo_tv.append("\n");
+        }
+        if (distance != null) {
+            scenarioInfo_tv.append("distance(meters)= " +distance);
+            scenarioInfo_tv.append("\n");
+        }
+        if (place != null) {
+            scenarioInfo_tv.append(place);
+            scenarioInfo_tv.append("\n");
+        }
+        if (obstacleNo != null && obstacle != null) {
+            scenarioInfo_tv.append(obstacleNo + "x " + obstacle);
+            scenarioInfo_tv.append("\n");
+        }
+        if (humidityPercent != null) {
+            scenarioInfo_tv.append("humidityPercent= " + humidityPercent);
+            scenarioInfo_tv.append("\n");
+        }
+        if (wifi != null) {
+            scenarioInfo_tv.append("Wi-Fi: " + wifi);
+            scenarioInfo_tv.append("\n");
+        }
+        if (ipv6 != null) {
+            scenarioInfo_tv.append("ipv6: " + ipv6);
+            scenarioInfo_tv.append("\n");
+        }
+        if(timeStamp != null){
+            scenarioInfo_tv.append("timeStamp:" + timeStamp);
+            scenarioInfo_tv.append("\n");
+        }
+        if(BER != null){
+            scenarioInfo_tv.append("BER= " + BER);
+            scenarioInfo_tv.append("\n");
+        }
+        if (explanation != null) {
+            scenarioInfo_tv.append("explanation: "+explanation);
+        }
+    }
+    private void loadAtCommandsParameters() {
+        at_commands_tv.setText("");
+        if(pref_currentATCommands==null) {
+            return;
+        }
+        //get at commands parameters from preference:
+        String ATDEFAULT = pref_currentATCommands.getString("ATDEFAULT", null);
+        String cintMin = pref_currentATCommands.getString("cintMin", null);
+        String cintMax = pref_currentATCommands.getString("cintMax", null);
+        String rfpm = pref_currentATCommands.getString("rfpm", null);
+        String aint = pref_currentATCommands.getString("aint", null);
+        String ctout = pref_currentATCommands.getString("ctout", null);
+        String baudRate = pref_currentATCommands.getString("baudRate", null);
+        String parity = pref_currentATCommands.getString("parity", null);
+        String led = pref_currentATCommands.getString("led", null);
+
+        //show at commands parameters in at_commands_tv textView
+        if (ATDEFAULT != null) {
+            at_commands_tv.append("ATDEFAULT: "+ATDEFAULT);
+            at_commands_tv.append("\n");
+        }
+        if (cintMin != null) {
+            at_commands_tv.append("cintMin: "+cintMin);
+            at_commands_tv.append("\n");
+        }
+        if (cintMax != null) {
+            at_commands_tv.append("cintMax: "+cintMax);
+            at_commands_tv.append("\n");
+        }
+        if (rfpm != null) {
+            at_commands_tv.append("rfpm: "+rfpm);
+            at_commands_tv.append("\n");
+        }
+        if (aint != null) {
+            at_commands_tv.append("aint: "+aint);
+            at_commands_tv.append("\n");
+        }
+        if (ctout != null) {
+            at_commands_tv.append("ctout: "+ctout);
+            at_commands_tv.append("\n");
+        }
+        if (baudRate != null) {
+            at_commands_tv.append("baudRate: "+baudRate);
+            at_commands_tv.append("\n");
+        }
+        if (parity != null) {
+            at_commands_tv.append("parity: "+parity);
+            at_commands_tv.append("\n");
+        }
+        if (led != null) {
+            at_commands_tv.append("led: "+led);
+            at_commands_tv.append("\n");
+        }
+    }
     private void saveToDB() {
+        myDb.insertSenario();
     }
 
 
@@ -359,7 +369,7 @@ public class MainActivity extends Activity {
         bluetoothAdapter = bluetoothManager.getAdapter();
         //---get Parameters from Transmission and communication info activities and show---//
         at_commands_tv = findViewById(R.id.at_commands_tv);
-        commInfo_tv = findViewById(R.id.comm_info_tv);
+        scenarioInfo_tv = findViewById(R.id.comm_info_tv);
         connectionStatus_tv = findViewById(R.id.connection_status);
         sent_received_data_tv = findViewById(R.id.recv_tv);
         clear_tv_btn = findViewById(R.id.clear_tv_btn);
@@ -403,20 +413,6 @@ public class MainActivity extends Activity {
         prepare_org_strList();
     }
 
-
-    private void cleanTextViewsAndPreferences() {
-        commInfo_tv.setText("");
-        at_commands_tv.setText("");
-        sent_received_data_tv.setText("");
-        SharedPreferences.Editor editor1;
-        editor1 = pref_currentATCommands.edit();
-        editor1.clear();
-        editor1.apply();
-        SharedPreferences.Editor editor2;
-        editor2 = pref_currentScenario_info.edit();
-        editor2.clear();
-        editor2.apply();
-    }
 
 
     // Main BTLE device callback where much of the logic occurs.
@@ -523,17 +519,16 @@ public class MainActivity extends Activity {
         buffer="";
         //send DATA_STRING_PING
         if(message.trim().equals("$")){
-            //get timeStamp:
+            //getting timeStamp:
             tsLong = System.currentTimeMillis()/1000;
             //tsLong = System.nanoTime();
             String ts = tsLong.toString();
             //writeLine("#Sending DATA_PING...");
             //save timestamp to preferences:
             SharedPreferences.Editor editor = pref_currentScenario_info.edit();
-            editor.putString("TimeStamp",ts);
+            editor.putString("timeStamp",ts);
             editor.apply();
-            loadScenarioParameters(); //update scenario info and show TimeStamp
-
+            loadScenarioInformation(); //update scenario info and show timeStamp
             tx.setValue(message.getBytes(Charset.forName("UTF-8")));
             if(bluetoothGatt.writeCharacteristic(tx)) {
                 input.getText().clear();
@@ -569,7 +564,7 @@ public class MainActivity extends Activity {
         editor.putString("BER",Float.toString(BER));
         //editor.putString("TimeStamp",ts);
         editor.apply();
-        loadScenarioParameters();
+        loadScenarioInformation();
 //        //show buffer result:
 //        sent_received_data_tv.setText(buffer);
     }
@@ -579,7 +574,7 @@ public class MainActivity extends Activity {
             return;
         }
         buffer="";
-        //send request for humidity...
+        //send request for humidityPercent...
         String message = "%";
         tx.setValue(message.getBytes(Charset.forName("UTF-8")));
         if(bluetoothGatt.writeCharacteristic(tx)) {
@@ -592,11 +587,11 @@ public class MainActivity extends Activity {
             e.printStackTrace();
         }
         //save respond to preference:
-        String humidity = buffer.trim()+"%";
+        String humidityPercent = buffer.trim()+"%";
         SharedPreferences.Editor editor = pref_currentScenario_info.edit();
-        editor.putString("Humidity",humidity);
+        editor.putString("humidityPercent",humidityPercent);
         editor.apply();
-        loadScenarioParameters(); //update scenario info and show Humidity
+        loadScenarioInformation(); //update scenario info and show Humidity
         sent_received_data_tv.setText("");
     }
 
@@ -659,7 +654,19 @@ public class MainActivity extends Activity {
             setProgressBarIndeterminateVisibility(false);
         }
     }
-
+    private void cleanTextViewsAndPreferences() {
+        scenarioInfo_tv.setText("");
+        at_commands_tv.setText("");
+        sent_received_data_tv.setText("");
+        SharedPreferences.Editor editor1;
+        editor1 = pref_currentATCommands.edit();
+        editor1.clear();
+        editor1.apply();
+        SharedPreferences.Editor editor2;
+        editor2 = pref_currentScenario_info.edit();
+        editor2.clear();
+        editor2.apply();
+    }
     // Write some text to the messages text view.
     private void writeLine(final String text) {
         runOnUiThread(new Runnable() {
@@ -724,7 +731,7 @@ public class MainActivity extends Activity {
             Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(intent,REQ_ENABLE_BT);
         }
-        loadScenarioParameters();
+        loadScenarioInformation();
         loadAtCommandsParameters();
         if(device != null){
             bluetoothGatt = device.connectGatt(MainActivity.this, true, gattCallback);

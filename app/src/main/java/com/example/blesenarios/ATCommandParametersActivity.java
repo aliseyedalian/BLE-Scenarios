@@ -29,7 +29,7 @@ public class ATCommandParametersActivity extends AppCompatActivity {
     EditText input_AINT;
     EditText input_CTOUT;
     CheckBox cb_LED;
-    CheckBox cb_factorySetting;
+    CheckBox cb_ATDEFAULT;
     SharedPreferences pref_currentATCommands;
     TextView deviceName_tv;
     @Override
@@ -45,56 +45,58 @@ public class ATCommandParametersActivity extends AppCompatActivity {
     }
 
     private void save_parameters() {
-        if(!cb_factorySetting.isChecked()){
+        if(!cb_ATDEFAULT.isChecked()){
             //obtain new parameters
-            String CINT_MAX = input_CINT_MAX.getText().toString().trim();
-            String CINT_MIN = input_CINT_MIN.getText().toString().trim();
-            String RFPM = input_RFPM.getText().toString().trim();
-            String AINT = input_AINT.getText().toString().trim();
-            String CTOUT= input_CTOUT.getText().toString().trim();
-            String BaudRate = baud_rate_spinner.getSelectedItem().toString().trim();
-            String Parity = parity_spinner.getSelectedItem().toString().trim();
+            String cintMin = input_CINT_MIN.getText().toString().trim();
+            String cintMax = input_CINT_MAX.getText().toString().trim();
+            String rfpm = input_RFPM.getText().toString().trim();
+            String aint = input_AINT.getText().toString().trim();
+            String ctout= input_CTOUT.getText().toString().trim();
+            String baudRate = baud_rate_spinner.getSelectedItem().toString().trim();
+            String parity = parity_spinner.getSelectedItem().toString().trim();
 
-            String LED;
-            switch (Parity){
-                case "No Parity":
-                    Parity = "N";
+            String led;
+            switch (parity){
+                case "No parity":
+                    parity = "N";
                     break;
-                case "Odd Parity":
-                    Parity = "O";
+                case "Odd parity":
+                    parity = "O";
                     break;
-                case "Even Parity":
-                    Parity = "E";
+                case "Even parity":
+                    parity = "E";
                     break;
                 default:
-                    Parity = "N";
+                    parity = "N";
                     break;
             }
             if(cb_LED.isChecked()){
-                LED = "1";
+                led = "ON";
             }else {
-                LED = "0";
+                led = "OFF";
             }
             //send new parameters
-            if(isValidParameters(CINT_MIN,CINT_MAX,RFPM,AINT,CTOUT)){
+            if(isValidParameters(cintMin,cintMax,rfpm,aint,ctout)){
                 SharedPreferences.Editor editor = pref_currentATCommands.edit();
                 editor.clear();
-                //editor.putString("Module",Module);
-                editor.putString("CINT","AT+CINT="+CINT_MIN+","+CINT_MAX);
-                editor.putString("RFPM","AT+RFPM="+RFPM);
-                editor.putString("AINT","AT+AINT="+AINT);
-                editor.putString("CTOUT","AT+CTOUT="+CTOUT);
-                editor.putString("Baud" , "AT+BAUD="+BaudRate+","+Parity);//AT+BAUD=x,y for hc-08 --> y is parity bit
-                editor.putString("Uart","AT+UART="+BaudRate); //hc-42
-                editor.putString("LED","AT+LED="+LED);
+                editor.putString("ATDEFAULT","No");
+                editor.putString("cintMin",cintMin);
+                editor.putString("cintMax",cintMax);
+                editor.putString("rfpm",rfpm);
+                editor.putString("aint",aint);
+                editor.putString("ctout",ctout);
+                editor.putString("baudRate",baudRate);
+                editor.putString("parity",parity);
+                editor.putString("led",led);
                 editor.apply();
                 finish();
             }
-        }else{
-            //send restore factory setting
+        }
+        else{
+            //send restore DEFAULT setting --> AT+DEFAULT
             SharedPreferences.Editor editor = pref_currentATCommands.edit();
             editor.clear();
-            editor.putString("RestoreFactory","AT+DEFAULT");
+            editor.putString("ATDEFAULT","Yes");
             editor.apply();
             finish();
         }
@@ -201,8 +203,8 @@ public class ATCommandParametersActivity extends AppCompatActivity {
         baud_rate_spinner.setAdapter(baud_rate_adapter);
 
         cb_LED = findViewById(R.id.LED);
-        cb_factorySetting = findViewById(R.id.checkbox_factorySetting);
-        cb_factorySetting.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        cb_ATDEFAULT = findViewById(R.id.checkbox_factorySetting);
+        cb_ATDEFAULT.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
                 if(isChecked){

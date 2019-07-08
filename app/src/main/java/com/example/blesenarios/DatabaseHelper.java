@@ -1,5 +1,6 @@
 package com.example.blesenarios;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -16,9 +17,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         createTables(sqLiteDatabase);
-        insertDataToTables(sqLiteDatabase);
-
+        insertObstacleTypeData();
     }
+
+
+
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
         sqLiteDatabase.execSQL("drop table if exists ObstacleType");
@@ -27,16 +30,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL("drop table if exists Config");
         sqLiteDatabase.execSQL("drop table if exists ConfigModule");
         sqLiteDatabase.execSQL("drop table if exists Scenario");
+
         onCreate(sqLiteDatabase);
     }
 
-//
+
 //    boolean insertInto(String fname, String lname, int mark){
 //        ContentValues contentValues = new ContentValues();
 //        contentValues.put(COL_2,fname);
 //        contentValues.put(COL_3,lname);
 //        contentValues.put(COL_4,mark);
-//        long result = db.insert(TABLE_NAME,null,contentValues);
+//        long result = mydb.insert("ObstacleType",null,contentValues);
 //        return result != -1;
 //    }
 
@@ -51,17 +55,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         );
         sqLiteDatabase.execSQL("create table Phone"+
                 "(phoneId integer primary key autoincrement," +
-                "phoneName varchar(20)," +
-                "manufacturer varchar(20)," +
-                "bleVersion varchar(20))"
+                "phoneName varchar(20) not null default 'unknown'," +
+                "manufacturer varchar(20) not null default 'unknown'," +
+                "bleVersion varchar(20) not null default 'unknown') "
         );
         sqLiteDatabase.execSQL("create table Module"+
                 "(moduleId integer primary key autoincrement," +
-                "moduleName varchar(20)," +
-                "bleVersion varchar(20))"
+                "moduleName varchar(20) not null default 'unknown'," +
+                "bleVersion varchar(20) not null default 'unknown')"
         );
         sqLiteDatabase.execSQL("create table Config"+
                 "(configId intiger primary key autoincrement," +
+                "ATDEFAULT varchar(20) default 'No'," +
                 "cintMin integer," +
                 "cintMax integer," +
                 "rfpm integer," +
@@ -75,8 +80,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "(configId intiger," +
                 "moduleId integer," +
                 "PRIMARY KEY (configId,moduleId)," +
-                "FOREIGN KEY (configId) REFERENCES Config(configId)," +
-                "FOREIGN KEY (moduleId) REFERENCES Module(moduleId))"
+                "FOREIGN KEY (configId) REFERENCES Config(configId)" +
+                "ON UPDATE CASCADE ON DELETE CASCADE," +
+                "FOREIGN KEY (moduleId) REFERENCES Module(moduleId)" +
+                "ON UPDATE CASCADE ON DELETE CASCADE)"
         );
         sqLiteDatabase.execSQL("create table Scenario"+
                 "(scenId intiger primary key autoincrement," +
@@ -89,14 +96,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "wifi varchar(5)," +
                 "ipv6 varchar(5)," +
                 "timeStamp integer," +
+                "ber real," +
                 "explanation varchar(50)," +
-                "FOREIGN KEY (moduleId) REFERENCES Module(moduleId),"+
-                "FOREIGN KEY (obstacleId) REFERENCES ObstacleType(obstacleId))"
+                "FOREIGN KEY (moduleId) REFERENCES Module(moduleId)" +
+                "ON UPDATE CASCADE ON DELETE CASCADE ,"+
+                "FOREIGN KEY (obstacleId) REFERENCES ObstacleType(obstacleId)" +
+                "ON UPDATE CASCADE ON DELETE CASCADE)"
         );
     }
-    private void insertDataToTables(SQLiteDatabase sqLiteDatabase) {
-        sqLiteDatabase.execSQL("insert into ObstacleType values "
-        );
+    private void insertObstacleTypeData() {
+        mydb.execSQL("insert into ObstacleType(obstacleId,obstacle) values(1,'LOS:Without Obstacles')");
+        mydb.execSQL("insert into ObstacleType(obstacleId,obstacle) values(2,'Glass')");
+        mydb.execSQL("insert into ObstacleType(obstacleId,obstacle) values(3,'Wood')");
+        mydb.execSQL("insert into ObstacleType(obstacleId,obstacle) values(4,'Metal')");
+        mydb.execSQL("insert into ObstacleType(obstacleId,obstacle) values(5,'Brick')");
+        mydb.execSQL("insert into ObstacleType(obstacleId,obstacle) values(6,'Concrete')");
+        mydb.execSQL("insert into ObstacleType(obstacleId,obstacle) values(7,'Body')");
     }
-
 }
