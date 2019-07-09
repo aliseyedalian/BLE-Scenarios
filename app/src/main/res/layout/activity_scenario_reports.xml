@@ -1,9 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ScenariosReports">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="5dp"
+        android:orientation="vertical"
+        tools:ignore="MissingConstraints">
+        <!-- Title -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:text="Scenarios Reports"
+            android:textColor="#FFFF00"
+            android:textStyle="bold"
+            android:textSize="20sp"
+            android:layout_marginTop="5dp"
+            tools:ignore="MissingConstraints" />
+        <!-- Line -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:layout_marginTop="2dp"
+            android:background="#FFFFFF"
+            />
+        <Button
+            android:id="@+id/phoneTable_btn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Show Phone Table"/>
+    </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

@@ -21,6 +21,7 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AlertDialog;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -208,7 +209,7 @@ public class MainActivity extends Activity {
         String explanation = pref_currentScenario_info.getString("explanation", null);
         String humidityPercent = pref_currentScenario_info.getString("humidityPercent", null);
         String timeStamp =pref_currentScenario_info.getString("timeStamp",null);
-        String BER = pref_currentScenario_info.getString("BER",null);
+        String ber = pref_currentScenario_info.getString("ber",null);
         //show parameters in scenarioInfo textView
         if (phoneName != null && phoneManufacturer != null && phoneBLEVersion!=null) {
             scenarioInfo_tv.append(phoneManufacturer+" "+phoneName+" "+"\nBLE Version: "+phoneBLEVersion);
@@ -242,8 +243,8 @@ public class MainActivity extends Activity {
             scenarioInfo_tv.append("timeStamp:" + timeStamp);
             scenarioInfo_tv.append("\n");
         }
-        if(BER != null){
-            scenarioInfo_tv.append("BER= " + BER);
+        if(ber != null){
+            scenarioInfo_tv.append("ber= " + ber);
             scenarioInfo_tv.append("\n");
         }
         if (explanation != null) {
@@ -256,6 +257,8 @@ public class MainActivity extends Activity {
             return;
         }
         //get at commands parameters from preference:
+        String moduleName = pref_currentATCommands.getString("moduleName", null);
+        String moduleBLEVersion = pref_currentATCommands.getString("moduleBLEVersion",null);
         String ATDEFAULT = pref_currentATCommands.getString("ATDEFAULT", null);
         String cintMin = pref_currentATCommands.getString("cintMin", null);
         String cintMax = pref_currentATCommands.getString("cintMax", null);
@@ -267,6 +270,14 @@ public class MainActivity extends Activity {
         String led = pref_currentATCommands.getString("led", null);
 
         //show at commands parameters in at_commands_tv textView
+        if (moduleName != null) {
+            at_commands_tv.append("moduleName: "+moduleName);
+            at_commands_tv.append("\n");
+        }
+        if (moduleBLEVersion != null) {
+            at_commands_tv.append("moduleBLEVersion: "+moduleBLEVersion);
+            at_commands_tv.append("\n");
+        }
         if (ATDEFAULT != null) {
             at_commands_tv.append("ATDEFAULT: "+ATDEFAULT);
             at_commands_tv.append("\n");
@@ -318,7 +329,7 @@ public class MainActivity extends Activity {
         String explanation = pref_currentScenario_info.getString("explanation", null);
         String humidityPercent = pref_currentScenario_info.getString("humidityPercent", null);
         String timeStamp =pref_currentScenario_info.getString("timeStamp",null);
-        String BER = pref_currentScenario_info.getString("BER",null);
+        String ber = pref_currentScenario_info.getString("ber",null);
         String ATDEFAULT = pref_currentATCommands.getString("ATDEFAULT", null);
         String cintMin = pref_currentATCommands.getString("cintMin", null);
         String cintMax = pref_currentATCommands.getString("cintMax", null);
@@ -328,32 +339,19 @@ public class MainActivity extends Activity {
         String baudRate = pref_currentATCommands.getString("baudRate", null);
         String parity = pref_currentATCommands.getString("parity", null);
         String led = pref_currentATCommands.getString("led", null);
-        String moduleName="";
-        String moduleBLEVersion="";
-        if(device!=null){
-            moduleName = device.getName();
-            switch(moduleName) {
-                case("HC-42"):
-                    moduleBLEVersion = "v5.0";
-                case("HC-08"):
-                    moduleBLEVersion = "v4.0";
-                default:
-                    moduleBLEVersion = "unKnown";
-            }
-        }
+        String moduleName = pref_currentATCommands.getString("moduleName", null);
+        String moduleBLEVersion = pref_currentATCommands.getString("moduleBLEVersion",null);
+
         if(isValidScenario()){
-            if (!databaseHelper.insertNewScenario(phoneName,phoneManufacturer,phoneBLEVersion,
-                    moduleName,moduleBLEVersion,
-                    ATDEFAULT,cintMin,cintMax,rfpm,aint,ctout,led,baudRate,parity,
-                    distance,place,obstacleNo,obstacle,humidityPercent,wifi,ipv6,timeStamp,BER,explanation)) {
+            if (!databaseHelper.insertNewScenario(phoneName,phoneManufacturer,phoneBLEVersion,moduleName,moduleBLEVersion,
+                    ATDEFAULT,cintMin,cintMax,rfpm,aint,ctout,led,baudRate,parity,distance,place,obstacleNo,obstacle,humidityPercent,
+                    wifi,ipv6,timeStamp,ber,explanation)) {
                 sent_received_data_tv.setText("Failed to insert new scenario!");
             }else {
                 sent_received_data_tv.setText("Scenario saved successfully!");
             }
         }
-
     }
-
     private boolean isValidScenario() {
         return true;
     }
@@ -391,8 +389,19 @@ public class MainActivity extends Activity {
                 writeLine("#"+discoveredBluetoothDevice.get(position).getName()+" scenario:");
                 device = discoveredBluetoothDevice.get(position);
                 SharedPreferences.Editor editor = pref_currentATCommands.edit();
-                editor.putString("ModuleName",device.getName());
+                String moduleName = device.getName();
+                String moduleBLEVersion;
+                if(moduleName.contains("42")) //HC-42
+                    moduleBLEVersion = "v5.0";
+                else if(moduleName.contains("8")) //HC-08
+                    moduleBLEVersion = "v4.0";
+                else
+                    moduleBLEVersion="unKnown";
+
+                editor.putString("moduleName",moduleName);
+                editor.putString("moduleBLEVersion",moduleBLEVersion);
                 editor.apply();
+                showAtCommandsParameters();
                 /*
                 make a connection with the device using the special LE-specific
                 connectGatt() method,passing in a callback for GATT events
@@ -612,7 +621,7 @@ public class MainActivity extends Activity {
         }
         float BER = 1 - (rcv_ack/org_strList.size());
         SharedPreferences.Editor editor = pref_currentScenario_info.edit();
-        editor.putString("BER",Float.toString(BER));
+        editor.putString("ber",Float.toString(BER));
         //editor.putString("TimeStamp",ts);
         editor.apply();
         showScenarioInformation();
