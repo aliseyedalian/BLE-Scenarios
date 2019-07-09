@@ -16,9 +16,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".ScenariosReports"></activity>
         <activity
             android:name=".ScenarioInfoActivity"
-            android:theme="@style/Theme.AppCompat"></activity>
+            android:theme="@style/Theme.AppCompat" />
         <activity
             android:name=".ATCommandParametersActivity"
             android:theme="@style/Theme.AppCompat" />

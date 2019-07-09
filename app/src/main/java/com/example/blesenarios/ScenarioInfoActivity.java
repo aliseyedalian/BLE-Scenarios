@@ -48,7 +48,7 @@ public class ScenarioInfoActivity extends AppCompatActivity {
 
     private void saveParameters() {
         //save all input data in string data type:
-        String phoneBleVersion = phoneBleVersion_spinner.getSelectedItem().toString().trim();
+        String phoneBLEVersion = phoneBleVersion_spinner.getSelectedItem().toString().trim();
         String distance = input_distance.getText().toString().trim();
         String obstacleNo = input_obstacleNo.getText().toString().trim();
         String obstacle = obstacle_spinner.getSelectedItem().toString().trim();
@@ -75,7 +75,7 @@ public class ScenarioInfoActivity extends AppCompatActivity {
 
             editor.putString("phoneName",android.os.Build.MODEL);
             editor.putString("phoneManufacturer", Build.MANUFACTURER);
-            editor.putString("phoneBleVersion",phoneBleVersion);
+            editor.putString("phoneBLEVersion",phoneBLEVersion);
             editor.putString("distance",distance);
             editor.putString("place",place);
             editor.putString("obstacleNo",obstacleNo);

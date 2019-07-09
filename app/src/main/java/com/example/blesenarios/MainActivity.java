@@ -46,7 +46,7 @@ public class MainActivity extends Activity {
     public static UUID UART_UUID = UUID.fromString("0000FFE0-0000-1000-8000-00805F9B34FB");
     public static UUID TX_UUID = UUID.fromString("0000FFE1-0000-1000-8000-00805F9B34FB");
     public static UUID RX_UUID = UUID.fromString("0000FFE1-0000-1000-8000-00805F9B34FB");
-    // UUID for the BLE client characteristic which is necessary for notifications:
+    //UUID for the BLE client characteristic,necessary for notifications:
     public static UUID CLIENT_UUID = UUID.fromString("00002902-0000-1000-8000-00805F9B34FB");
 
     //For Energy efficiency stops scanning after 7 seconds.
@@ -82,6 +82,7 @@ public class MainActivity extends Activity {
     Long tsLong;
     String inComingValue;
     String buffer;
+    DatabaseHelper databaseHelper;
 
 
     private void prepare_org_strList() {
@@ -189,7 +190,7 @@ public class MainActivity extends Activity {
     }
 
 
-    private void loadScenarioInformation() {
+    private void showScenarioInformation() {
         scenarioInfo_tv.setText("");
         if(pref_currentScenario_info==null){
             return;
@@ -197,7 +198,7 @@ public class MainActivity extends Activity {
         //obtain parameters from preferences
         String phoneName = pref_currentScenario_info.getString("phoneName", null);
         String phoneManufacturer = pref_currentScenario_info.getString("phoneManufacturer", null);
-        String phoneBleVersion = pref_currentScenario_info.getString("phoneBleVersion",null);
+        String phoneBLEVersion = pref_currentScenario_info.getString("phoneBLEVersion",null);
         String distance = pref_currentScenario_info.getString("distance", null);
         String place = pref_currentScenario_info.getString("place", null); //indoor/outdoor
         String obstacleNo = pref_currentScenario_info.getString("obstacleNo", null);
@@ -209,8 +210,8 @@ public class MainActivity extends Activity {
         String timeStamp =pref_currentScenario_info.getString("timeStamp",null);
         String BER = pref_currentScenario_info.getString("BER",null);
         //show parameters in scenarioInfo textView
-        if (phoneName != null && phoneManufacturer != null && phoneBleVersion!=null) {
-            scenarioInfo_tv.append(phoneManufacturer+" "+phoneName+" "+"\nBLE Version: "+phoneBleVersion);
+        if (phoneName != null && phoneManufacturer != null && phoneBLEVersion!=null) {
+            scenarioInfo_tv.append(phoneManufacturer+" "+phoneName+" "+"\nBLE Version: "+phoneBLEVersion);
             scenarioInfo_tv.append("\n");
         }
         if (distance != null) {
@@ -249,7 +250,7 @@ public class MainActivity extends Activity {
             scenarioInfo_tv.append("explanation: "+explanation);
         }
     }
-    private void loadAtCommandsParameters() {
+    private void showAtCommandsParameters() {
         at_commands_tv.setText("");
         if(pref_currentATCommands==null) {
             return;
@@ -303,10 +304,59 @@ public class MainActivity extends Activity {
             at_commands_tv.append("\n");
         }
     }
+
     private void saveToDB() {
-        myDb.insertSenario();
+        String phoneName = pref_currentScenario_info.getString("phoneName", null);
+        String phoneManufacturer = pref_currentScenario_info.getString("phoneManufacturer", null);
+        String phoneBLEVersion = pref_currentScenario_info.getString("phoneBLEVersion",null);
+        String distance = pref_currentScenario_info.getString("distance", null);
+        String place = pref_currentScenario_info.getString("place", null); //indoor/outdoor
+        String obstacleNo = pref_currentScenario_info.getString("obstacleNo", null);
+        String obstacle = pref_currentScenario_info.getString("obstacle", null);
+        String wifi = pref_currentScenario_info.getString("wifi", null);
+        String ipv6 = pref_currentScenario_info.getString("ipv6", null);
+        String explanation = pref_currentScenario_info.getString("explanation", null);
+        String humidityPercent = pref_currentScenario_info.getString("humidityPercent", null);
+        String timeStamp =pref_currentScenario_info.getString("timeStamp",null);
+        String BER = pref_currentScenario_info.getString("BER",null);
+        String ATDEFAULT = pref_currentATCommands.getString("ATDEFAULT", null);
+        String cintMin = pref_currentATCommands.getString("cintMin", null);
+        String cintMax = pref_currentATCommands.getString("cintMax", null);
+        String rfpm = pref_currentATCommands.getString("rfpm", null);
+        String aint = pref_currentATCommands.getString("aint", null);
+        String ctout = pref_currentATCommands.getString("ctout", null);
+        String baudRate = pref_currentATCommands.getString("baudRate", null);
+        String parity = pref_currentATCommands.getString("parity", null);
+        String led = pref_currentATCommands.getString("led", null);
+        String moduleName="";
+        String moduleBLEVersion="";
+        if(device!=null){
+            moduleName = device.getName();
+            switch(moduleName) {
+                case("HC-42"):
+                    moduleBLEVersion = "v5.0";
+                case("HC-08"):
+                    moduleBLEVersion = "v4.0";
+                default:
+                    moduleBLEVersion = "unKnown";
+            }
+        }
+        if(isValidScenario()){
+            if (!databaseHelper.insertNewScenario(phoneName,phoneManufacturer,phoneBLEVersion,
+                    moduleName,moduleBLEVersion,
+                    ATDEFAULT,cintMin,cintMax,rfpm,aint,ctout,led,baudRate,parity,
+                    distance,place,obstacleNo,obstacle,humidityPercent,wifi,ipv6,timeStamp,BER,explanation)) {
+                sent_received_data_tv.setText("Failed to insert new scenario!");
+            }else {
+                sent_received_data_tv.setText("Scenario saved successfully!");
+            }
+        }
+
     }
 
+    private boolean isValidScenario() {
+        return true;
+    }
 
 
     // OnCreate, called once to initialize the activity.
@@ -411,6 +461,7 @@ public class MainActivity extends Activity {
             }
         });
         prepare_org_strList();
+        databaseHelper = new DatabaseHelper(this);
     }
 
 
@@ -528,7 +579,7 @@ public class MainActivity extends Activity {
             SharedPreferences.Editor editor = pref_currentScenario_info.edit();
             editor.putString("timeStamp",ts);
             editor.apply();
-            loadScenarioInformation(); //update scenario info and show timeStamp
+            showScenarioInformation(); //update scenario info and show timeStamp
             tx.setValue(message.getBytes(Charset.forName("UTF-8")));
             if(bluetoothGatt.writeCharacteristic(tx)) {
                 input.getText().clear();
@@ -564,7 +615,7 @@ public class MainActivity extends Activity {
         editor.putString("BER",Float.toString(BER));
         //editor.putString("TimeStamp",ts);
         editor.apply();
-        loadScenarioInformation();
+        showScenarioInformation();
 //        //show buffer result:
 //        sent_received_data_tv.setText(buffer);
     }
@@ -591,7 +642,7 @@ public class MainActivity extends Activity {
         SharedPreferences.Editor editor = pref_currentScenario_info.edit();
         editor.putString("humidityPercent",humidityPercent);
         editor.apply();
-        loadScenarioInformation(); //update scenario info and show Humidity
+        showScenarioInformation(); //update scenario info and show Humidity
         sent_received_data_tv.setText("");
     }
 
@@ -688,13 +739,17 @@ public class MainActivity extends Activity {
                 }
                 ScanLeDevice(true);
                 return true;
-            case R.id.Transmission_setting:
+            case R.id.AtCommandConfigs:
                 //go to At-command setting activity
                 startActivity(new Intent(MainActivity.this , ATCommandParametersActivity.class));
                 break;
-            case R.id.Environmental_setting:
+            case R.id.ScenarioInformation:
                 //go to communication_setting activity
                 startActivity(new Intent(MainActivity.this , ScenarioInfoActivity.class));
+                break;
+            case R.id.ScenariosReports:
+                //go to report activity
+                startActivity(new Intent(MainActivity.this , ScenariosReports.class));
                 break;
             case R.id.disconnect:
                 bluetoothGatt.disconnect();
@@ -703,7 +758,6 @@ public class MainActivity extends Activity {
                 tx = null;
                 rx = null;
                 connectionStatus_tv.setText("Disconnected");
-
                 break;
             case R.id.exit:
                 finish();
@@ -731,8 +785,8 @@ public class MainActivity extends Activity {
             Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(intent,REQ_ENABLE_BT);
         }
-        loadScenarioInformation();
-        loadAtCommandsParameters();
+        showScenarioInformation();
+        showAtCommandsParameters();
         if(device != null){
             bluetoothGatt = device.connectGatt(MainActivity.this, true, gattCallback);
             writeLine("#Connecting to "+device.getName()+"...");
