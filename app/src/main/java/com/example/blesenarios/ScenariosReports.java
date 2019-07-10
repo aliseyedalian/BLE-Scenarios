@@ -10,6 +10,8 @@ import android.widget.Button;
 
 public class ScenariosReports extends AppCompatActivity {
     Button showPhoneTable_btn;
+    Button showModuleTable_btn;
+    Button showConfigTable_btn;
     DatabaseHelper databaseHelper;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,12 +28,29 @@ public class ScenariosReports extends AppCompatActivity {
                 showPhoneTable();
             }
         });
+        showModuleTable_btn=findViewById(R.id.ModuleTable_btn);
+        showModuleTable_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showModuleTable();
+            }
+        });
+        showConfigTable_btn = findViewById(R.id.ConfigTable_btn);
+        showConfigTable_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showConfigTable();
+            }
+        });
     }
+
+
+
 
     private void showPhoneTable() {
         Cursor resultCursor = databaseHelper.getPhoneTable();
         if(resultCursor.getCount()==0){
-            showMessageDialog("Error" , "Nothing Found in Database!");
+            showMessageDialog("Error" , "Nothing Found in Phone Table!");
             return;
         }
         StringBuffer buffer = new StringBuffer();
@@ -42,6 +61,42 @@ public class ScenariosReports extends AppCompatActivity {
         }
         //show all data
         showMessageDialog("Phone Table" , buffer.toString());
+    }
+    private void showModuleTable() {
+        Cursor resultCursor = databaseHelper.getModuleTable();
+        if(resultCursor.getCount()==0){
+            showMessageDialog("Error" , "Nothing Found in Module Table!");
+            return;
+        }
+        StringBuffer buffer = new StringBuffer();
+        while (resultCursor.moveToNext()){
+            buffer.append("moduleName : "+resultCursor.getString(0)+"\n");
+            buffer.append("moduleBLEVersion : "+resultCursor.getString(1)+"\n");
+        }
+        //show all data
+        showMessageDialog("Module Table" , buffer.toString());
+    }
+    private void showConfigTable() {
+        Cursor resultCursor = databaseHelper.getConfigTable();
+        if(resultCursor.getCount()==0){
+            showMessageDialog("Error" , "Nothing Found in Config Table!");
+            return;
+        }
+        StringBuffer buffer = new StringBuffer();
+        while (resultCursor.moveToNext()){
+            buffer.append("configId : "+resultCursor.getString(0)+"\n");
+            buffer.append("ATDEFAULT : "+resultCursor.getString(1)+"\n");
+            buffer.append("cintMin : "+resultCursor.getString(2)+"\n");
+            buffer.append("cintMax : "+resultCursor.getString(3)+"\n");
+            buffer.append("rfpm : "+resultCursor.getString(4)+"\n");
+            buffer.append("aint : "+resultCursor.getString(5)+"\n");
+            buffer.append("ctout : "+resultCursor.getString(6)+"\n");
+            buffer.append("led : "+resultCursor.getString(7)+"\n");
+            buffer.append("baudRate : "+resultCursor.getString(8)+"\n");
+            buffer.append("parity : "+resultCursor.getString(9)+"\n");
+        }
+        //show all data
+        showMessageDialog("Module Table" , buffer.toString());
     }
     private void showMessageDialog(String title, String message) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);

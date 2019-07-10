@@ -21,7 +21,6 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AlertDialog;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -320,6 +319,17 @@ public class MainActivity extends Activity {
         String phoneName = pref_currentScenario_info.getString("phoneName", null);
         String phoneManufacturer = pref_currentScenario_info.getString("phoneManufacturer", null);
         String phoneBLEVersion = pref_currentScenario_info.getString("phoneBLEVersion",null);
+        String moduleName = pref_currentATCommands.getString("moduleName", null);
+        String moduleBLEVersion = pref_currentATCommands.getString("moduleBLEVersion",null);
+        String ATDEFAULT = pref_currentATCommands.getString("ATDEFAULT", null);
+        Integer cintMin =Integer.parseInt(pref_currentATCommands.getString("cintMin", null));
+        Integer cintMax = Integer.parseInt(pref_currentATCommands.getString("cintMax", null));
+        Integer rfpm = Integer.parseInt(pref_currentATCommands.getString("rfpm", null));
+        Integer aint = Integer.parseInt(pref_currentATCommands.getString("aint", null));
+        Integer ctout = Integer.parseInt(pref_currentATCommands.getString("ctout", null));
+        String led = pref_currentATCommands.getString("led", null);
+        Integer baudRate = Integer.parseInt(pref_currentATCommands.getString("baudRate", null));
+        String parity = pref_currentATCommands.getString("parity", null);
         String distance = pref_currentScenario_info.getString("distance", null);
         String place = pref_currentScenario_info.getString("place", null); //indoor/outdoor
         String obstacleNo = pref_currentScenario_info.getString("obstacleNo", null);
@@ -330,25 +340,29 @@ public class MainActivity extends Activity {
         String humidityPercent = pref_currentScenario_info.getString("humidityPercent", null);
         String timeStamp =pref_currentScenario_info.getString("timeStamp",null);
         String ber = pref_currentScenario_info.getString("ber",null);
-        String ATDEFAULT = pref_currentATCommands.getString("ATDEFAULT", null);
-        String cintMin = pref_currentATCommands.getString("cintMin", null);
-        String cintMax = pref_currentATCommands.getString("cintMax", null);
-        String rfpm = pref_currentATCommands.getString("rfpm", null);
-        String aint = pref_currentATCommands.getString("aint", null);
-        String ctout = pref_currentATCommands.getString("ctout", null);
-        String baudRate = pref_currentATCommands.getString("baudRate", null);
-        String parity = pref_currentATCommands.getString("parity", null);
-        String led = pref_currentATCommands.getString("led", null);
-        String moduleName = pref_currentATCommands.getString("moduleName", null);
-        String moduleBLEVersion = pref_currentATCommands.getString("moduleBLEVersion",null);
 
+
+/*
+phoneName,phoneManufacturer,phoneBLEVersion,moduleName,moduleBLEVersion,
+ATDEFAULT,cintMin,cintMax,rfpm,aint,ctout,led,baudRate,parity,distance,place,obstacleNo,obstacle,humidityPercent,
+wifi,ipv6,timeStamp,ber,explanation
+*/
         if(isValidScenario()){
-            if (!databaseHelper.insertNewScenario(phoneName,phoneManufacturer,phoneBLEVersion,moduleName,moduleBLEVersion,
-                    ATDEFAULT,cintMin,cintMax,rfpm,aint,ctout,led,baudRate,parity,distance,place,obstacleNo,obstacle,humidityPercent,
-                    wifi,ipv6,timeStamp,ber,explanation)) {
-                sent_received_data_tv.setText("Failed to insert new scenario!");
+            sent_received_data_tv.setText("#DataBase results:\n");
+            if (!databaseHelper.insertNewPhone(phoneName,phoneManufacturer,phoneBLEVersion)) {
+                sent_received_data_tv.append("This Phone currently Exists in the database! ");
             }else {
-                sent_received_data_tv.setText("Scenario saved successfully!");
+                sent_received_data_tv.append("New Phone saved successfully!");
+            }
+            if (!databaseHelper.insertNewModule(moduleName,moduleBLEVersion)) {
+                sent_received_data_tv.append("This Module currently Exists in the database! ");
+            }else {
+                sent_received_data_tv.append("New Module saved successfully!");
+            }
+            if(!databaseHelper.insertNewConfig(ATDEFAULT,cintMin,cintMax,rfpm,aint,ctout,led,baudRate,parity)){
+                sent_received_data_tv.append("This Config currently Exists in the database!");
+            }else {
+                sent_received_data_tv.append("New Config saved successfully!");
             }
         }
     }

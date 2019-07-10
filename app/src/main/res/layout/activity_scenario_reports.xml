@@ -33,6 +33,16 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Show Phone Table"/>
+        <Button
+            android:id="@+id/ModuleTable_btn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Show Module Table"/>
+        <Button
+            android:id="@+id/ConfigTable_btn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Show Config Table"/>
     </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

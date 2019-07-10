@@ -1,10 +1,12 @@
 package com.example.blesenarios;
 
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "BLE_Scenarios.db";
@@ -37,7 +39,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "rfpm INTEGER," +
                 "aint INTEGER," +
                 "ctout INTEGER,"+
-                "led INTEGER,"+
+                "led TEXT,"+
                 "baudRate INTEGER," +
                 "parity TEXT);"
         );
@@ -75,32 +77,63 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL("drop table if exists Config");
         sqLiteDatabase.execSQL("drop table if exists ConfigModule");
         sqLiteDatabase.execSQL("drop table if exists Scenario");
-
         onCreate(sqLiteDatabase);
     }
-
-    boolean insertNewScenario(String phoneName, String phoneManufacturer, String phoneBLEVersion,
-                              String moduleName, String moduleBLEVersion,
-                              String ATDEFAULT, String cintMin, String cintMax, String rfpm,
-                              String aint, String ctout, String led, String baudRate, String parity,
-                              String distance, String place, String obstacleNo, String obstacle,
-                              String humidityPercent, String wifi, String ipv6, String timeStamp, String ber, String explanation){
-//        myDb.execSQL(
-//                "INSERT INTO Phone(phoneName,phoneManufacturer,phoneBLEVersion) " +
-//                        "VALUES("+phoneName+","+phoneManufacturer+","+phoneBLEVersion +");" +
-//                        "INSERT INTO Module(moduleName,moduleBLEVersion) "+
-//                        "VALUES("+moduleName+","+moduleBLEVersion +");"
-//        );
-        ContentValues contentValues = new ContentValues();
-        contentValues.put("phoneName",phoneName);
-        contentValues.put("phoneManufacturer",phoneManufacturer);
-        contentValues.put("phoneBLEVersion",phoneBLEVersion);
-        long resultPhone = myDb.insert("Phone",null,contentValues);
-        return resultPhone != -1;
+/*
+String phoneName, String phoneManufacturer, String phoneBLEVersion,
+String moduleName, String moduleBLEVersion,
+String ATDEFAULT, integer cintMin, integer cintMax, integer rfpm,integer aint, integer ctout, integer led, integer baudRate, String parity,
+String distance,String place,String obstacleNo,String obstacle,String humidityPercent,String wifi,String ipv6, String timeStamp,String ber,String explanation
+*/
+    boolean insertNewPhone(String phoneName, String phoneManufacturer, String phoneBLEVersion){
+        ContentValues contentValuesPhone = new ContentValues();
+        contentValuesPhone.put("phoneName",phoneName);
+        contentValuesPhone.put("phoneManufacturer",phoneManufacturer);
+        contentValuesPhone.put("phoneBLEVersion",phoneBLEVersion);
+        long resultPhone = myDb.insert("Phone",null,contentValuesPhone);
+        return resultPhone!=-1;
     }
-
+    boolean insertNewModule(String moduleName, String moduleBLEVersion){
+        ContentValues contentValuesModule = new ContentValues();
+        contentValuesModule.put("moduleName",moduleName);
+        contentValuesModule.put("moduleBLEVersion",moduleBLEVersion);
+        long resultModule = myDb.insert("Module",null,contentValuesModule);
+        return resultModule!=-1;
+    }
+    boolean insertNewConfig(String ATDEFAULT, Integer cintMin ,Integer cintMax ,Integer rfpm ,
+                            Integer aint ,Integer ctout ,String led ,Integer baudRate , String parity){
+        if(isExistConfig(ATDEFAULT,cintMin,cintMax,rfpm,aint,ctout,led,baudRate,parity)){
+            return false;
+        }
+        ContentValues contentValuesModule = new ContentValues();
+        contentValuesModule.put("ATDEFAULT",ATDEFAULT);
+        contentValuesModule.put("cintMin",cintMin);
+        contentValuesModule.put("cintMax",cintMax);
+        contentValuesModule.put("rfpm",rfpm);
+        contentValuesModule.put("aint",aint);
+        contentValuesModule.put("ctout",ctout);
+        contentValuesModule.put("led",led);
+        contentValuesModule.put("baudRate",baudRate);
+        contentValuesModule.put("parity",parity);
+        long resultModule = myDb.insert("Config",null,contentValuesModule);
+        return resultModule!=-1;
+    }
     Cursor getPhoneTable(){
         return myDb.rawQuery("select * from Phone",null);
+    }
+    Cursor getModuleTable(){
+        return myDb.rawQuery("select * from Module",null);
+    }
+    Cursor getConfigTable(){
+        return myDb.rawQuery("select * from Config",null);
+    }
+    private boolean isExistConfig(String ATDEFAULT, Integer cintMin, Integer cintMax, Integer rfpm,
+                                  Integer aint, Integer ctout, String led, Integer baudRate, String parity){
+        String query = "select * from Config where ATDEFAULT ='"+ATDEFAULT+"' and cintMin="+cintMin+" and "+
+                "cintMax="+cintMax+" and rfpm="+rfpm+" and aint="+aint+" and ctout="+ctout+" and " +
+                "led='"+led+"' and baudRate="+baudRate+" and parity='"+parity+"';";
+        @SuppressLint("Recycle") Cursor resultCursor = myDb.rawQuery(query,null);
+        return resultCursor.getCount()!=0;
     }
 
 }
