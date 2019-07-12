@@ -15,12 +15,14 @@ import android.bluetooth.BluetoothProfile;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -316,59 +318,87 @@ public class MainActivity extends Activity {
     }
 
     private void saveToDB() {
+        //get all data from preferences:
         String phoneName = pref_currentScenario_info.getString("phoneName", null);
         String phoneManufacturer = pref_currentScenario_info.getString("phoneManufacturer", null);
         String phoneBLEVersion = pref_currentScenario_info.getString("phoneBLEVersion",null);
         String moduleName = pref_currentATCommands.getString("moduleName", null);
         String moduleBLEVersion = pref_currentATCommands.getString("moduleBLEVersion",null);
         String ATDEFAULT = pref_currentATCommands.getString("ATDEFAULT", null);
-        Integer cintMin =Integer.parseInt(pref_currentATCommands.getString("cintMin", null));
-        Integer cintMax = Integer.parseInt(pref_currentATCommands.getString("cintMax", null));
-        Integer rfpm = Integer.parseInt(pref_currentATCommands.getString("rfpm", null));
-        Integer aint = Integer.parseInt(pref_currentATCommands.getString("aint", null));
-        Integer ctout = Integer.parseInt(pref_currentATCommands.getString("ctout", null));
+        String cintMin_str =pref_currentATCommands.getString("cintMin", null);
+        String cintMax_str = pref_currentATCommands.getString("cintMax", null);
+        String  rfpm_str =pref_currentATCommands.getString("rfpm", null);
+        String aint_str =pref_currentATCommands.getString("aint", null);
+        String ctout_str = pref_currentATCommands.getString("ctout", null);
         String led = pref_currentATCommands.getString("led", null);
-        Integer baudRate = Integer.parseInt(pref_currentATCommands.getString("baudRate", null));
+        String baudRate_str = pref_currentATCommands.getString("baudRate", null);
         String parity = pref_currentATCommands.getString("parity", null);
-        String distance = pref_currentScenario_info.getString("distance", null);
+        String distance_str = pref_currentScenario_info.getString("distance", null);
         String place = pref_currentScenario_info.getString("place", null); //indoor/outdoor
-        String obstacleNo = pref_currentScenario_info.getString("obstacleNo", null);
+        String obstacleNo_str =pref_currentScenario_info.getString("obstacleNo", null);
         String obstacle = pref_currentScenario_info.getString("obstacle", null);
+        String humidityPercent_str = pref_currentScenario_info.getString("humidityPercent", null);
         String wifi = pref_currentScenario_info.getString("wifi", null);
         String ipv6 = pref_currentScenario_info.getString("ipv6", null);
+        String timeStamp_str =pref_currentScenario_info.getString("timeStamp",null);
         String explanation = pref_currentScenario_info.getString("explanation", null);
-        String humidityPercent = pref_currentScenario_info.getString("humidityPercent", null);
-        String timeStamp =pref_currentScenario_info.getString("timeStamp",null);
-        String ber = pref_currentScenario_info.getString("ber",null);
+        String ber_str =pref_currentScenario_info.getString("ber",null);
 
-
-/*
-phoneName,phoneManufacturer,phoneBLEVersion,moduleName,moduleBLEVersion,
-ATDEFAULT,cintMin,cintMax,rfpm,aint,ctout,led,baudRate,parity,distance,place,obstacleNo,obstacle,humidityPercent,
-wifi,ipv6,timeStamp,ber,explanation
-*/
-        if(isValidScenario()){
+        if(cintMin_str != null && cintMax_str!= null && rfpm_str!= null && aint_str!= null && ctout_str!= null &&
+        baudRate_str!= null && distance_str!=null && obstacleNo_str!=null && humidityPercent_str!=null && timeStamp_str!=null && ber_str!=null){
+            Integer cintMin = Integer.parseInt(cintMin_str);
+            Integer cintMax = Integer.parseInt(cintMax_str);
+            Integer rfpm = Integer.parseInt(rfpm_str);
+            Integer aint = Integer.parseInt(aint_str);
+            Integer ctout = Integer.parseInt(ctout_str);
+            Integer baudRate = Integer.parseInt(baudRate_str);
+            Integer distance = Integer.parseInt(distance_str);
+            Integer obstacleNo = Integer.parseInt(obstacleNo_str);
+            Integer humidityPercent = Integer.parseInt(humidityPercent_str);
+            Integer timeStamp = Integer.parseInt(timeStamp_str);
+            Float ber = Float.parseFloat(ber_str);
             sent_received_data_tv.setText("#DataBase results:\n");
+            //Phone
             if (!databaseHelper.insertNewPhone(phoneName,phoneManufacturer,phoneBLEVersion)) {
-                sent_received_data_tv.append("This Phone currently Exists in the database! ");
+                sent_received_data_tv.append("This Phone currently Exists in the database!\n");
             }else {
-                sent_received_data_tv.append("New Phone saved successfully!");
+                sent_received_data_tv.append("New Phone saved successfully!\n");
             }
-            if (!databaseHelper.insertNewModule(moduleName,moduleBLEVersion)) {
-                sent_received_data_tv.append("This Module currently Exists in the database! ");
+            //Module
+            if(!databaseHelper.insertNewModule(moduleName,moduleBLEVersion)) {
+                sent_received_data_tv.append("This Module currently Exists in the database!\n");
             }else {
-                sent_received_data_tv.append("New Module saved successfully!");
+                sent_received_data_tv.append("New Module saved successfully!\n");
             }
+            //Config
             if(!databaseHelper.insertNewConfig(ATDEFAULT,cintMin,cintMax,rfpm,aint,ctout,led,baudRate,parity)){
-                sent_received_data_tv.append("This Config currently Exists in the database!");
+                sent_received_data_tv.append("This Config currently Exists in the database!\n");
             }else {
-                sent_received_data_tv.append("New Config saved successfully!");
+                sent_received_data_tv.append("New Config saved successfully!\n");
+            }
+
+            //Scenario I)obtain correct configId:
+            Cursor configIdCursor = databaseHelper.getConfigId(ATDEFAULT,cintMin,cintMax,rfpm,aint,ctout,led,baudRate,parity);
+            if(configIdCursor.getCount()==0){
+                sent_received_data_tv.append("Error: Nothing Found correct configId!");
+                return;
+            }
+            StringBuffer buffer = new StringBuffer();
+            while (configIdCursor.moveToNext()){
+                buffer.append(configIdCursor.getString(0));
+            }
+            Integer configId =  Integer.parseInt(buffer.toString());
+            Log.d("salis",configId.toString());
+            //Scenario II)saving:
+            if(!databaseHelper.insertNewScenario(configId,phoneName,moduleName,distance,place,obstacleNo,obstacle,humidityPercent,wifi,
+                    ipv6,timeStamp,ber,explanation)){
+                sent_received_data_tv.append("This Scenario currently Exists in the database!");
+            }else {
+                sent_received_data_tv.append("New Scenario saved successfully!");
             }
         }
     }
-    private boolean isValidScenario() {
-        return true;
-    }
+
 
 
     // OnCreate, called once to initialize the activity.
@@ -636,7 +666,6 @@ wifi,ipv6,timeStamp,ber,explanation
         float BER = 1 - (rcv_ack/org_strList.size());
         SharedPreferences.Editor editor = pref_currentScenario_info.edit();
         editor.putString("ber",Float.toString(BER));
-        //editor.putString("TimeStamp",ts);
         editor.apply();
         showScenarioInformation();
 //        //show buffer result:
@@ -661,12 +690,11 @@ wifi,ipv6,timeStamp,ber,explanation
             e.printStackTrace();
         }
         //save respond to preference:
-        String humidityPercent = buffer.trim()+"%";
+        String humidityPercent = buffer.trim();
         SharedPreferences.Editor editor = pref_currentScenario_info.edit();
         editor.putString("humidityPercent",humidityPercent);
         editor.apply();
         showScenarioInformation(); //update scenario info and show Humidity
-        sent_received_data_tv.setText("");
     }
 
     // BLE device scanning callback.

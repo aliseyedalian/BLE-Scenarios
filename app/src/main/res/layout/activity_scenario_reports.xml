@@ -1,48 +1,87 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ScenariosReports">
+
     <LinearLayout
+        android:id="@+id/linearLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="5dp"
+        android:layout_height="match_parent"
         android:orientation="vertical"
-        tools:ignore="MissingConstraints">
+        android:padding="5dp">
         <!-- Title -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
             android:gravity="center_horizontal"
             android:text="Scenarios Reports"
             android:textColor="#FFFF00"
-            android:textStyle="bold"
             android:textSize="20sp"
-            android:layout_marginTop="5dp"
-            tools:ignore="MissingConstraints" />
+            android:textStyle="bold" />
         <!-- Line -->
         <View
             android:layout_width="match_parent"
             android:layout_height="2dp"
             android:layout_marginTop="2dp"
-            android:background="#FFFFFF"
-            />
-        <Button
-            android:id="@+id/phoneTable_btn"
+            android:background="#FFFFFF" />
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Show Phone Table"/>
-        <Button
-            android:id="@+id/ModuleTable_btn"
+            android:layout_gravity="center"
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:orientation="horizontal">
+
+
+            <Button
+                android:id="@+id/phoneTable_btn"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="50dp"
+                android:text="Show Phones" />
+
+            <Button
+                android:id="@+id/ModuleTable_btn"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="50dp"
+                android:text="Show Modules" />
+
+
+        </LinearLayout>
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Show Module Table"/>
-        <Button
-            android:id="@+id/ConfigTable_btn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Show Config Table"/>
+            android:layout_gravity="center"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/ConfigTable_btn"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="50dp"
+                android:text="Show Configs" />
+
+            <Button
+                android:id="@+id/ScenarioTable_btn"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="50dp"
+                android:text="Show Scenarios" />
+
+
+        </LinearLayout>
+
+
+
+
     </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

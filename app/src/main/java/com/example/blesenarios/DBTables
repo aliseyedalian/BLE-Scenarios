@@ -1,7 +1,7 @@
 Phone(phoneName(pk),phoneManufacturer,phoneBLEVersion);
 Module(moduleName(pk),moduleBLEVersion);
 Config(configId(pk),ATDEFAULT,cintMin,cintMax,rfpm,aint,ctout,led,baudRate,parity);
-Scenario(scenId(pk),configId(fk),moduleName(fk),phoneName(fk),distance,place,obstacleNo,obstacle,humidityPercent,wifi,ipv6,timeStamp,ber,explanation)
+Scenario(scenId(pk),configId(fk),phoneName(fk),moduleName(fk),distance,place,obstacleNo,obstacle,humidityPercent,wifi,ipv6,timeStamp,ber,explanation)
 
 
 obstacleId:

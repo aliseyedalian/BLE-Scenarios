@@ -54,22 +54,16 @@ public class ATCommandParametersActivity extends AppCompatActivity {
             String ctout= input_CTOUT.getText().toString().trim();
             String baudRate = baud_rate_spinner.getSelectedItem().toString().trim();
             String parity = parity_spinner.getSelectedItem().toString().trim();
-
             String led;
-            switch (parity){
-                case "No parity":
-                    parity = "N";
-                    break;
-                case "Odd parity":
-                    parity = "O";
-                    break;
-                case "Even parity":
-                    parity = "E";
-                    break;
-                default:
-                    parity = "N";
-                    break;
+
+            if(parity.contains("O")){
+                parity="O";
+            }else if(parity.contains("E")){
+                parity="E";
+            }else {
+                parity = "N";
             }
+
             if(cb_LED.isChecked()){
                 led = "ON";
             }else {
@@ -78,7 +72,6 @@ public class ATCommandParametersActivity extends AppCompatActivity {
             //send new parameters
             if(isValidParameters(cintMin,cintMax,rfpm,aint,ctout)){
                 SharedPreferences.Editor editor = pref_currentATCommands.edit();
-                editor.clear();
                 editor.putString("ATDEFAULT","No");
                 editor.putString("cintMin",cintMin);
                 editor.putString("cintMax",cintMax);
@@ -95,7 +88,6 @@ public class ATCommandParametersActivity extends AppCompatActivity {
         else{
             //send restore DEFAULT setting --> AT+DEFAULT
             SharedPreferences.Editor editor = pref_currentATCommands.edit();
-            editor.clear();
             editor.putString("ATDEFAULT","Yes");
             editor.apply();
             finish();

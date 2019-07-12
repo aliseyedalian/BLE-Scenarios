@@ -29,7 +29,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         );
         sqLiteDatabase.execSQL("create table Module(" +
                 "moduleName TEXT PRIMARY KEY," +
-                "moduleBLEVersion TEXT);"
+                "moduleBLEVersion TEXT not null);"
         );
         sqLiteDatabase.execSQL("create table Config(" +
                 "configId INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -46,18 +46,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL("create table Scenario(" +
                 "scenId INTEGER PRIMARY KEY AUTOINCREMENT," +
                 "configId integer," +
-                "moduleName TEXT," +
                 "phoneName TEXT," +
-                "distance integer," +
+                "moduleName TEXT," +
+                "distance INTEGER," +
                 "place TEXT," +
-                "obstacleNo integer," +
+                "obstacleNo INTEGER," +
                 "obstacle TEXT," +
-                "humidityPercent integer," +
+                "humidityPercent INTEGER," +
                 "wifi TEXT," +
                 "ipv6 TEXT," +
-                "timeStamp integer," +
+                "timeStamp INTEGER," +
                 "ber REAL," +
-                "explanation TEXT," +
+                "explanation TEXT default 'none'," +
                 "FOREIGN KEY (configId) REFERENCES Config(configId)" +
                 "ON UPDATE CASCADE ON DELETE CASCADE ,"+
                 "FOREIGN KEY (moduleName) REFERENCES Module(moduleName)" +
@@ -79,29 +79,35 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL("drop table if exists Scenario");
         onCreate(sqLiteDatabase);
     }
-/*
-String phoneName, String phoneManufacturer, String phoneBLEVersion,
-String moduleName, String moduleBLEVersion,
-String ATDEFAULT, integer cintMin, integer cintMax, integer rfpm,integer aint, integer ctout, integer led, integer baudRate, String parity,
-String distance,String place,String obstacleNo,String obstacle,String humidityPercent,String wifi,String ipv6, String timeStamp,String ber,String explanation
-*/
+
+
+
+
     boolean insertNewPhone(String phoneName, String phoneManufacturer, String phoneBLEVersion){
+        if(isExistPhone(phoneName,phoneManufacturer,phoneBLEVersion)){
+            Log.d("salis","insertNewPhone : ExistPhone");
+            return false;
+        }
         ContentValues contentValuesPhone = new ContentValues();
         contentValuesPhone.put("phoneName",phoneName);
         contentValuesPhone.put("phoneManufacturer",phoneManufacturer);
         contentValuesPhone.put("phoneBLEVersion",phoneBLEVersion);
         long resultPhone = myDb.insert("Phone",null,contentValuesPhone);
+        Log.d("salis","insertNewPhone : resultPhone="+resultPhone);
         return resultPhone!=-1;
     }
     boolean insertNewModule(String moduleName, String moduleBLEVersion){
+        if(isExistModule(moduleName,moduleBLEVersion)){
+            return false;
+        }
         ContentValues contentValuesModule = new ContentValues();
         contentValuesModule.put("moduleName",moduleName);
         contentValuesModule.put("moduleBLEVersion",moduleBLEVersion);
         long resultModule = myDb.insert("Module",null,contentValuesModule);
         return resultModule!=-1;
     }
-    boolean insertNewConfig(String ATDEFAULT, Integer cintMin ,Integer cintMax ,Integer rfpm ,
-                            Integer aint ,Integer ctout ,String led ,Integer baudRate , String parity){
+    boolean insertNewConfig(String ATDEFAULT,Integer cintMin,Integer cintMax,Integer rfpm,Integer aint,
+                            Integer ctout ,String led ,Integer baudRate , String parity){
         if(isExistConfig(ATDEFAULT,cintMin,cintMax,rfpm,aint,ctout,led,baudRate,parity)){
             return false;
         }
@@ -115,9 +121,51 @@ String distance,String place,String obstacleNo,String obstacle,String humidityPe
         contentValuesModule.put("led",led);
         contentValuesModule.put("baudRate",baudRate);
         contentValuesModule.put("parity",parity);
-        long resultModule = myDb.insert("Config",null,contentValuesModule);
-        return resultModule!=-1;
+        long resultConfig = myDb.insert("Config",null,contentValuesModule);
+        return resultConfig!=-1;
     }
+    boolean insertNewScenario(Integer configId,String phoneName,String moduleName,Integer distance,String place, Integer obstacleNo,
+                              String obstacle, Integer humidityPercent, String wifi,String ipv6,Integer timeStamp,Float ber,String explanation){
+        if(isExistScenario(configId,phoneName,moduleName,distance,place,obstacleNo,obstacle,humidityPercent,wifi,ipv6,timeStamp,ber,explanation)){
+            Log.d("salis","insertNewScenario : ExistScenario");
+            return false;
+        }
+        Log.d("salis","insertNewScenario : notExistScenario");
+        ContentValues contentValuesModule = new ContentValues();
+        contentValuesModule.put("configId",configId);
+        contentValuesModule.put("phoneName",phoneName);
+        contentValuesModule.put("moduleName",moduleName);
+        contentValuesModule.put("distance",distance);
+        contentValuesModule.put("place",place);
+        contentValuesModule.put("obstacleNo",obstacleNo);
+        contentValuesModule.put("obstacle",obstacle);
+        contentValuesModule.put("humidityPercent",humidityPercent);
+        contentValuesModule.put("wifi",wifi);
+        contentValuesModule.put("ipv6",ipv6);
+        contentValuesModule.put("timeStamp",timeStamp);
+        contentValuesModule.put("ber",ber);
+        contentValuesModule.put("explanation",explanation);
+        long resultScenario = myDb.insert("Scenario",null,contentValuesModule);
+        Log.d("salis","insertNewScenario:" +
+                " configId:"+configId+
+                " phoneName:"+phoneName+
+                " moduleName:"+moduleName+
+                " distance:"+distance+
+                " place:"+place+
+                " obstacleNo:"+obstacleNo+
+                " obstacle:"+obstacle+
+                " humidityPercent:"+humidityPercent+
+                " wifi:"+wifi+
+                " ipv6:"+ipv6+
+                " timeStamp:"+timeStamp+
+                " ber:"+ber+
+                " explanation:"+explanation+
+                "\n resultScenario ="+resultScenario);
+        return resultScenario!=-1;
+    }
+
+
+
     Cursor getPhoneTable(){
         return myDb.rawQuery("select * from Phone",null);
     }
@@ -127,13 +175,62 @@ String distance,String place,String obstacleNo,String obstacle,String humidityPe
     Cursor getConfigTable(){
         return myDb.rawQuery("select * from Config",null);
     }
+    Cursor getScenarioTable(){
+        return myDb.rawQuery("select * from Scenario",null);
+    }
+
+
+
+    private boolean isExistPhone(String phoneName, String phoneManufacturer, String phoneBLEVersion) {
+        String query = "select * from Phone where " +
+                "phoneName ='"+phoneName+"' and phoneManufacturer='"+phoneManufacturer+"' and phoneBLEVersion='"+phoneBLEVersion+"';";
+        @SuppressLint("Recycle") Cursor resultCursor = myDb.rawQuery(query,null);
+        return resultCursor.getCount()!=0;
+    }
+    private boolean isExistModule(String moduleName, String moduleBLEVersion) {
+        String query = "select * from Module where " +
+                "moduleName ='"+moduleName+"' and moduleBLEVersion='"+moduleBLEVersion+"';";
+        @SuppressLint("Recycle") Cursor resultCursor = myDb.rawQuery(query,null);
+        return resultCursor.getCount()!=0;
+    }
     private boolean isExistConfig(String ATDEFAULT, Integer cintMin, Integer cintMax, Integer rfpm,
                                   Integer aint, Integer ctout, String led, Integer baudRate, String parity){
-        String query = "select * from Config where ATDEFAULT ='"+ATDEFAULT+"' and cintMin="+cintMin+" and "+
+        String query = "select ConfigId from Config where ATDEFAULT ='"+ATDEFAULT+"' and cintMin="+cintMin+" and "+
                 "cintMax="+cintMax+" and rfpm="+rfpm+" and aint="+aint+" and ctout="+ctout+" and " +
                 "led='"+led+"' and baudRate="+baudRate+" and parity='"+parity+"';";
         @SuppressLint("Recycle") Cursor resultCursor = myDb.rawQuery(query,null);
         return resultCursor.getCount()!=0;
     }
+    private boolean isExistScenario(Integer configId, String phoneName, String moduleName, Integer distance, String place,
+                                    Integer obstacleNo, String obstacle, Integer humidityPercent, String wifi,
+                                    String ipv6, Integer timeStamp, Float ber, String explanation) {
+        String query = "select * from Scenario where configId ="+configId+" and phoneName='"+phoneName+"' and "+
+                "moduleName='"+moduleName+"' and distance="+distance+" and place='"+place+"' and obstacleNo="+obstacleNo+" and " +
+                "obstacle='"+obstacle+"' and humidityPercent="+humidityPercent+" and wifi='"+wifi+"' and ipv6='"+ipv6+"' and " +
+                "timeStamp="+timeStamp+" and ber="+ber+" and explanation='"+explanation+"';";
+        @SuppressLint("Recycle") Cursor resultCursor = myDb.rawQuery(query,null);
+        return resultCursor.getCount()!=0;
+    }
 
+
+
+
+
+    Cursor getConfigId(String ATDEFAULT, Integer cintMin, Integer cintMax, Integer rfpm,
+                               Integer aint, Integer ctout, String led, Integer baudRate, String parity) {
+        String query = "select distinct ConfigId from Config where ATDEFAULT ='"+ATDEFAULT+"' and cintMin="+cintMin+" and "+
+                "cintMax="+cintMax+" and rfpm="+rfpm+" and aint="+aint+" and ctout="+ctout+" and " +
+                "led='"+led+"' and baudRate="+baudRate+" and parity='"+parity+"';";
+        return myDb.rawQuery(query,null);
+    }
+
+    public void rebuild() {
+        myDb.execSQL("drop table if exists ObstacleType");
+        myDb.execSQL("drop table if exists Phone");
+        myDb.execSQL("drop table if exists Module");
+        myDb.execSQL("drop table if exists Config");
+        myDb.execSQL("drop table if exists ConfigModule");
+        myDb.execSQL("drop table if exists Scenario");
+        onCreate(myDb);
+    }
 }
