@@ -43,14 +43,14 @@
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="50dp"
-                android:text="Show Phones" />
+                android:text="Phones" />
 
             <Button
                 android:id="@+id/ModuleTable_btn"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="50dp"
-                android:text="Show Modules" />
+                android:text="Modules" />
 
 
         </LinearLayout>
@@ -67,21 +67,23 @@
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="50dp"
-                android:text="Show Configs" />
+                android:text="Configs" />
 
             <Button
                 android:id="@+id/ScenarioTable_btn"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="50dp"
-                android:text="Show Scenarios" />
-
-
+                android:text="Scenarios" />
         </LinearLayout>
-
-
-
-
+        <ListView
+            android:id="@+id/report_lv"
+            android:background="#FFFFFF"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="10dp"
+            android:padding="5dp"
+            tools:ignore="MissingConstraints" />
     </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

@@ -1,17 +1,16 @@
 package com.example.blesenarios;
 
-import android.content.Context;
 import android.database.Cursor;
-import android.support.annotation.NonNull;
+import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ScenariosReports extends AppCompatActivity {
     Button showPhoneTable_btn;
@@ -19,6 +18,13 @@ public class ScenariosReports extends AppCompatActivity {
     Button showConfigTable_btn;
     Button showScenarioTable_btn;
     DatabaseHelper databaseHelper;
+    ListView listView;
+    List<String> phonesList;
+    List<String> modulesList;
+    List<String> configsList;
+    List<String> scenariosList;
+    String currentContentOfListView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,6 +61,12 @@ public class ScenariosReports extends AppCompatActivity {
                 showScenarioTable();
             }
         });
+        listView = findViewById(R.id.report_lv);
+        currentContentOfListView = "";
+        phonesList = new ArrayList<>();
+        modulesList = new ArrayList<>();
+        configsList = new ArrayList<>();
+        scenariosList = new ArrayList<>();
     }
 
 
