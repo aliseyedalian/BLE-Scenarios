@@ -11,7 +11,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,20 +22,12 @@ public class ScenariosReports extends AppCompatActivity {
     Button showScenarioTable_btn;
     DatabaseHelper databaseHelper;
     ListView listView;
-    List<String> phonesKeyList;
-    List<String> phonesContentList;
+    List<String> titlesList;
+    List<String> contentsList;
     ArrayAdapter<String> arrayAdapter_phone;
-    List<String> modulesKeyList;
-    List<String> modulesContentList;
     ArrayAdapter<String> arrayAdapter_module;
-    List<String> configsKeyList;
-    List<String> configsContentList;
     ArrayAdapter<String> arrayAdapter_config;
-    List<String> scenariosKeyList;
-    List<String> scenariosContentList;
     ArrayAdapter<String> arrayAdapter_scenario;
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,23 +74,23 @@ public class ScenariosReports extends AppCompatActivity {
             showDialog("Error" , "Nothing Found!");
             return;
         }
-        phonesContentList = new ArrayList<>();
-        phonesKeyList = new ArrayList<>();
+        contentsList = new ArrayList<>();
+        titlesList = new ArrayList<>();
         StringBuffer buffer = new StringBuffer();
         while (resultCursor.moveToNext()){
             buffer.delete(0, buffer.length());
             buffer.append("phoneName : "+resultCursor.getString(0)+"\n");
             buffer.append("phoneManufacturer : "+resultCursor.getString(1)+"\n");
             buffer.append("phoneBLEVersion : "+resultCursor.getString(2)+"\n");
-            phonesKeyList.add(resultCursor.getString(0));
-            phonesContentList.add(buffer.toString());
+            titlesList.add(resultCursor.getString(0));
+            contentsList.add(buffer.toString());
         }
-        arrayAdapter_phone = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, phonesKeyList);
+        arrayAdapter_phone = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, titlesList);
         listView.setAdapter(arrayAdapter_phone);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                showDialog(phonesKeyList.get(i),phonesContentList.get(i));
+                showDialog(titlesList.get(i), contentsList.get(i));
             }
         });
     }
@@ -109,22 +100,22 @@ public class ScenariosReports extends AppCompatActivity {
             showDialog("Error" , "Nothing Found!");
             return;
         }
-        modulesContentList = new ArrayList<>();
-        modulesKeyList = new ArrayList<>();
+        contentsList = new ArrayList<>();
+        titlesList = new ArrayList<>();
         StringBuffer buffer = new StringBuffer();
         while (resultCursor.moveToNext()){
             buffer.delete(0, buffer.length());
             buffer.append("moduleName : "+resultCursor.getString(0)+"\n");
             buffer.append("moduleBLEVersion : "+resultCursor.getString(1)+"\n");
-            modulesKeyList.add(resultCursor.getString(0));
-            modulesContentList.add(buffer.toString());
+            titlesList.add(resultCursor.getString(0));
+            contentsList.add(buffer.toString());
         }
-        arrayAdapter_module = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, modulesKeyList);
+        arrayAdapter_module = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, titlesList);
         listView.setAdapter(arrayAdapter_module);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                showDialog(modulesKeyList.get(i),modulesContentList.get(i));
+                showDialog(titlesList.get(i),contentsList.get(i));
             }
         });
     }
@@ -134,8 +125,8 @@ public class ScenariosReports extends AppCompatActivity {
             showDialog("Error" , "Nothing Found!");
             return;
         }
-        configsContentList = new ArrayList<>();
-        configsKeyList = new ArrayList<>();
+        contentsList = new ArrayList<>();
+        titlesList = new ArrayList<>();
         StringBuffer buffer = new StringBuffer();
         while (resultCursor.moveToNext()){
             buffer.delete(0, buffer.length());
@@ -149,15 +140,15 @@ public class ScenariosReports extends AppCompatActivity {
             buffer.append("led : "+resultCursor.getString(7)+"\n");
             buffer.append("baudRate : "+resultCursor.getString(8)+"\n");
             buffer.append("parity : "+resultCursor.getString(9)+"\n");
-            configsKeyList.add("Config "+resultCursor.getString(0));
-            configsContentList.add(buffer.toString());
+            titlesList.add("Config "+resultCursor.getString(0));
+            contentsList.add(buffer.toString());
         }
-        arrayAdapter_config = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, configsKeyList);
+        arrayAdapter_config = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, titlesList);
         listView.setAdapter(arrayAdapter_config);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                showDialog(configsKeyList.get(i),configsContentList.get(i));
+                showDialog(titlesList.get(i),contentsList.get(i));
             }
         });
     }
@@ -167,8 +158,8 @@ public class ScenariosReports extends AppCompatActivity {
             showDialog("Error" , "Nothing Found!");
             return;
         }
-        scenariosContentList = new ArrayList<>();
-        scenariosKeyList = new ArrayList<>();
+        contentsList = new ArrayList<>();
+        titlesList = new ArrayList<>();
         StringBuffer buffer = new StringBuffer();
         //for each row in scenario resultCursor :
         // 1-get row and save in buffer
@@ -190,23 +181,21 @@ public class ScenariosReports extends AppCompatActivity {
             buffer.append("timeStamp : "+resultCursor.getString(11)+"\n");
             buffer.append("ber : "+resultCursor.getString(12)+"\n");
             buffer.append("explanation : "+resultCursor.getString(13)+"\n");
-            scenariosKeyList.add("Scenario "+resultCursor.getString(0));
-            scenariosContentList.add(buffer.toString());
+            titlesList.add("Scenario "+resultCursor.getString(0));
+            contentsList.add(buffer.toString());
         }
-        //now we have a scenariosKeyList and a scenariosContentList:
-        Log.d("salis","scenariosKeyList:"+scenariosKeyList);
-        Log.d("salis","scenariosContentList:\n"+scenariosContentList);
-        //show scenariosKeyList in listView:
-        arrayAdapter_scenario = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, scenariosKeyList);
+        arrayAdapter_scenario = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, titlesList);
         listView.setAdapter(arrayAdapter_scenario);
         //set on item click listener:
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                showDialog(scenariosKeyList.get(i),scenariosContentList.get(i));
+                showDialog(titlesList.get(i),contentsList.get(i));
             }
         });
     }
+
+
     private void showDialog(String title, String message) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(title);
