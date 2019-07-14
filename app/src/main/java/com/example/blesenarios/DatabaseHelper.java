@@ -56,7 +56,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "wifi TEXT," +
                 "ipv6 TEXT," +
                 "timeStamp INTEGER," +
-                "ber REAL," +
+                "per REAL," +
                 "explanation TEXT default 'none'," +
                 "FOREIGN KEY (configId) REFERENCES Config(configId)" +
                 "ON UPDATE CASCADE ON DELETE CASCADE ,"+
@@ -125,8 +125,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return resultConfig!=-1;
     }
     boolean insertNewScenario(Integer configId,String phoneName,String moduleName,Integer distance,String place, Integer obstacleNo,
-                              String obstacle, Integer humidityPercent, String wifi,String ipv6,Integer timeStamp,Float ber,String explanation){
-        if(isExistScenario(configId,phoneName,moduleName,distance,place,obstacleNo,obstacle,humidityPercent,wifi,ipv6,timeStamp,ber,explanation)){
+                              String obstacle, Integer humidityPercent, String wifi,String ipv6,Integer timeStamp,Float per,String explanation){
+        if(isExistScenario(configId,phoneName,moduleName,distance,place,obstacleNo,obstacle,humidityPercent,wifi,ipv6,timeStamp,per,explanation)){
             Log.d("salis","insertNewScenario : ExistScenario");
             return false;
         }
@@ -143,7 +143,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         contentValuesModule.put("wifi",wifi);
         contentValuesModule.put("ipv6",ipv6);
         contentValuesModule.put("timeStamp",timeStamp);
-        contentValuesModule.put("ber",ber);
+        contentValuesModule.put("per",per);
         contentValuesModule.put("explanation",explanation);
         long resultScenario = myDb.insert("Scenario",null,contentValuesModule);
         Log.d("salis","insertNewScenario:" +
@@ -158,7 +158,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 " wifi:"+wifi+
                 " ipv6:"+ipv6+
                 " timeStamp:"+timeStamp+
-                " ber:"+ber+
+                " per:"+per+
                 " explanation:"+explanation+
                 "\n resultScenario ="+resultScenario);
         return resultScenario!=-1;
@@ -203,11 +203,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
     private boolean isExistScenario(Integer configId, String phoneName, String moduleName, Integer distance, String place,
                                     Integer obstacleNo, String obstacle, Integer humidityPercent, String wifi,
-                                    String ipv6, Integer timeStamp, Float ber, String explanation) {
+                                    String ipv6, Integer timeStamp, Float per, String explanation) {
         String query = "select * from Scenario where configId ="+configId+" and phoneName='"+phoneName+"' and "+
                 "moduleName='"+moduleName+"' and distance="+distance+" and place='"+place+"' and obstacleNo="+obstacleNo+" and " +
                 "obstacle='"+obstacle+"' and humidityPercent="+humidityPercent+" and wifi='"+wifi+"' and ipv6='"+ipv6+"' and " +
-                "timeStamp="+timeStamp+" and ber="+ber+" and explanation='"+explanation+"';";
+                "timeStamp="+timeStamp+" and per="+per+" and explanation='"+explanation+"';";
         @SuppressLint("Recycle") Cursor resultCursor = myDb.rawQuery(query,null);
         return resultCursor.getCount()!=0;
     }

@@ -22,6 +22,7 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -75,15 +76,16 @@ public class MainActivity extends Activity {
     TextView connectionStatus_tv;
     TextView sent_received_data_tv;
     Button clear_tv_btn;
-    Button cal_BER_btn;
+    Button cal_per_btn;
     Button saveToDB_btn;
     Button get_humidity_btn;
+    Button showBuffer_btn;
     SharedPreferences pref_currentScenario_info;
     SharedPreferences pref_currentATCommands;
     Boolean isReceivedDataPong;
     Long tsLong;
     String inComingValue;
-    String buffer;
+    String buffer_rcv;
     DatabaseHelper databaseHelper;
 
 
@@ -91,13 +93,13 @@ public class MainActivity extends Activity {
         org_strList.add("salam");
         org_strList.add("golab");
         org_strList.add("IRANI");
-        org_strList.add("rodbar");
+        org_strList.add("odbar");
         org_strList.add("Bravo");
         org_strList.add("abcde");
         org_strList.add("mahdi");
         org_strList.add("ordoo");
         org_strList.add("FARSI");
-        org_strList.add("Tehran");
+        org_strList.add("Teran");
         org_strList.add("99883");
         org_strList.add("12345");
         org_strList.add("44444");
@@ -110,34 +112,34 @@ public class MainActivity extends Activity {
         org_strList.add("13451");
         org_strList.add("ebram");
         org_strList.add("quran");
-        org_strList.add("Ishagh");
-        org_strList.add("Kerm");
-        org_strList.add("Risman");
-        org_strList.add("Koodak");
+        org_strList.add("Isagh");
+        org_strList.add("KermR");
+        org_strList.add("Risma");
+        org_strList.add("oodak");
         org_strList.add("Zebra");
         org_strList.add("Havij");
-        org_strList.add("DASTAN");
-        org_strList.add("Project");
-        org_strList.add("4560");
+        org_strList.add("DATAN");
+        org_strList.add("oject");
+        org_strList.add("45600");
         org_strList.add("54213");
         org_strList.add("54374");
         org_strList.add("09123");
-        org_strList.add("177120");
+        org_strList.add("17720");
         org_strList.add("08642");
         org_strList.add("19191");
         org_strList.add("42345");
         org_strList.add("76876");
         org_strList.add("23214");
-        org_strList.add("rest");
+        org_strList.add("Urest");
         org_strList.add("golab");
         org_strList.add("IRANI");
-        org_strList.add("Semnan");
+        org_strList.add("Seman");
         org_strList.add("Bravo");
         org_strList.add("abcde");
         org_strList.add("mahdi");
         org_strList.add("ordoo");
         org_strList.add("FARSI");
-        org_strList.add("Tehran");
+        org_strList.add("ehran");
         org_strList.add("23421");
         org_strList.add("12345");
         org_strList.add("44444");
@@ -149,46 +151,45 @@ public class MainActivity extends Activity {
         org_strList.add("42314");
         org_strList.add("13451");
         org_strList.add("javad");
-        org_strList.add("window");
-        org_strList.add("oij");
-        org_strList.add("tadbir");
-        org_strList.add("omid");
+        org_strList.add("winow");
+        org_strList.add("WIoij");
+        org_strList.add("dAbir");
+        org_strList.add("Jomid");
         org_strList.add("pirlo");
-        org_strList.add("ronaldo");
+        org_strList.add("naldo");
         org_strList.add("messi");
-        org_strList.add("tabriz");
-        org_strList.add("Your");
+        org_strList.add("tariz");
+        org_strList.add("BYour");
         org_strList.add("42121");
         org_strList.add("98132");
         org_strList.add("42141");
-        org_strList.add("423231");
+        org_strList.add("23231");
         org_strList.add("00000");
-        org_strList.add("534");
-        org_strList.add("7654456");
-        org_strList.add("3122");
+        org_strList.add("53499");
+        org_strList.add("76544");
+        org_strList.add("31224");
         org_strList.add("98763");
-        org_strList.add("123123");
-        org_strList.add("mohammad");
+        org_strList.add("23123");
+        org_strList.add("moham");
         org_strList.add("kerem");
-        org_strList.add("tibala");
+        org_strList.add("tibal");
         org_strList.add("farda");
-        org_strList.add("ukrain");
+        org_strList.add("krain");
         org_strList.add("majid");
-        org_strList.add("webtel");
-        org_strList.add("lolaie");
-        org_strList.add("DASTAN");
-        org_strList.add("Kamyab");
-        org_strList.add("5391");
-        org_strList.add("2131");
+        org_strList.add("wbtel");
+        org_strList.add("olaie");
+        org_strList.add("ASTAN");
+        org_strList.add("amyab");
+        org_strList.add("53912");
+        org_strList.add("21310");
         org_strList.add("54374");
         org_strList.add("46782");
         org_strList.add("09390");
         org_strList.add("02323");
         org_strList.add("98765");
-        org_strList.add("9452");
-        org_strList.add("9352");
-        org_strList.add("10000");
-
+        org_strList.add("91452");
+        org_strList.add("91352");
+        org_strList.add("BYE00");
     }
 
 
@@ -210,7 +211,7 @@ public class MainActivity extends Activity {
         String explanation = pref_currentScenario_info.getString("explanation", null);
         String humidityPercent = pref_currentScenario_info.getString("humidityPercent", null);
         String timeStamp =pref_currentScenario_info.getString("timeStamp",null);
-        String ber = pref_currentScenario_info.getString("ber",null);
+        String per = pref_currentScenario_info.getString("per",null);
         //show parameters in scenarioInfo textView
         if (phoneName != null && phoneManufacturer != null && phoneBLEVersion!=null) {
             scenarioInfo_tv.append(phoneManufacturer+" "+phoneName+" "+"\nBLE Version: "+phoneBLEVersion);
@@ -244,8 +245,8 @@ public class MainActivity extends Activity {
             scenarioInfo_tv.append("timeStamp:" + timeStamp);
             scenarioInfo_tv.append("\n");
         }
-        if(ber != null){
-            scenarioInfo_tv.append("ber= " + ber);
+        if(per != null){
+            scenarioInfo_tv.append("per= " + per);
             scenarioInfo_tv.append("\n");
         }
         if (explanation != null) {
@@ -316,7 +317,6 @@ public class MainActivity extends Activity {
             at_commands_tv.append("\n");
         }
     }
-
     private void saveToDB() {
         //get all data from preferences:
         String phoneName = pref_currentScenario_info.getString("phoneName", null);
@@ -342,10 +342,10 @@ public class MainActivity extends Activity {
         String ipv6 = pref_currentScenario_info.getString("ipv6", null);
         String timeStamp_str =pref_currentScenario_info.getString("timeStamp",null);
         String explanation = pref_currentScenario_info.getString("explanation", null);
-        String ber_str =pref_currentScenario_info.getString("ber",null);
+        String per_str =pref_currentScenario_info.getString("per",null);
 
         if(cintMin_str != null && cintMax_str!= null && rfpm_str!= null && aint_str!= null && ctout_str!= null &&
-        baudRate_str!= null && distance_str!=null && obstacleNo_str!=null && humidityPercent_str!=null && timeStamp_str!=null && ber_str!=null){
+        baudRate_str!= null && distance_str!=null && obstacleNo_str!=null && humidityPercent_str!=null && timeStamp_str!=null && per_str!=null){
             Integer cintMin = Integer.parseInt(cintMin_str);
             Integer cintMax = Integer.parseInt(cintMax_str);
             Integer rfpm = Integer.parseInt(rfpm_str);
@@ -356,7 +356,7 @@ public class MainActivity extends Activity {
             Integer obstacleNo = Integer.parseInt(obstacleNo_str);
             Integer humidityPercent = Integer.parseInt(humidityPercent_str);
             Integer timeStamp = Integer.parseInt(timeStamp_str);
-            Float ber = Float.parseFloat(ber_str);
+            Float per = Float.parseFloat(per_str);
             sent_received_data_tv.setText("#DataBase results:\n");
             //Phone
             if (!databaseHelper.insertNewPhone(phoneName,phoneManufacturer,phoneBLEVersion)) {
@@ -391,7 +391,7 @@ public class MainActivity extends Activity {
             Log.d("salis",configId.toString());
             //Scenario II)saving:
             if(!databaseHelper.insertNewScenario(configId,phoneName,moduleName,distance,place,obstacleNo,obstacle,humidityPercent,wifi,
-                    ipv6,timeStamp,ber,explanation)){
+                    ipv6,timeStamp,per,explanation)){
                 sent_received_data_tv.append("This Scenario currently Exists in the database!");
             }else {
                 sent_received_data_tv.append("New Scenario saved successfully!");
@@ -492,11 +492,11 @@ public class MainActivity extends Activity {
         pref_currentScenario_info = getSharedPreferences("currentScenario_info",MODE_PRIVATE);
         pref_currentATCommands = getSharedPreferences("currentATCommands",MODE_PRIVATE);
         isReceivedDataPong = false;
-        cal_BER_btn = findViewById(R.id.cal_BER_btn);
-        cal_BER_btn.setOnClickListener(new View.OnClickListener() {
+        cal_per_btn = findViewById(R.id.cal_per_btn);
+        cal_per_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                BER();
+                PER();
             }
         });
         saveToDB_btn = findViewById(R.id.btn_saveToDB);
@@ -513,6 +513,13 @@ public class MainActivity extends Activity {
                 getHumidity();
             }
         });
+        showBuffer_btn = findViewById(R.id.buffer_btn);
+        showBuffer_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                sent_received_data_tv.setText(buffer_rcv);
+            }
+        });
         prepare_org_strList();
         databaseHelper = new DatabaseHelper(this);
     }
@@ -522,7 +529,6 @@ public class MainActivity extends Activity {
     // Main BTLE device callback where much of the logic occurs.
     private BluetoothGattCallback gattCallback = new BluetoothGattCallback()   {
         // Called whenever the device connection state changes, i.e. from disconnected to connected.
-
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             super.onConnectionStateChange(gatt, status, newState);
@@ -592,7 +598,8 @@ public class MainActivity extends Activity {
                     writeLine("#Couldn't write RX client descriptor value!");
                 } else {
                     writeLine("#Could write RX client descriptor value.");
-                    connectionStatus_tv.setText(device.getName()+": UART service is ready");
+                    String connection_state = device.getName()+": UART service is ready";
+                    connectionStatus_tv.setText(connection_state);
                 }
             } else {
                 writeLine("#Couldn't get RX client descriptor!");
@@ -605,8 +612,8 @@ public class MainActivity extends Activity {
             super.onCharacteristicChanged(gatt, characteristic);
             //writeLine("#Received: " + characteristic.getStringValue(0))
             inComingValue = characteristic.getStringValue(0);
-            buffer = buffer + inComingValue;
-            sent_received_data_tv.append(inComingValue);
+            buffer_rcv = buffer_rcv + inComingValue;
+            //sent_received_data_tv.append(inComingValue);
         }
     };
 
@@ -620,11 +627,11 @@ public class MainActivity extends Activity {
         }
         //clear send and received data text view
         sent_received_data_tv.setText("");
-        buffer="";
+        buffer_rcv = "";
         //send DATA_STRING_PING
         if(message.trim().equals("$")){
             //getting timeStamp:
-            tsLong = System.currentTimeMillis()/1000;
+            tsLong = System.currentTimeMillis();
             //tsLong = System.nanoTime();
             String ts = tsLong.toString();
             //writeLine("#Sending DATA_PING...");
@@ -640,43 +647,43 @@ public class MainActivity extends Activity {
         }
         //send test input
         else {
-            // Update TX characteristic value.  Note the setValue overload that takes a byte array must be used.
+            //Update TX characteristic value.  Note the setValue overload that takes a byte array must be used.
             tx.setValue(message.getBytes(Charset.forName("UTF-8")));
             if (bluetoothGatt.writeCharacteristic(tx)) {
-                writeLine("#Sent: " + message);
-                sent_received_data_tv.append("#NEW TEST SESSION:\n\nSENT:\n{"+message+"}\n\nRECEIVED:\n");
+                //writeLine("#Sent: " + message);
+                //sent_received_data_tv.append("#NEW TEST SESSION:\n\nSENT:\n{"+message+"}\n\nRECEIVED:\n");
                 input.getText().clear();
             }
         }
     }
 
-    public void BER(){
-        //calculate bit error rate(BER) after ping
-        if(buffer==null){
+    public void PER(){
+        //calculate bit error rate(per) after ping by using buffer_rcv content.
+        if(buffer_rcv ==null){
             return;
         }
         float rcv_ack = 0;
-        String received_data = buffer;
+        String received_data = buffer_rcv;
         List<String> rcv_strList = Arrays.asList(received_data.split("-"));
         for(int i = 0; i< rcv_strList.size(); i++) {
             if(org_strList.contains(rcv_strList.get(i))){
                 rcv_ack++;
             }
         }
-        float BER = 1 - (rcv_ack/org_strList.size());
+        float per = 1 - (rcv_ack/org_strList.size());
         SharedPreferences.Editor editor = pref_currentScenario_info.edit();
-        editor.putString("ber",Float.toString(BER));
+        editor.putString("per",Float.toString(per));
         editor.apply();
         showScenarioInformation();
-//        //show buffer result:
-//        sent_received_data_tv.setText(buffer);
+//        //show buffer_rcv result:
+//        sent_received_data_tv.setText(buffer_rcv);
     }
 
     private void getHumidity() {
         if (tx == null) {
             return;
         }
-        buffer="";
+        buffer_rcv ="";
         //send request for humidityPercent...
         String message = "%";
         tx.setValue(message.getBytes(Charset.forName("UTF-8")));
@@ -690,7 +697,7 @@ public class MainActivity extends Activity {
             e.printStackTrace();
         }
         //save respond to preference:
-        String humidityPercent = buffer.trim();
+        String humidityPercent = buffer_rcv.trim();
         SharedPreferences.Editor editor = pref_currentScenario_info.edit();
         editor.putString("humidityPercent",humidityPercent);
         editor.apply();
@@ -747,11 +754,11 @@ public class MainActivity extends Activity {
             discoveredDevicesAdapter.notifyDataSetChanged();
             listView.setVisibility(View.VISIBLE);
             setProgressBarIndeterminateVisibility(true);
-            writeLine("#Scanning BLE Devices...");
+            //writeLine("#Scanning BLE Devices...");
             bluetoothAdapter.startLeScan(leScanCallback);
         }else {   // enable == false
             listView.setVisibility(View.INVISIBLE);
-            writeLine("#Scanning Stop.");
+            //writeLine("#Scanning Stop.");
             bluetoothAdapter.stopLeScan(leScanCallback);
             setProgressBarIndeterminateVisibility(false);
         }
@@ -789,26 +796,33 @@ public class MainActivity extends Activity {
                     bluetoothGatt=null;
                 }
                 ScanLeDevice(true);
-                return true;
+                break;
             case R.id.AtCommandConfigs:
                 //go to At-command setting activity
                 startActivity(new Intent(MainActivity.this , ATCommandParametersActivity.class));
                 break;
             case R.id.ScenarioInformation:
                 //go to communication_setting activity
-                startActivity(new Intent(MainActivity.this , ScenarioInfoActivity.class));
+                startActivity(new Intent(MainActivity.this , ScenarioInformationActivity.class));
                 break;
             case R.id.ScenariosReports:
                 //go to report activity
                 startActivity(new Intent(MainActivity.this , ScenariosReports.class));
                 break;
             case R.id.disconnect:
-                bluetoothGatt.disconnect();
-                bluetoothGatt.close();
-                bluetoothGatt = null;
-                tx = null;
-                rx = null;
+                if(bluetoothGatt != null){
+                    bluetoothGatt.disconnect();
+                    bluetoothGatt.close();
+                    bluetoothGatt = null;
+                }
+                if(tx!=null || rx !=null){
+                    tx = null;
+                    rx = null;
+                }
                 connectionStatus_tv.setText("Disconnected");
+                break;
+            case R.id.about:
+                //showDialog("BLE-Scenarios","Version 1.0.0");
                 break;
             case R.id.exit:
                 finish();
@@ -893,8 +907,14 @@ public class MainActivity extends Activity {
                 Toast.makeText(this, "Permission Denied! Closing application ...", Toast.LENGTH_LONG).show();
                 finish();
             }
-
         }
+    }
+    private void showDialog(String title, String message) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(title);
+        builder.setMessage(message);
+        builder.setCancelable(true);
+        builder.show();
     }
 
 }

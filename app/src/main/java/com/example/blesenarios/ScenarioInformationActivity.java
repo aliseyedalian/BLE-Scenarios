@@ -12,7 +12,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
 
-public class ScenarioInfoActivity extends AppCompatActivity {
+public class ScenarioInformationActivity extends AppCompatActivity {
     Spinner phoneBleVersion_spinner;
     ArrayAdapter<String> phoneBleVersion_adapter;
     String [] phoneBleVersion_list = {"v4.0","v4.1","v4.2","v5.0"};
@@ -32,7 +32,7 @@ public class ScenarioInfoActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_scenario_info);
+        setContentView(R.layout.activity_scenario_information);
         if(getSupportActionBar()!= null){
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }

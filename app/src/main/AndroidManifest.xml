@@ -19,7 +19,7 @@
         <activity android:name=".ScenariosReports"
             android:theme="@style/Theme.AppCompat"/>
         <activity
-            android:name=".ScenarioInfoActivity"
+            android:name=".ScenarioInformationActivity"
             android:theme="@style/Theme.AppCompat" />
         <activity
             android:name=".ATCommandParametersActivity"

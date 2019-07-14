@@ -162,7 +162,7 @@ public class ScenariosReports extends AppCompatActivity {
         titlesList = new ArrayList<>();
         StringBuffer buffer = new StringBuffer();
         //for each row in scenario resultCursor :
-        // 1-get row and save in buffer
+        // 1-get row and save in buffer_rcv
         // 2-add a key in scenariosKeyList
         // 3-add corresponding value in scenariosContentList
         while (resultCursor.moveToNext()){
@@ -179,7 +179,7 @@ public class ScenariosReports extends AppCompatActivity {
             buffer.append("wifi : "+resultCursor.getString(9)+"\n");
             buffer.append("ipv6 : "+resultCursor.getString(10)+"\n");
             buffer.append("timeStamp : "+resultCursor.getString(11)+"\n");
-            buffer.append("ber : "+resultCursor.getString(12)+"\n");
+            buffer.append("per : "+resultCursor.getString(12)+"\n");
             buffer.append("explanation : "+resultCursor.getString(13)+"\n");
             titlesList.add("Scenario "+resultCursor.getString(0));
             contentsList.add(buffer.toString());

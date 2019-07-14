@@ -23,6 +23,10 @@
         android:title="@string/disconnect"
         android:orderInCategory="100"
         app:showAsAction="never" />
+    <item android:id="@+id/about"
+        android:title="About"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
     <item android:id="@+id/exit"
         android:title="Exit"
         android:orderInCategory="100"
