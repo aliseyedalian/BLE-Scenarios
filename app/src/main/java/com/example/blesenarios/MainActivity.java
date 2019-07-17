@@ -16,11 +16,13 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.icu.text.SimpleDateFormat;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
@@ -38,8 +40,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.nio.charset.Charset;
+import java.sql.Date;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -68,6 +70,7 @@ public class MainActivity extends Activity {
     ListView listView;
     ArrayAdapter<BLEdevice> discoveredDevicesAdapter;
     private List<String> org_strList = new ArrayList<>();
+    private List<Integer> plp_list = new ArrayList<>();
     private ProgressDialog progressDialog;
     private Handler handler;
     private EditText input;
@@ -82,28 +85,27 @@ public class MainActivity extends Activity {
     Button showBuffer_btn;
     SharedPreferences pref_currentScenario_info;
     SharedPreferences pref_currentATCommands;
-    Boolean isReceivedDataPong;
-    Long tsLong;
+    DatabaseHelper databaseHelper;
+    Boolean isStopSendDollar;
     String inComingValue;
     String buffer_rcv;
-    DatabaseHelper databaseHelper;
 
 
     private void prepare_org_strList() {
         org_strList.add("salam");
-        org_strList.add("golab");
-        org_strList.add("IRANI");
+        org_strList.add("morad");
+        org_strList.add("hamta");
         org_strList.add("odbar");
-        org_strList.add("Bravo");
-        org_strList.add("abcde");
-        org_strList.add("mahdi");
-        org_strList.add("ordoo");
-        org_strList.add("FARSI");
+        org_strList.add("pedro");
+        org_strList.add("efghi");
+        org_strList.add("idham");
+        org_strList.add("oodro");
+        org_strList.add("parsi");
         org_strList.add("Teran");
         org_strList.add("99883");
-        org_strList.add("12345");
-        org_strList.add("44444");
-        org_strList.add("09123");
+        org_strList.add("54321");
+        org_strList.add("95195");
+        org_strList.add("19123");
         org_strList.add("75532");
         org_strList.add("42311");
         org_strList.add("54362");
@@ -130,7 +132,7 @@ public class MainActivity extends Activity {
         org_strList.add("42345");
         org_strList.add("76876");
         org_strList.add("23214");
-        org_strList.add("Urest");
+        org_strList.add("medal");
         org_strList.add("golab");
         org_strList.add("IRANI");
         org_strList.add("Seman");
@@ -192,7 +194,6 @@ public class MainActivity extends Activity {
         org_strList.add("BYE00");
     }
 
-
     private void showScenarioInformation() {
         scenarioInfo_tv.setText("");
         if(pref_currentScenario_info==null){
@@ -211,7 +212,7 @@ public class MainActivity extends Activity {
         String explanation = pref_currentScenario_info.getString("explanation", null);
         String humidityPercent = pref_currentScenario_info.getString("humidityPercent", null);
         String timeStamp =pref_currentScenario_info.getString("timeStamp",null);
-        String per = pref_currentScenario_info.getString("per",null);
+        String packetLossPercent = pref_currentScenario_info.getString("packetLossPercent",null);
         //show parameters in scenarioInfo textView
         if (phoneName != null && phoneManufacturer != null && phoneBLEVersion!=null) {
             scenarioInfo_tv.append(phoneManufacturer+" "+phoneName+" "+"\nBLE Version: "+phoneBLEVersion);
@@ -245,8 +246,8 @@ public class MainActivity extends Activity {
             scenarioInfo_tv.append("timeStamp:" + timeStamp);
             scenarioInfo_tv.append("\n");
         }
-        if(per != null){
-            scenarioInfo_tv.append("per= " + per);
+        if(packetLossPercent != null){
+            scenarioInfo_tv.append("packetLossPercent= " + packetLossPercent);
             scenarioInfo_tv.append("\n");
         }
         if (explanation != null) {
@@ -318,7 +319,7 @@ public class MainActivity extends Activity {
         }
     }
     private void saveToDB() {
-        //get all data from preferences:
+        //get all String data from preferences:
         String phoneName = pref_currentScenario_info.getString("phoneName", null);
         String phoneManufacturer = pref_currentScenario_info.getString("phoneManufacturer", null);
         String phoneBLEVersion = pref_currentScenario_info.getString("phoneBLEVersion",null);
@@ -340,12 +341,12 @@ public class MainActivity extends Activity {
         String humidityPercent_str = pref_currentScenario_info.getString("humidityPercent", null);
         String wifi = pref_currentScenario_info.getString("wifi", null);
         String ipv6 = pref_currentScenario_info.getString("ipv6", null);
-        String timeStamp_str =pref_currentScenario_info.getString("timeStamp",null);
+        String timeStamp =pref_currentScenario_info.getString("timeStamp",null);
         String explanation = pref_currentScenario_info.getString("explanation", null);
-        String per_str =pref_currentScenario_info.getString("per",null);
+        String plp_str =pref_currentScenario_info.getString("packetLossPercent",null);
 
         if(cintMin_str != null && cintMax_str!= null && rfpm_str!= null && aint_str!= null && ctout_str!= null &&
-        baudRate_str!= null && distance_str!=null && obstacleNo_str!=null && humidityPercent_str!=null && timeStamp_str!=null && per_str!=null){
+        baudRate_str!= null && distance_str!=null && obstacleNo_str!=null && humidityPercent_str!=null && plp_str!=null){
             Integer cintMin = Integer.parseInt(cintMin_str);
             Integer cintMax = Integer.parseInt(cintMax_str);
             Integer rfpm = Integer.parseInt(rfpm_str);
@@ -355,8 +356,7 @@ public class MainActivity extends Activity {
             Integer distance = Integer.parseInt(distance_str);
             Integer obstacleNo = Integer.parseInt(obstacleNo_str);
             Integer humidityPercent = Integer.parseInt(humidityPercent_str);
-            Integer timeStamp = Integer.parseInt(timeStamp_str);
-            Float per = Float.parseFloat(per_str);
+            Float packetLossPercent = Float.parseFloat(plp_str);
             sent_received_data_tv.setText("#DataBase results:\n");
             //Phone
             if (!databaseHelper.insertNewPhone(phoneName,phoneManufacturer,phoneBLEVersion)) {
@@ -391,15 +391,15 @@ public class MainActivity extends Activity {
             Log.d("salis",configId.toString());
             //Scenario II)saving:
             if(!databaseHelper.insertNewScenario(configId,phoneName,moduleName,distance,place,obstacleNo,obstacle,humidityPercent,wifi,
-                    ipv6,timeStamp,per,explanation)){
+                    ipv6,timeStamp,packetLossPercent,explanation)){
                 sent_received_data_tv.append("This Scenario currently Exists in the database!");
             }else {
                 sent_received_data_tv.append("New Scenario saved successfully!");
             }
+        }else {
+            sent_received_data_tv.setText("Some data are not available for storage!\nPlease check again PLP and Humidity and other date.");
         }
     }
-
-
 
     // OnCreate, called once to initialize the activity.
     @Override
@@ -435,9 +435,9 @@ public class MainActivity extends Activity {
                 SharedPreferences.Editor editor = pref_currentATCommands.edit();
                 String moduleName = device.getName();
                 String moduleBLEVersion;
-                if(moduleName.contains("42")) //HC-42
+                if(moduleName!=null && moduleName.contains("42")) //HC-42
                     moduleBLEVersion = "v5.0";
-                else if(moduleName.contains("8")) //HC-08
+                else if(moduleName!=null && moduleName.contains("8")) //HC-08
                     moduleBLEVersion = "v4.0";
                 else
                     moduleBLEVersion="unKnown";
@@ -457,6 +457,7 @@ public class MainActivity extends Activity {
         });
         Button send_btn = findViewById(R.id.btn_send);
         send_btn.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onClick(View view) {
                 sendClick();
@@ -491,12 +492,11 @@ public class MainActivity extends Activity {
         });
         pref_currentScenario_info = getSharedPreferences("currentScenario_info",MODE_PRIVATE);
         pref_currentATCommands = getSharedPreferences("currentATCommands",MODE_PRIVATE);
-        isReceivedDataPong = false;
         cal_per_btn = findViewById(R.id.cal_per_btn);
         cal_per_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                PER();
+                calculate_avg_packetLossPercent(plp_list);
             }
         });
         saveToDB_btn = findViewById(R.id.btn_saveToDB);
@@ -525,8 +525,7 @@ public class MainActivity extends Activity {
     }
 
 
-
-    // Main BTLE device callback where much of the logic occurs.
+    //BluetoothGattCallback: Main BLE device callback where much of the logic occurs:
     private BluetoothGattCallback gattCallback = new BluetoothGattCallback()   {
         // Called whenever the device connection state changes, i.e. from disconnected to connected.
         @Override
@@ -610,73 +609,106 @@ public class MainActivity extends Activity {
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
             super.onCharacteristicChanged(gatt, characteristic);
-            //writeLine("#Received: " + characteristic.getStringValue(0))
             inComingValue = characteristic.getStringValue(0);
-            buffer_rcv = buffer_rcv + inComingValue;
+            buffer_rcv += inComingValue;
             //sent_received_data_tv.append(inComingValue);
         }
     };
 
     // Handler for mouse click on the send button.
+    @RequiresApi(api = Build.VERSION_CODES.N)
     public void sendClick(){
         //get message from input
         String message = input.getText().toString();
-        if (tx == null || message.isEmpty()) {
-            // Do nothing if there is no device or message to send.
+        if (tx == null) {
+            // Do nothing if there is no device or message.
             return;
         }
-        //clear send and received data text view
+        if(message.isEmpty()){
+            message = "$";
+        }
+        //clear send and received data text view and clear buffer
         sent_received_data_tv.setText("");
         buffer_rcv = "";
-        //send DATA_STRING_PING
         if(message.trim().equals("$")){
-            //getting timeStamp:
-            tsLong = System.currentTimeMillis();
-            //tsLong = System.nanoTime();
-            String ts = tsLong.toString();
-            //writeLine("#Sending DATA_PING...");
-            //save timestamp to preferences:
+            //getting timeStamp and save it to preferences:
+            Long tsLong = System.currentTimeMillis();
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MMM-dd HH:mm:ss.SSS");
+            Date resultDate = new Date(tsLong);
+            String timeStamp = sdf.format(resultDate);
             SharedPreferences.Editor editor = pref_currentScenario_info.edit();
-            editor.putString("timeStamp",ts);
+            editor.putString("timeStamp",timeStamp);
             editor.apply();
-            showScenarioInformation(); //update scenario info and show timeStamp
-            tx.setValue(message.getBytes(Charset.forName("UTF-8")));
-            if(bluetoothGatt.writeCharacteristic(tx)) {
-                input.getText().clear();
-            }
+            showScenarioInformation();
+            //sent message "$" 100 times - for each time calculate packet loss percent and add it to plp_list:
+            plp_list.clear();
+            setProgressBarIndeterminateVisibility(true);
+            isStopSendDollar = false;
+            final Integer n = 10;
+            sendDollar(n);
         }
         //send test input
         else {
             //Update TX characteristic value.  Note the setValue overload that takes a byte array must be used.
             tx.setValue(message.getBytes(Charset.forName("UTF-8")));
             if (bluetoothGatt.writeCharacteristic(tx)) {
-                //writeLine("#Sent: " + message);
                 //sent_received_data_tv.append("#NEW TEST SESSION:\n\nSENT:\n{"+message+"}\n\nRECEIVED:\n");
                 input.getText().clear();
             }
         }
     }
-
-    public void PER(){
-        //calculate bit error rate(per) after ping by using buffer_rcv content.
-        if(buffer_rcv ==null){
+    private void sendDollar(final Integer n) {
+        if(n==0 || isStopSendDollar){
+            setProgressBarIndeterminateVisibility(false);
             return;
         }
-        float rcv_ack = 0;
-        String received_data = buffer_rcv;
-        List<String> rcv_strList = Arrays.asList(received_data.split("-"));
-        for(int i = 0; i< rcv_strList.size(); i++) {
-            if(org_strList.contains(rcv_strList.get(i))){
-                rcv_ack++;
+        buffer_rcv = "";
+        tx.setValue("$".getBytes(Charset.forName("UTF-8")));
+        if(bluetoothGatt.writeCharacteristic(tx)) {
+            //if sent successfully, wait 1 second and then add calculated packet loss percent  to plp_list
+            //then send next "$"
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    //after delay calculate packetLossPercent and add it to plp_list
+                    Integer plp = calculate_packetLossPercent(buffer_rcv,n);
+                    plp_list.add(plp);
+                    sendDollar(n-1);
+                }
+            },1000);
+        }
+
+    }
+
+    private Integer calculate_packetLossPercent(String buffer_rcv,Integer n) {
+        //calculate packet error rate(plp) after ping by using buffer_rcv content.
+        int ack = 0;
+        String[] rcv_strList = buffer_rcv.split("-");
+        for (String s : rcv_strList) {
+            if (org_strList.contains(s)) {
+                ack++;
             }
         }
-        float per = 1 - (rcv_ack/org_strList.size());
+        int plp = 100 - ack;
+        sent_received_data_tv.append("PacketLossPercent"+n.toString()+": "+plp +"%\n");
+        return plp;
+    }
+    private void calculate_avg_packetLossPercent(List<Integer> plp_list) {
+        if(plp_list.isEmpty()){
+            return;
+        }
+        isStopSendDollar = true;
+        float sum = (float) 0;
+        if(!plp_list.isEmpty()) {
+            for (Integer plp : plp_list) {
+                sum += plp;
+            }
+        }
+        float avg = sum / plp_list.size();
         SharedPreferences.Editor editor = pref_currentScenario_info.edit();
-        editor.putString("per",Float.toString(per));
+        editor.putString("packetLossPercent", Float.toString(avg));
         editor.apply();
         showScenarioInformation();
-//        //show buffer_rcv result:
-//        sent_received_data_tv.setText(buffer_rcv);
     }
 
     private void getHumidity() {
@@ -775,6 +807,7 @@ public class MainActivity extends Activity {
         editor2 = pref_currentScenario_info.edit();
         editor2.clear();
         editor2.apply();
+        buffer_rcv = "";
     }
     // Write some text to the messages text view.
     private void writeLine(final String text) {
@@ -791,10 +824,16 @@ public class MainActivity extends Activity {
         switch (item.getItemId()){
             case R.id.action_scan:
                 if(bluetoothGatt!=null){
+                    isStopSendDollar = true;
                     bluetoothGatt.disconnect();
                     bluetoothGatt.close();
                     bluetoothGatt=null;
                 }
+                if(tx!=null || rx !=null){
+                    tx = null;
+                    rx = null;
+                }
+                connectionStatus_tv.setText("Disconnected");
                 ScanLeDevice(true);
                 break;
             case R.id.AtCommandConfigs:
@@ -811,6 +850,7 @@ public class MainActivity extends Activity {
                 break;
             case R.id.disconnect:
                 if(bluetoothGatt != null){
+                    isStopSendDollar = true;
                     bluetoothGatt.disconnect();
                     bluetoothGatt.close();
                     bluetoothGatt = null;
@@ -825,6 +865,17 @@ public class MainActivity extends Activity {
                 //showDialog("BLE-Scenarios","Version 1.0.0");
                 break;
             case R.id.exit:
+                if(bluetoothGatt!=null){
+                    isStopSendDollar = true;
+                    bluetoothGatt.disconnect();
+                    bluetoothGatt.close();
+                    bluetoothGatt=null;
+                }
+                if(tx!=null || rx !=null){
+                    tx = null;
+                    rx = null;
+                }
+                connectionStatus_tv.setText("Disconnected");
                 finish();
                 break;
             default:
