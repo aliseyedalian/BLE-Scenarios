@@ -65,28 +65,27 @@
                 <TextView
                     android:layout_width="0dp"
                     android:layout_weight="2"
-                    android:text="Connection Interval:"
+                    android:text="Connection Interval [6~3200]*1.25ms"
                     android:gravity="center"
                     android:layout_height="match_parent" />
-
                 <EditText
                     android:id="@+id/cintMin"
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:hint="CINT(MIN)"
-                    android:textSize="15dp"
+                    android:textSize="15sp"
                     android:inputType="number"
-                    android:layout_height="match_parent" />
+                    android:layout_height="wrap_content" />
                 <EditText
                     android:id="@+id/cintMax"
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:hint="CINT(MAX)"
+                    android:textSize="15sp"
                     android:inputType="number"
-                    android:textSize="15dp"
-                    android:layout_height="match_parent" />
+                    android:layout_height="wrap_content" />
             </LinearLayout>
-            <!--editText rfpm,aint,ctout inputs-->
+            <!-- rfpm input-->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -101,22 +100,52 @@
                     android:hint="@string/rfpm"
                     android:inputType="number"
                     android:layout_height="match_parent" />
+            </LinearLayout>
+            <!--aint input-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="10dp">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="2"
+                    android:layout_height="wrap_content"
+                    android:text="Advertising interval [32~16382] ms"
+                    android:gravity="center"/>
+
                 <EditText
                     android:id="@+id/aint"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_weight="1"
-                    android:textSize="15dp"
                     android:hint="@string/aint"
+                    android:textSize="15sp"
                     android:inputType="number"
-                    android:layout_height="match_parent" />
+                    android:gravity="center"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+            <!--ctout input-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="10dp">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="2"
+                    android:layout_height="wrap_content"
+                    android:text="Connection supervision timeout [10~3200]*10ms"
+                    android:gravity="center"/>
+
                 <EditText
                     android:id="@+id/ctout"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_weight="1"
                     android:hint="@string/ctout"
-                    android:textSize="15dp"
                     android:inputType="number"
-                    android:layout_height="match_parent" />
+                    android:textSize="15sp"
+                    android:gravity="center"
+                    android:layout_height="wrap_content" />
             </LinearLayout>
 
             <!--layout_baud_rate -->
