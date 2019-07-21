@@ -40,8 +40,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "aint INTEGER," +
                 "ctout INTEGER,"+
                 "led TEXT,"+
-                "baudRate INTEGER," +
-                "parity TEXT);"
+                "baudRate INTEGER);"
         );
         sqLiteDatabase.execSQL("create table Scenario(" +
                 "scenId INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -107,8 +106,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return resultModule!=-1;
     }
     boolean insertNewConfig(String ATDEFAULT,Integer cintMin,Integer cintMax,Integer rfpm,Integer aint,
-                            Integer ctout ,String led ,Integer baudRate , String parity){
-        if(isExistConfig(ATDEFAULT,cintMin,cintMax,rfpm,aint,ctout,led,baudRate,parity)){
+                            Integer ctout ,String led ,Integer baudRate ){
+        if(isExistConfig(ATDEFAULT,cintMin,cintMax,rfpm,aint,ctout,led,baudRate)){
             return false;
         }
         ContentValues contentValuesModule = new ContentValues();
@@ -120,7 +119,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         contentValuesModule.put("ctout",ctout);
         contentValuesModule.put("led",led);
         contentValuesModule.put("baudRate",baudRate);
-        contentValuesModule.put("parity",parity);
         long resultConfig = myDb.insert("Config",null,contentValuesModule);
         return resultConfig!=-1;
     }
@@ -179,10 +177,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return resultCursor.getCount()!=0;
     }
     private boolean isExistConfig(String ATDEFAULT, Integer cintMin, Integer cintMax, Integer rfpm,
-                                  Integer aint, Integer ctout, String led, Integer baudRate, String parity){
+                                  Integer aint, Integer ctout, String led, Integer baudRate){
         String query = "select ConfigId from Config where ATDEFAULT ='"+ATDEFAULT+"' and cintMin="+cintMin+" and "+
                 "cintMax="+cintMax+" and rfpm="+rfpm+" and aint="+aint+" and ctout="+ctout+" and " +
-                "led='"+led+"' and baudRate="+baudRate+" and parity='"+parity+"';";
+                "led='"+led+"' and baudRate="+baudRate+";";
         @SuppressLint("Recycle") Cursor resultCursor = myDb.rawQuery(query,null);
         return resultCursor.getCount()!=0;
     }
@@ -202,10 +200,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
     Cursor getConfigId(String ATDEFAULT, Integer cintMin, Integer cintMax, Integer rfpm,
-                               Integer aint, Integer ctout, String led, Integer baudRate, String parity) {
+                               Integer aint, Integer ctout, String led, Integer baudRate) {
         String query = "select distinct ConfigId from Config where ATDEFAULT ='"+ATDEFAULT+"' and cintMin="+cintMin+" and "+
                 "cintMax="+cintMax+" and rfpm="+rfpm+" and aint="+aint+" and ctout="+ctout+" and " +
-                "led='"+led+"' and baudRate="+baudRate+" and parity='"+parity+"';";
+                "led='"+led+"' and baudRate="+baudRate+";";
         return myDb.rawQuery(query,null);
     }
 

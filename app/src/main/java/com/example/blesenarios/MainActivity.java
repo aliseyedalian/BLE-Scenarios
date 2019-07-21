@@ -269,7 +269,6 @@ public class MainActivity extends Activity {
         String aint = pref_currentATCommands.getString("aint", null);
         String ctout = pref_currentATCommands.getString("ctout", null);
         String baudRate = pref_currentATCommands.getString("baudRate", null);
-        String parity = pref_currentATCommands.getString("parity", null);
         String led = pref_currentATCommands.getString("led", null);
 
         //show at commands parameters in at_commands_tv textView
@@ -309,10 +308,6 @@ public class MainActivity extends Activity {
             at_commands_tv.append("baudRate: "+baudRate);
             at_commands_tv.append("\n");
         }
-        if (parity != null) {
-            at_commands_tv.append("parity: "+parity);
-            at_commands_tv.append("\n");
-        }
         if (led != null) {
             at_commands_tv.append("led: "+led);
             at_commands_tv.append("\n");
@@ -333,7 +328,6 @@ public class MainActivity extends Activity {
         String ctout_str = pref_currentATCommands.getString("ctout", null);
         String led = pref_currentATCommands.getString("led", null);
         String baudRate_str = pref_currentATCommands.getString("baudRate", null);
-        String parity = pref_currentATCommands.getString("parity", null);
         String distance_str = pref_currentScenario_info.getString("distance", null);
         String place = pref_currentScenario_info.getString("place", null); //indoor/outdoor
         String obstacleNo_str =pref_currentScenario_info.getString("obstacleNo", null);
@@ -371,14 +365,14 @@ public class MainActivity extends Activity {
                 sent_received_data_tv.append("New Module saved successfully!\n");
             }
             //Config
-            if(!databaseHelper.insertNewConfig(ATDEFAULT,cintMin,cintMax,rfpm,aint,ctout,led,baudRate,parity)){
+            if(!databaseHelper.insertNewConfig(ATDEFAULT,cintMin,cintMax,rfpm,aint,ctout,led,baudRate)){
                 sent_received_data_tv.append("This Config currently Exists in the database!\n");
             }else {
                 sent_received_data_tv.append("New Config saved successfully!\n");
             }
 
             //Scenario I)obtain correct configId:
-            Cursor configIdCursor = databaseHelper.getConfigId(ATDEFAULT,cintMin,cintMax,rfpm,aint,ctout,led,baudRate,parity);
+            Cursor configIdCursor = databaseHelper.getConfigId(ATDEFAULT,cintMin,cintMax,rfpm,aint,ctout,led,baudRate);
             if(configIdCursor.getCount()==0){
                 sent_received_data_tv.append("Error: Nothing Found correct configId!");
                 return;
@@ -837,8 +831,13 @@ public class MainActivity extends Activity {
                 ScanLeDevice(true);
                 break;
             case R.id.AtCommandConfigs:
-                //go to At-command setting activity
-                startActivity(new Intent(MainActivity.this , ATCommandParametersActivity.class));
+                //go to At-command setting activity if moduleName is defined
+                String moduleName = pref_currentATCommands.getString("moduleName", null);
+                if(moduleName!=null){
+                    startActivity(new Intent(MainActivity.this , ATCommandParametersActivity.class));
+                }else {
+                    sent_received_data_tv.setText("Error: bluetooth Module is not recognized!");
+                }
                 break;
             case R.id.ScenarioInformation:
                 //go to communication_setting activity

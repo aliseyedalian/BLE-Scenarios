@@ -12,11 +12,10 @@
         tools:ignore="MissingConstraints">
         <!-- Title -->
         <TextView
-            android:id="@+id/title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
             android:text="AT-COMMAND Configuration"
+            android:gravity="center"
             android:textStyle="bold"
             android:textSize="20sp"
             android:textColor="#FFFF00"
@@ -25,7 +24,7 @@
         <!-- Line -->
         <View
             android:layout_width="match_parent"
-            android:layout_height="2dp"
+            android:layout_height="2.5dp"
             android:layout_marginTop="2dp"
             android:background="#FFFFFF"
             />
@@ -33,58 +32,42 @@
         <!-- layout_parameters -->
         <LinearLayout
             android:id="@+id/layout_parameters"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="5dp"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
-            <!-- module type checkbox -->
+            <!-- module name -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:gravity="left"
                 android:padding="10dp"
-                android:gravity="center"
                 android:orientation="horizontal">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
                     android:layout_height="wrap_content"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="bold"
                     android:text="Module Name: " />
+
                 <TextView
                     android:id="@+id/deviceName_tv"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:textStyle="bold"
-                    android:text="" />
+                    android:text=""
+                    android:gravity="left" />
             </LinearLayout>
-            <!--editText cint min and max -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="10dp"
-                android:orientation="horizontal">
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_weight="2"
-                    android:text="Connection Interval [6~3200]*1.25ms"
-                    android:gravity="center"
-                    android:layout_height="match_parent" />
-                <EditText
-                    android:id="@+id/cintMin"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:hint="CINT(MIN)"
-                    android:textSize="15sp"
-                    android:inputType="number"
-                    android:layout_height="wrap_content" />
-                <EditText
-                    android:id="@+id/cintMax"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:hint="CINT(MAX)"
-                    android:textSize="15sp"
-                    android:inputType="number"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
+            <!-- Line -->
+            <View
+                android:layout_width="200dp"
+                android:layout_gravity="center"
+                android:layout_height="1dp"
+                android:layout_marginTop="5dp"
+                android:background="#FFFFFF"
+                />
             <!-- rfpm input-->
             <LinearLayout
                 android:layout_width="match_parent"
@@ -92,15 +75,74 @@
                 android:orientation="horizontal"
                 android:padding="10dp">
 
-                <EditText
-                    android:id="@+id/rfpm"
-                    android:layout_width="match_parent"
+                <TextView
+                    android:text="RFPM:"
+                    android:textStyle="bold"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:textSize="15dp"
-                    android:hint="@string/rfpm"
-                    android:inputType="number"
-                    android:layout_height="match_parent" />
+                    android:gravity="left"
+                    android:textColor="#FFFFFF"/>
+                <Spinner
+                    android:id="@+id/rfpm"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:scrollbarSize="@android:dimen/app_icon_size"
+                    tools:ignore="MissingConstraints" />
             </LinearLayout>
+            <!-- Line -->
+            <View
+                android:layout_width="200dp"
+                android:layout_gravity="center"
+                android:layout_height="1dp"
+                android:layout_marginTop="5dp"
+                android:background="#FFFFFF"
+                />
+            <!--editText cint min and max -->
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:padding="10dp"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_marginTop="5dp"
+                    android:layout_width="0dp"
+                    android:layout_weight="2"
+                    android:layout_height="wrap_content"
+                    android:text="Connection Interval:\n([6~3200]*1.25ms)"
+                    android:textStyle="bold"
+                    android:layout_gravity="start"
+                    android:textColor="#FFFFFF"
+                    android:gravity="start"
+                    />
+                <EditText
+                    android:id="@+id/cintMin"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:hint="CINT(MIN)"
+                    android:textSize="12sp"
+                    android:inputType="number"
+                    android:layout_height="wrap_content" />
+                <EditText
+                    android:id="@+id/cintMax"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:hint="CINT(MAX)"
+                    android:textSize="12sp"
+                    android:inputType="number"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+            <!-- Line -->
+            <View
+                android:layout_width="200dp"
+                android:layout_gravity="center"
+                android:layout_height="1dp"
+                android:layout_marginTop="5dp"
+                android:background="#FFFFFF"
+                />
             <!--aint input-->
             <LinearLayout
                 android:layout_width="match_parent"
@@ -109,21 +151,30 @@
                 android:padding="10dp">
                 <TextView
                     android:layout_width="0dp"
-                    android:layout_weight="2"
-                    android:layout_height="wrap_content"
-                    android:text="Advertising interval [32~16382] ms"
-                    android:gravity="center"/>
-
+                    android:layout_weight="3"
+                    android:layout_height="match_parent"
+                    android:text="Advertising interval:\n([32~16000] ms)"
+                    android:textStyle="bold"
+                    android:textColor="#FFFFFF"
+                    android:gravity="left"/>
                 <EditText
                     android:id="@+id/aint"
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:hint="@string/aint"
-                    android:textSize="15sp"
+                    android:textSize="12sp"
                     android:inputType="number"
                     android:gravity="center"
                     android:layout_height="wrap_content" />
             </LinearLayout>
+            <!-- Line -->
+            <View
+                android:layout_width="200dp"
+                android:layout_gravity="center"
+                android:layout_height="1dp"
+                android:layout_marginTop="5dp"
+                android:background="#FFFFFF"
+                />
             <!--ctout input-->
             <LinearLayout
                 android:layout_width="match_parent"
@@ -132,10 +183,12 @@
                 android:padding="10dp">
                 <TextView
                     android:layout_width="0dp"
-                    android:layout_weight="2"
-                    android:layout_height="wrap_content"
-                    android:text="Connection supervision timeout [10~3200]*10ms"
-                    android:gravity="center"/>
+                    android:layout_weight="3"
+                    android:layout_height="match_parent"
+                    android:text="Connection supervision timeout:\n([10~3200]*10ms)"
+                    android:textStyle="bold"
+                    android:textColor="#FFFFFF"
+                    android:gravity="left"/>
 
                 <EditText
                     android:id="@+id/ctout"
@@ -143,46 +196,57 @@
                     android:layout_weight="1"
                     android:hint="@string/ctout"
                     android:inputType="number"
-                    android:textSize="15sp"
+                    android:textSize="12sp"
                     android:gravity="center"
                     android:layout_height="wrap_content" />
             </LinearLayout>
+            <View
+                android:layout_width="200dp"
+                android:layout_gravity="center"
+                android:layout_height="1dp"
+                android:layout_marginTop="5dp"
+                android:background="#FFFFFF"
+                />
 
             <!--layout_baud_rate -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
                 android:orientation="vertical">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_height="wrap_content"
-                    android:textStyle="bold"
-                    android:text="Baud Rate:" />
+
                 <LinearLayout
                     android:id="@+id/layout_baud_rate"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:padding="10dp">
+                    <TextView
+                        android:text="Baud Rate(bps):"
+                        android:textStyle="bold"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="left"
+                        android:textColor="#FFFFFF"
+                        />
                     <Spinner
                         android:id="@+id/baud_rate"
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:scrollbarSize="@android:dimen/app_icon_size"
-                        tools:ignore="MissingConstraints" />
-                    <Spinner
-                        android:id="@+id/parity"
-                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:scrollbarSize="@android:dimen/app_icon_size"
-                        android:layout_weight="1"
                         tools:ignore="MissingConstraints" />
                 </LinearLayout>
 
             </LinearLayout>
+            <!-- Line -->
+            <View
+                android:layout_width="200dp"
+                android:layout_gravity="center"
+                android:layout_height="1dp"
+                android:layout_marginTop="5dp"
+                android:background="#FFFFFF"
+                />
 
             <!--checkboxes-->
             <LinearLayout
@@ -198,6 +262,7 @@
                     android:layout_weight="1"
                     android:layout_marginStart="3dp"
                     android:checked="true"
+                    android:textStyle="bold"
                     android:text="@string/led"/>
                 <CheckBox
                     android:id="@+id/checkbox_factorySetting"
@@ -205,7 +270,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="3dp"
                     android:layout_weight="1"
-                    android:text="@string/restore_factory_setting" />
+                    android:text="Default Setting"
+                    android:textStyle="bold"/>
             </LinearLayout>
 
             <!--Btn-->
