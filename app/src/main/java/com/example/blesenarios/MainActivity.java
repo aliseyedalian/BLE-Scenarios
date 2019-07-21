@@ -321,79 +321,64 @@ public class MainActivity extends Activity {
         String moduleName = pref_currentATCommands.getString("moduleName", null);
         String moduleBLEVersion = pref_currentATCommands.getString("moduleBLEVersion",null);
         String ATDEFAULT = pref_currentATCommands.getString("ATDEFAULT", null);
-        String cintMin_str =pref_currentATCommands.getString("cintMin", null);
-        String cintMax_str = pref_currentATCommands.getString("cintMax", null);
-        String  rfpm_str =pref_currentATCommands.getString("rfpm", null);
-        String aint_str =pref_currentATCommands.getString("aint", null);
-        String ctout_str = pref_currentATCommands.getString("ctout", null);
+        String cintMin =pref_currentATCommands.getString("cintMin", null);
+        String cintMax = pref_currentATCommands.getString("cintMax", null);
+        String rfpm =pref_currentATCommands.getString("rfpm", null);
+        String aint =pref_currentATCommands.getString("aint", null);
+        String ctout = pref_currentATCommands.getString("ctout", null);
         String led = pref_currentATCommands.getString("led", null);
-        String baudRate_str = pref_currentATCommands.getString("baudRate", null);
-        String distance_str = pref_currentScenario_info.getString("distance", null);
+        String baudRate = pref_currentATCommands.getString("baudRate", null);
+        String distance = pref_currentScenario_info.getString("distance", null);
         String place = pref_currentScenario_info.getString("place", null); //indoor/outdoor
-        String obstacleNo_str =pref_currentScenario_info.getString("obstacleNo", null);
+        String obstacleNo =pref_currentScenario_info.getString("obstacleNo", null);
         String obstacle = pref_currentScenario_info.getString("obstacle", null);
-        String humidityPercent_str = pref_currentScenario_info.getString("humidityPercent", null);
+        String humidityPercent = pref_currentScenario_info.getString("humidityPercent", null);
         String wifi = pref_currentScenario_info.getString("wifi", null);
         String ipv6 = pref_currentScenario_info.getString("ipv6", null);
         String timeStamp =pref_currentScenario_info.getString("timeStamp",null);
         String explanation = pref_currentScenario_info.getString("explanation", null);
-        String plp_str =pref_currentScenario_info.getString("packetLossPercent",null);
+        String packetLossPercent =pref_currentScenario_info.getString("packetLossPercent",null);
 
-        if(cintMin_str != null && cintMax_str!= null && rfpm_str!= null && aint_str!= null && ctout_str!= null &&
-        baudRate_str!= null && distance_str!=null && obstacleNo_str!=null && humidityPercent_str!=null && plp_str!=null){
-            Integer cintMin = Integer.parseInt(cintMin_str);
-            Integer cintMax = Integer.parseInt(cintMax_str);
-            Integer rfpm = Integer.parseInt(rfpm_str);
-            Integer aint = Integer.parseInt(aint_str);
-            Integer ctout = Integer.parseInt(ctout_str);
-            Integer baudRate = Integer.parseInt(baudRate_str);
-            Integer distance = Integer.parseInt(distance_str);
-            Integer obstacleNo = Integer.parseInt(obstacleNo_str);
-            Integer humidityPercent = Integer.parseInt(humidityPercent_str);
-            Float packetLossPercent = Float.parseFloat(plp_str);
-            sent_received_data_tv.setText("#DataBase results:\n");
-            //Phone
-            if (!databaseHelper.insertNewPhone(phoneName,phoneManufacturer,phoneBLEVersion)) {
-                sent_received_data_tv.append("This Phone currently Exists in the database!\n");
-            }else {
-                sent_received_data_tv.append("New Phone saved successfully!\n");
-            }
-            //Module
-            if(!databaseHelper.insertNewModule(moduleName,moduleBLEVersion)) {
-                sent_received_data_tv.append("This Module currently Exists in the database!\n");
-            }else {
-                sent_received_data_tv.append("New Module saved successfully!\n");
-            }
-            //Config
-            if(!databaseHelper.insertNewConfig(ATDEFAULT,cintMin,cintMax,rfpm,aint,ctout,led,baudRate)){
-                sent_received_data_tv.append("This Config currently Exists in the database!\n");
-            }else {
-                sent_received_data_tv.append("New Config saved successfully!\n");
-            }
-
-            //Scenario I)obtain correct configId:
-            Cursor configIdCursor = databaseHelper.getConfigId(ATDEFAULT,cintMin,cintMax,rfpm,aint,ctout,led,baudRate);
-            if(configIdCursor.getCount()==0){
-                sent_received_data_tv.append("Error: Nothing Found correct configId!");
-                return;
-            }
-            StringBuffer buffer = new StringBuffer();
-            while (configIdCursor.moveToNext()){
-                buffer.append(configIdCursor.getString(0));
-            }
-            Integer configId =  Integer.parseInt(buffer.toString());
-            Log.d("salis",configId.toString());
-            //Scenario II)saving:
-            if(!databaseHelper.insertNewScenario(configId,phoneName,moduleName,distance,place,obstacleNo,obstacle,humidityPercent,wifi,
-                    ipv6,timeStamp,packetLossPercent,explanation)){
-                sent_received_data_tv.append("This Scenario currently Exists in the database!");
-            }else {
-                sent_received_data_tv.append("New Scenario saved successfully!");
-            }
+        //Phone insert
+        if (!databaseHelper.insertNewPhone(phoneName,phoneManufacturer,phoneBLEVersion)) {
+            sent_received_data_tv.append("This Phone currently Exists in the database!\n");
         }else {
-            sent_received_data_tv.setText("Some data are not available for storage!\nPlease check again PLP and Humidity and other date.");
+            sent_received_data_tv.append("New Phone saved successfully!\n");
         }
-    }
+        //Module insert
+        if(!databaseHelper.insertNewModule(moduleName,moduleBLEVersion)) {
+            sent_received_data_tv.append("This Module currently Exists in the database!\n");
+        }else {
+            sent_received_data_tv.append("New Module saved successfully!\n");
+        }
+        //Config insert
+        if(!databaseHelper.insertNewConfig(ATDEFAULT,cintMin,cintMax,rfpm,aint,ctout,led,baudRate)){
+            sent_received_data_tv.append("This Config currently Exists in the database!\n");
+        }else {
+            sent_received_data_tv.append("New Config saved successfully!\n");
+        }
+
+        //Scenario insert
+        // I)obtain correct configId:
+        Cursor configIdCursor = databaseHelper.getConfigId(ATDEFAULT,cintMin,cintMax,rfpm,aint,ctout,led,baudRate);
+        if(configIdCursor.getCount()==0){
+            sent_received_data_tv.append("Error: Nothing Found correct configId!");
+            return;
+        }
+        StringBuffer buffer = new StringBuffer();
+        while (configIdCursor.moveToNext()){
+            buffer.append(configIdCursor.getString(0));
+        }
+        Integer configId =  Integer.parseInt(buffer.toString());
+        //Scenario II)saving:
+        if(!databaseHelper.insertNewScenario(configId,phoneName,moduleName,distance,place,obstacleNo,obstacle,humidityPercent,wifi,
+                ipv6,timeStamp,packetLossPercent,explanation)){
+            sent_received_data_tv.append("This Scenario currently Exists in the database!");
+        }else {
+            sent_received_data_tv.append("New Scenario saved successfully!");
+        }
+        }
+
 
     // OnCreate, called once to initialize the activity.
     @Override
@@ -700,7 +685,7 @@ public class MainActivity extends Activity {
         }
         float avg = sum / plp_list.size();
         SharedPreferences.Editor editor = pref_currentScenario_info.edit();
-        editor.putString("packetLossPercent", Float.toString(avg));
+        editor.putString("packetLossPercent", Float.toString(avg)+" %");
         editor.apply();
         showScenarioInformation();
     }
@@ -725,7 +710,7 @@ public class MainActivity extends Activity {
         //save respond to preference:
         String humidityPercent = buffer_rcv.trim();
         SharedPreferences.Editor editor = pref_currentScenario_info.edit();
-        editor.putString("humidityPercent",humidityPercent);
+        editor.putString("humidityPercent",humidityPercent+ " %");
         editor.apply();
         showScenarioInformation(); //update scenario info and show Humidity
     }

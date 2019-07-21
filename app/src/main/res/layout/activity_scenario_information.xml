@@ -45,7 +45,8 @@
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:text="Phone BLE Version:" />
+                    android:text="Phone BLE Version:"
+                    android:textStyle="bold"/>
                 <Spinner
                     android:id="@+id/phoneBleVersion"
                     android:layout_width="0dp"
@@ -67,7 +68,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:inputType="number"
-                    android:hint="Distance(meter)" />
+                    android:hint="Distance(meter)"
+                    android:textSize="15dp"/>
                 <Spinner
                     android:id="@+id/indoor_outdoor"
                     android:layout_width="0dp"
@@ -86,15 +88,16 @@
                     android:id="@+id/obstacle_count"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="3"
+                    android:layout_weight="1"
                     android:inputType="number"
-                    android:hint="Obstacle NO." />
+                    android:hint="Number of Obstacles"
+                    android:textSize="15dp"/>
 
                 <Spinner
                     android:id="@+id/obstacle"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="5"
+                    android:layout_weight="1"
                     tools:ignore="MissingConstraints" />
             </LinearLayout>
 
@@ -109,21 +112,24 @@
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:text="Wi-Fi"/>
+                    android:text="Wi-Fi"
+                    android:textStyle="bold"/>
 
                 <CheckBox
                     android:id="@+id/ipv6_cb"
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:text="IP-v6"/>
+                    android:text="IP-v6"
+                    android:textStyle="bold"/>
             </LinearLayout>
             <EditText
                 android:id="@+id/moreExplanation"
                 android:layout_margin="10dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="More Explanation"/>
+                android:hint="More Explanation"
+                android:textSize="15dp"/>
 
             <!-- Buttons layers-->
             <Button

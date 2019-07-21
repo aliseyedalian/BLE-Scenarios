@@ -34,29 +34,29 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL("create table Config(" +
                 "configId INTEGER PRIMARY KEY AUTOINCREMENT," +
                 "ATDEFAULT TEXT default 'No'," +
-                "cintMin INTEGER," +
-                "cintMax INTEGER," +
-                "rfpm INTEGER," +
-                "aint INTEGER," +
-                "ctout INTEGER,"+
+                "cintMin TEXT," +
+                "cintMax TEXT," +
+                "rfpm TEXT," +
+                "aint TEXT," +
+                "ctout TEXT,"+
                 "led TEXT,"+
-                "baudRate INTEGER);"
+                "baudRate TEXT);"
         );
         sqLiteDatabase.execSQL("create table Scenario(" +
                 "scenId INTEGER PRIMARY KEY AUTOINCREMENT," +
                 "configId integer," +
                 "phoneName TEXT," +
                 "moduleName TEXT," +
-                "distance INTEGER," +
+                "distance TEXT," +
                 "place TEXT," +
-                "obstacleNo INTEGER," +
+                "obstacleNo TEXT," +
                 "obstacle TEXT," +
-                "humidityPercent INTEGER," +
+                "humidityPercent TEXT," +
                 "wifi TEXT," +
                 "ipv6 TEXT," +
                 "timeStamp TEXT," +
-                "packetLossPercent REAL," +
-                "explanation TEXT default 'none'," +
+                "packetLossPercent TEXT," +
+                "explanation TEXT default 'None'," +
                 "FOREIGN KEY (configId) REFERENCES Config(configId)" +
                 "ON UPDATE CASCADE ON DELETE CASCADE ,"+
                 "FOREIGN KEY (moduleName) REFERENCES Module(moduleName)" +
@@ -70,11 +70,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
-        sqLiteDatabase.execSQL("drop table if exists ObstacleType");
         sqLiteDatabase.execSQL("drop table if exists Phone");
         sqLiteDatabase.execSQL("drop table if exists Module");
         sqLiteDatabase.execSQL("drop table if exists Config");
-        sqLiteDatabase.execSQL("drop table if exists ConfigModule");
         sqLiteDatabase.execSQL("drop table if exists Scenario");
         onCreate(sqLiteDatabase);
     }
@@ -92,7 +90,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         contentValuesPhone.put("phoneManufacturer",phoneManufacturer);
         contentValuesPhone.put("phoneBLEVersion",phoneBLEVersion);
         long resultPhone = myDb.insert("Phone",null,contentValuesPhone);
-        Log.d("salis","insertNewPhone : resultPhone="+resultPhone);
         return resultPhone!=-1;
     }
     boolean insertNewModule(String moduleName, String moduleBLEVersion){
@@ -105,8 +102,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         long resultModule = myDb.insert("Module",null,contentValuesModule);
         return resultModule!=-1;
     }
-    boolean insertNewConfig(String ATDEFAULT,Integer cintMin,Integer cintMax,Integer rfpm,Integer aint,
-                            Integer ctout ,String led ,Integer baudRate ){
+    boolean insertNewConfig(String ATDEFAULT,String cintMin,String cintMax,String rfpm,String aint,
+                            String ctout ,String led ,String baudRate ){
         if(isExistConfig(ATDEFAULT,cintMin,cintMax,rfpm,aint,ctout,led,baudRate)){
             return false;
         }
@@ -122,13 +119,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         long resultConfig = myDb.insert("Config",null,contentValuesModule);
         return resultConfig!=-1;
     }
-    boolean insertNewScenario(Integer configId, String phoneName, String moduleName, Integer distance, String place, Integer obstacleNo,
-                              String obstacle, Integer humidityPercent, String wifi, String ipv6, String timeStamp, Float packetLossPercent, String explanation){
+    boolean insertNewScenario(Integer configId, String phoneName, String moduleName, String distance, String place, String obstacleNo,
+                              String obstacle, String humidityPercent, String wifi, String ipv6, String timeStamp, String packetLossPercent, String explanation){
         if(isExistScenario(configId,phoneName,moduleName,distance,place,obstacleNo,obstacle,humidityPercent,wifi,ipv6,timeStamp,packetLossPercent,explanation)){
-            Log.d("salis","insertNewScenario : ExistScenario");
             return false;
         }
-        Log.d("salis","insertNewScenario : notExistScenario");
         ContentValues contentValuesModule = new ContentValues();
         contentValuesModule.put("configId",configId);
         contentValuesModule.put("phoneName",phoneName);
@@ -176,21 +171,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         @SuppressLint("Recycle") Cursor resultCursor = myDb.rawQuery(query,null);
         return resultCursor.getCount()!=0;
     }
-    private boolean isExistConfig(String ATDEFAULT, Integer cintMin, Integer cintMax, Integer rfpm,
-                                  Integer aint, Integer ctout, String led, Integer baudRate){
-        String query = "select ConfigId from Config where ATDEFAULT ='"+ATDEFAULT+"' and cintMin="+cintMin+" and "+
-                "cintMax="+cintMax+" and rfpm="+rfpm+" and aint="+aint+" and ctout="+ctout+" and " +
-                "led='"+led+"' and baudRate="+baudRate+";";
+    private boolean isExistConfig(String ATDEFAULT, String cintMin, String cintMax, String rfpm,
+                                  String aint, String ctout, String led, String baudRate){
+        String query = "select ConfigId from Config where ATDEFAULT ='"+ATDEFAULT+"' and cintMin='"+cintMin+"' and "+
+                "cintMax='"+cintMax+"' and rfpm='"+rfpm+"' and aint='"+aint+"' and ctout='"+ctout+"' and " +
+                "led='"+led+"' and baudRate='"+baudRate+"';";
         @SuppressLint("Recycle") Cursor resultCursor = myDb.rawQuery(query,null);
         return resultCursor.getCount()!=0;
     }
-    private boolean isExistScenario(Integer configId, String phoneName, String moduleName, Integer distance, String place,
-                                    Integer obstacleNo, String obstacle, Integer humidityPercent, String wifi,
-                                    String ipv6, String timeStamp, Float packetLossPercent, String explanation) {
+    private boolean isExistScenario(Integer configId, String phoneName, String moduleName, String distance, String place,
+                                    String obstacleNo, String obstacle, String humidityPercent, String wifi,
+                                    String ipv6, String timeStamp, String packetLossPercent, String explanation) {
         String query = "select * from Scenario where configId ="+configId+" and phoneName='"+phoneName+"' and "+
-                "moduleName='"+moduleName+"' and distance="+distance+" and place='"+place+"' and obstacleNo="+obstacleNo+" and " +
-                "obstacle='"+obstacle+"' and humidityPercent="+humidityPercent+" and wifi='"+wifi+"' and ipv6='"+ipv6+"' and " +
-                "timeStamp='"+timeStamp+"' and packetLossPercent="+packetLossPercent+" and explanation='"+explanation+"';";
+                "moduleName='"+moduleName+"' and distance='"+distance+"' and place='"+place+"' and obstacleNo='"+obstacleNo+"' and " +
+                "obstacle='"+obstacle+"' and humidityPercent='"+humidityPercent+"' and wifi='"+wifi+"' and ipv6='"+ipv6+"' and " +
+                "timeStamp='"+timeStamp+"' and packetLossPercent='"+packetLossPercent+"' and explanation='"+explanation+"';";
         @SuppressLint("Recycle") Cursor resultCursor = myDb.rawQuery(query,null);
         return resultCursor.getCount()!=0;
     }
@@ -199,20 +194,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
 
-    Cursor getConfigId(String ATDEFAULT, Integer cintMin, Integer cintMax, Integer rfpm,
-                               Integer aint, Integer ctout, String led, Integer baudRate) {
-        String query = "select distinct ConfigId from Config where ATDEFAULT ='"+ATDEFAULT+"' and cintMin="+cintMin+" and "+
-                "cintMax="+cintMax+" and rfpm="+rfpm+" and aint="+aint+" and ctout="+ctout+" and " +
-                "led='"+led+"' and baudRate="+baudRate+";";
+    Cursor getConfigId(String ATDEFAULT,String cintMin, String cintMax, String rfpm,
+                       String aint, String ctout, String led, String baudRate) {
+        String query = "select distinct ConfigId from Config where ATDEFAULT ='"+ATDEFAULT+"' and cintMin='"+cintMin+"' and "+
+                "cintMax='"+cintMax+"' and rfpm='"+rfpm+"' and aint='"+aint+"' and ctout='"+ctout+"' and " +
+                "led='"+led+"' and baudRate='"+baudRate+"';";
         return myDb.rawQuery(query,null);
     }
 
     private void rebuild() {
-        myDb.execSQL("drop table if exists ObstacleType");
         myDb.execSQL("drop table if exists Phone");
         myDb.execSQL("drop table if exists Module");
         myDb.execSQL("drop table if exists Config");
-        myDb.execSQL("drop table if exists ConfigModule");
         myDb.execSQL("drop table if exists Scenario");
         onCreate(myDb);
     }
