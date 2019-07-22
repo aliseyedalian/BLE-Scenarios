@@ -24,8 +24,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -54,8 +52,8 @@ public class MainActivity extends Activity {
     //UUID for the BLE client characteristic,necessary for notifications:
     public static UUID CLIENT_UUID = UUID.fromString("00002902-0000-1000-8000-00805F9B34FB");
 
-    //For Energy efficiency stops scanning after 7 seconds.
-    private static final long SCAN_PERIOD = 7000;
+    //For Energy efficiency stops scanning after 5 seconds.
+    private static final long SCAN_PERIOD = 5000;
     // UI elements:
     private TextView logs;
     private BluetoothAdapter bluetoothAdapter;
@@ -66,10 +64,11 @@ public class MainActivity extends Activity {
     private static final int REQ_ENABLE_BT = 1221 ;
     private static final int REQ_PERMISSION_LOC = 3663 ;
     private ArrayList<BLEdevice> discoveredDevices;
-    private ArrayList< BluetoothDevice > discoveredBluetoothDevice;
+    private ArrayList< BluetoothDevice > discoveredBluetoothDevices;
     ListView listView;
     ArrayAdapter<BLEdevice> discoveredDevicesAdapter;
     private List<String> org_strList = new ArrayList<>();
+    private List<String> rssiList = new ArrayList<>();
     private List<Integer> plp_list = new ArrayList<>();
     private ProgressDialog progressDialog;
     private Handler handler;
@@ -89,7 +88,6 @@ public class MainActivity extends Activity {
     Boolean isStopSendDollar;
     String inComingValue;
     String buffer_rcv;
-
 
     private void prepare_org_strList() {
         org_strList.add("salam");
@@ -193,13 +191,13 @@ public class MainActivity extends Activity {
         org_strList.add("91352");
         org_strList.add("BYE00");
     }
-
     private void showScenarioInformation() {
         scenarioInfo_tv.setText("");
         if(pref_currentScenario_info==null){
             return;
         }
         //obtain parameters from preferences
+        String rssi = pref_currentScenario_info.getString("rssi", null);
         String phoneName = pref_currentScenario_info.getString("phoneName", null);
         String phoneManufacturer = pref_currentScenario_info.getString("phoneManufacturer", null);
         String phoneBLEVersion = pref_currentScenario_info.getString("phoneBLEVersion",null);
@@ -214,6 +212,10 @@ public class MainActivity extends Activity {
         String timeStamp =pref_currentScenario_info.getString("timeStamp",null);
         String packetLossPercent = pref_currentScenario_info.getString("packetLossPercent",null);
         //show parameters in scenarioInfo textView
+        if (rssi != null) {
+            scenarioInfo_tv.append("rssi: "+rssi);
+            scenarioInfo_tv.append("\n");
+        }
         if (phoneName != null && phoneManufacturer != null && phoneBLEVersion!=null) {
             scenarioInfo_tv.append(phoneManufacturer+" "+phoneName+" "+"\nBLE Version: "+phoneBLEVersion);
             scenarioInfo_tv.append("\n");
@@ -315,6 +317,7 @@ public class MainActivity extends Activity {
     }
     private void saveToDB() {
         //get all String data from preferences:
+        String rssi = pref_currentScenario_info.getString("rssi", null);
         String phoneName = pref_currentScenario_info.getString("phoneName", null);
         String phoneManufacturer = pref_currentScenario_info.getString("phoneManufacturer", null);
         String phoneBLEVersion = pref_currentScenario_info.getString("phoneBLEVersion",null);
@@ -341,9 +344,9 @@ public class MainActivity extends Activity {
 
         //Phone insert
         if (!databaseHelper.insertNewPhone(phoneName,phoneManufacturer,phoneBLEVersion)) {
-            sent_received_data_tv.append("This Phone currently Exists in the database!\n");
+            sent_received_data_tv.setText("\nThis Phone currently Exists in the database!\n");
         }else {
-            sent_received_data_tv.append("New Phone saved successfully!\n");
+            sent_received_data_tv.setText("New Phone saved successfully!\n");
         }
         //Module insert
         if(!databaseHelper.insertNewModule(moduleName,moduleBLEVersion)) {
@@ -362,16 +365,16 @@ public class MainActivity extends Activity {
         // I)obtain correct configId:
         Cursor configIdCursor = databaseHelper.getConfigId(ATDEFAULT,cintMin,cintMax,rfpm,aint,ctout,led,baudRate);
         if(configIdCursor.getCount()==0){
-            sent_received_data_tv.append("Error: Nothing Found correct configId!");
+            sent_received_data_tv.append("Error: correct configId Not Found!");
             return;
         }
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         while (configIdCursor.moveToNext()){
             buffer.append(configIdCursor.getString(0));
         }
         Integer configId =  Integer.parseInt(buffer.toString());
-        //Scenario II)saving:
-        if(!databaseHelper.insertNewScenario(configId,phoneName,moduleName,distance,place,obstacleNo,obstacle,humidityPercent,wifi,
+        // II)saving:
+        if(!databaseHelper.insertNewScenario(configId,phoneName,moduleName,rssi,distance,place,obstacleNo,obstacle,humidityPercent,wifi,
                 ipv6,timeStamp,packetLossPercent,explanation)){
             sent_received_data_tv.append("This Scenario currently Exists in the database!");
         }else {
@@ -401,17 +404,24 @@ public class MainActivity extends Activity {
         listView = findViewById(R.id.lv_devices);
         //discoveredDevices is a array which has found bluetooth devices 'name' and 'mac address'.
         discoveredDevices = new ArrayList<>();
-        //discoveredBluetoothDevice is a array which has found bluetooth devices.
-        discoveredBluetoothDevice=new ArrayList<>();
+        //discoveredBluetoothDevices is a array which has found bluetooth devices.
+        discoveredBluetoothDevices =new ArrayList<>();
         discoveredDevicesAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, discoveredDevices);
         listView.setAdapter(discoveredDevicesAdapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                 ScanLeDevice(false);
-                writeLine("#"+discoveredBluetoothDevice.get(position).getName()+" scenario:");
-                device = discoveredBluetoothDevice.get(position);
-                SharedPreferences.Editor editor = pref_currentATCommands.edit();
+                writeLine("#"+ discoveredBluetoothDevices.get(position).getName()+" scenario:");
+                device = discoveredBluetoothDevices.get(position);
+                //save rssi in scenario information
+                SharedPreferences.Editor editor1 = pref_currentScenario_info.edit();
+                String rssi = rssiList.get(position);
+                editor1.putString("rssi",rssi+" dBm");
+                editor1.apply();
+                showScenarioInformation();
+                //save moduleName and moduleBLEVersion in at commands
+                SharedPreferences.Editor editor2 = pref_currentATCommands.edit();
                 String moduleName = device.getName();
                 String moduleBLEVersion;
                 if(moduleName!=null && moduleName.contains("42")) //HC-42
@@ -420,10 +430,9 @@ public class MainActivity extends Activity {
                     moduleBLEVersion = "v4.0";
                 else
                     moduleBLEVersion="unKnown";
-
-                editor.putString("moduleName",moduleName);
-                editor.putString("moduleBLEVersion",moduleBLEVersion);
-                editor.apply();
+                editor2.putString("moduleName",moduleName);
+                editor2.putString("moduleBLEVersion",moduleBLEVersion);
+                editor2.apply();
                 showAtCommandsParameters();
                 /*
                 make a connection with the device using the special LE-specific
@@ -594,7 +603,7 @@ public class MainActivity extends Activity {
         }
     };
 
-    // Handler for mouse click on the send button.
+
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void sendClick(){
         //get message from input
@@ -636,6 +645,7 @@ public class MainActivity extends Activity {
             }
         }
     }
+    //send n $(request data from bluetooth module) each 1 second.
     private void sendDollar(final Integer n) {
         if(n==0 || isStopSendDollar){
             setProgressBarIndeterminateVisibility(false);
@@ -658,7 +668,6 @@ public class MainActivity extends Activity {
         }
 
     }
-
     private Integer calculate_packetLossPercent(String buffer_rcv,Integer n) {
         //calculate packet error rate(plp) after ping by using buffer_rcv content.
         int ack = 0;
@@ -678,10 +687,8 @@ public class MainActivity extends Activity {
         }
         isStopSendDollar = true;
         float sum = (float) 0;
-        if(!plp_list.isEmpty()) {
-            for (Integer plp : plp_list) {
-                sum += plp;
-            }
+        for (Integer plp : plp_list) {
+            sum += plp;
         }
         float avg = sum / plp_list.size();
         SharedPreferences.Editor editor = pref_currentScenario_info.edit();
@@ -689,7 +696,6 @@ public class MainActivity extends Activity {
         editor.apply();
         showScenarioInformation();
     }
-
     private void getHumidity() {
         if (tx == null) {
             return;
@@ -701,20 +707,19 @@ public class MainActivity extends Activity {
         if(bluetoothGatt.writeCharacteristic(tx)) {
             input.getText().clear();
         }
-        //wait until respond received...
+        //wait until humidity received by buffer...
         try {
             Thread.sleep(150);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        //save respond to preference:
+        //save humidity to preference:
         String humidityPercent = buffer_rcv.trim();
         SharedPreferences.Editor editor = pref_currentScenario_info.edit();
         editor.putString("humidityPercent",humidityPercent+ " %");
         editor.apply();
-        showScenarioInformation(); //update scenario info and show Humidity
+        showScenarioInformation(); //update scenario info for showing Humidity
     }
-
     // BLE device scanning callback.
     // run when a new device found in scanning.
     private LeScanCallback leScanCallback = new LeScanCallback() {
@@ -724,24 +729,23 @@ public class MainActivity extends Activity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    if(!discoveredBluetoothDevice.contains(bluetoothDevice)) {
-                        discoveredBluetoothDevice.add(bluetoothDevice);
+                    if(!discoveredBluetoothDevices.contains(bluetoothDevice)) {
+                        discoveredBluetoothDevices.add(bluetoothDevice);
                         //BLEdevice class which have each BLE device's name and mac address Strings
                         BLEdevice BLEdevice = new BLEdevice();
                         BLEdevice.setName(bluetoothDevice.getName());
                         BLEdevice.setMac(bluetoothDevice.getAddress());
                         BLEdevice.setRssi("RSSI: "+ rssi +"dBm");
-                        //discoveredDevices has device name and address and rssi
+                        //discoveredDevices has device name and address and rssi for showing
                         discoveredDevices.add(BLEdevice);
                         discoveredDevicesAdapter.notifyDataSetChanged();
+                        rssiList.add(String.valueOf(rssi));
                     }
                 }
             });
-
         }
 
     };
-
     private void ScanLeDevice(final boolean enable) {
 
         if (enable) {
@@ -754,13 +758,14 @@ public class MainActivity extends Activity {
                     if(device == null){
                         writeLine("Scanning finished.");
                     }
-                    if(discoveredBluetoothDevice.size()==0){
+                    if(discoveredBluetoothDevices.size()==0){
                         listView.setVisibility(View.INVISIBLE);
                     }
                 }
             },SCAN_PERIOD);
             discoveredDevices.clear();
-            discoveredBluetoothDevice.clear();
+            discoveredBluetoothDevices.clear();
+            rssiList.clear();
             device = null;
             discoveredDevicesAdapter.notifyDataSetChanged();
             listView.setVisibility(View.VISIBLE);
@@ -816,7 +821,7 @@ public class MainActivity extends Activity {
                 ScanLeDevice(true);
                 break;
             case R.id.AtCommandConfigs:
-                //go to At-command setting activity if moduleName is defined
+                //go to At-command setting activity if moduleName is recognized
                 String moduleName = pref_currentATCommands.getString("moduleName", null);
                 if(moduleName!=null){
                     startActivity(new Intent(MainActivity.this , ATCommandParametersActivity.class));
@@ -944,12 +949,4 @@ public class MainActivity extends Activity {
             }
         }
     }
-    private void showDialog(String title, String message) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(title);
-        builder.setMessage(message);
-        builder.setCancelable(true);
-        builder.show();
-    }
-
 }

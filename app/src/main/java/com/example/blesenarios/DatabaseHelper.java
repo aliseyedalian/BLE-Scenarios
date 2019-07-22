@@ -47,6 +47,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "configId integer," +
                 "phoneName TEXT," +
                 "moduleName TEXT," +
+                "rssi TEXT," +
                 "distance TEXT," +
                 "place TEXT," +
                 "obstacleNo TEXT," +
@@ -119,15 +120,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         long resultConfig = myDb.insert("Config",null,contentValuesModule);
         return resultConfig!=-1;
     }
-    boolean insertNewScenario(Integer configId, String phoneName, String moduleName, String distance, String place, String obstacleNo,
+    boolean insertNewScenario(Integer configId, String phoneName, String moduleName,String rssi, String distance, String place, String obstacleNo,
                               String obstacle, String humidityPercent, String wifi, String ipv6, String timeStamp, String packetLossPercent, String explanation){
-        if(isExistScenario(configId,phoneName,moduleName,distance,place,obstacleNo,obstacle,humidityPercent,wifi,ipv6,timeStamp,packetLossPercent,explanation)){
+        if(isExistScenario(configId,phoneName,moduleName,rssi,distance,place,obstacleNo,obstacle,humidityPercent,wifi,ipv6,timeStamp,packetLossPercent,explanation)){
             return false;
         }
         ContentValues contentValuesModule = new ContentValues();
         contentValuesModule.put("configId",configId);
         contentValuesModule.put("phoneName",phoneName);
         contentValuesModule.put("moduleName",moduleName);
+        contentValuesModule.put("rssi",rssi);
         contentValuesModule.put("distance",distance);
         contentValuesModule.put("place",place);
         contentValuesModule.put("obstacleNo",obstacleNo);
@@ -179,11 +181,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         @SuppressLint("Recycle") Cursor resultCursor = myDb.rawQuery(query,null);
         return resultCursor.getCount()!=0;
     }
-    private boolean isExistScenario(Integer configId, String phoneName, String moduleName, String distance, String place,
+    private boolean isExistScenario(Integer configId, String phoneName, String moduleName,String rssi,String distance, String place,
                                     String obstacleNo, String obstacle, String humidityPercent, String wifi,
                                     String ipv6, String timeStamp, String packetLossPercent, String explanation) {
         String query = "select * from Scenario where configId ="+configId+" and phoneName='"+phoneName+"' and "+
-                "moduleName='"+moduleName+"' and distance='"+distance+"' and place='"+place+"' and obstacleNo='"+obstacleNo+"' and " +
+                "moduleName='"+moduleName+"' and distance='"+distance+"' and rssi='"+rssi+"' and place='"+place+"' and obstacleNo='"+obstacleNo+"' and " +
                 "obstacle='"+obstacle+"' and humidityPercent='"+humidityPercent+"' and wifi='"+wifi+"' and ipv6='"+ipv6+"' and " +
                 "timeStamp='"+timeStamp+"' and packetLossPercent='"+packetLossPercent+"' and explanation='"+explanation+"';";
         @SuppressLint("Recycle") Cursor resultCursor = myDb.rawQuery(query,null);
