@@ -18,7 +18,7 @@
             android:layout_marginTop="5dp"
             android:gravity="center_horizontal"
             android:text="Scenarios Reports"
-            android:textColor="#FFFF00"
+            android:textColor="#0096FF"
             android:textSize="20sp"
             android:textStyle="bold" />
         <!-- Line -->
@@ -75,13 +75,25 @@
                 android:layout_height="50dp"
                 android:text="Scenarios" />
         </LinearLayout>
-        <ListView
-            android:id="@+id/report_lv"
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_margin="10dp"
-            android:padding="5dp"
-            tools:ignore="MissingConstraints" />
+            android:padding="10dp"
+            android:orientation="vertical">
+            <ListView
+                android:id="@+id/report_lv"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="10"
+                android:padding="5dp"
+                />
+            <Button
+                android:id="@+id/btn_export"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:text="Export to excel file" />
+            </LinearLayout>
     </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

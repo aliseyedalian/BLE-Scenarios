@@ -1,7 +1,17 @@
 package com.example.blesenarios;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.app.ProgressDialog;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -11,7 +21,11 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.Toast;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +34,8 @@ public class ScenariosReports extends AppCompatActivity {
     Button showModuleTable_btn;
     Button showConfigTable_btn;
     Button showScenarioTable_btn;
+    Button exportCSV_btn;
+    Button btn_openExcel;
     DatabaseHelper databaseHelper;
     ListView listView;
     List<String> titlesList;
@@ -28,6 +44,11 @@ public class ScenariosReports extends AppCompatActivity {
     ArrayAdapter<String> arrayAdapter_module;
     ArrayAdapter<String> arrayAdapter_config;
     ArrayAdapter<String> arrayAdapter_scenario;
+    private static final int REQUEST_EXTERNAL_STORAGE = 1;
+    private static String[] PERMISSIONS_STORAGE = {
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +85,14 @@ public class ScenariosReports extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 showScenarioTableInListView();
+            }
+        });
+        exportCSV_btn = findViewById(R.id.btn_export);
+        exportCSV_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                verifyStoragePermissions(ScenariosReports.this);
+                new ExportDatabaseCSVTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
             }
         });
     }
@@ -196,6 +225,74 @@ public class ScenariosReports extends AppCompatActivity {
     }
 
 
+
+
+    @SuppressLint("StaticFieldLeak")
+    public class ExportDatabaseCSVTask extends AsyncTask<String, Void, Boolean> {
+
+        private final ProgressDialog dialog = new ProgressDialog(ScenariosReports.this);
+        DatabaseHelper databaseHelper;
+        @Override
+        protected void onPreExecute() {
+            databaseHelper = new DatabaseHelper(ScenariosReports.this);
+        }
+
+        protected Boolean doInBackground(final String... args) {
+            File exportDir = new File(Environment.getExternalStorageDirectory(), "/scens");
+            if (!exportDir.exists()) {
+                Log.d("salis","exportDir not exists");
+                exportDir.mkdirs();
+            }
+
+            File file = new File(exportDir, "scenarios.csv");
+            Log.d("salis","file: "+file);
+            try {
+                file.createNewFile();
+                Log.d("salis","new file created");
+                CSVWriter csvWrite = new CSVWriter(new FileWriter(file));
+                Cursor curCSV = databaseHelper.exportScenario();
+                csvWrite.writeNext(curCSV.getColumnNames());
+                while(curCSV.moveToNext()) {
+                    String[] mySecondStringArray = new String[curCSV.getColumnNames().length];
+                    for(int i=0;i<curCSV.getColumnNames().length;i++)
+                    {
+                        mySecondStringArray[i] =curCSV.getString(i);
+                    }
+                    csvWrite.writeNext(mySecondStringArray);
+                }
+                csvWrite.close();
+                curCSV.close();
+                return true;
+            } catch (IOException e) {
+                return false;
+            }
+        }
+
+        protected void onPostExecute(final Boolean success) {
+            if (this.dialog.isShowing()) {
+                this.dialog.dismiss();
+            }
+            if (success) {
+                showDialog("Export Done","Scenarios saved in /storage/emulated/0/scens/scenarios.csv");
+            } else {
+                showDialog("Error","Export to excel file failed!");
+            }
+        }
+    }
+
+    public static void verifyStoragePermissions(Activity activity) {
+        // Check if we have write permission
+        int permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
+        if (permission != PackageManager.PERMISSION_GRANTED) {
+            // We don't have permission so prompt the user
+            ActivityCompat.requestPermissions(
+                    activity,
+                    PERMISSIONS_STORAGE,
+                    REQUEST_EXTERNAL_STORAGE
+            );
+        }
+    }
     private void showDialog(String title, String message) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(title);

@@ -18,7 +18,7 @@
             android:gravity="center"
             android:textStyle="bold"
             android:textSize="20sp"
-            android:textColor="#FFFF00"
+            android:textColor="#0096FF"
             android:layout_marginTop="5dp"
             tools:ignore="MissingConstraints" />
         <!-- Line -->
@@ -29,260 +29,268 @@
             android:background="#FFFFFF"
             />
 
-        <!-- layout_parameters -->
-        <LinearLayout
-            android:id="@+id/layout_parameters"
-            android:layout_marginTop="5dp"
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-            <!-- module name -->
+            android:layout_height="match_parent">
+            <!-- layout_parameters -->
             <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="left"
-                android:padding="10dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:textColor="#FFFFFF"
-                    android:textStyle="bold"
-                    android:text="Module Name: " />
-
-                <TextView
-                    android:id="@+id/deviceName_tv"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:text=""
-                    android:gravity="left" />
-            </LinearLayout>
-            <!-- Line -->
-            <View
-                android:layout_width="200dp"
-                android:layout_gravity="center"
-                android:layout_height="1dp"
+                android:id="@+id/layout_parameters"
                 android:layout_marginTop="5dp"
-                android:background="#FFFFFF"
-                />
-            <!-- rfpm input-->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="10dp">
-
-                <TextView
-                    android:text="RFPM:"
-                    android:textStyle="bold"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="left"
-                    android:textColor="#FFFFFF"/>
-                <Spinner
-                    android:id="@+id/rfpm"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:scrollbarSize="@android:dimen/app_icon_size"
-                    tools:ignore="MissingConstraints" />
-            </LinearLayout>
-            <!-- Line -->
-            <View
-                android:layout_width="200dp"
-                android:layout_gravity="center"
-                android:layout_height="1dp"
-                android:layout_marginTop="5dp"
-                android:background="#FFFFFF"
-                />
-            <!--editText cint min and max -->
-
-            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_gravity="center"
-                android:padding="10dp"
-                android:orientation="horizontal">
-                <TextView
-                    android:layout_marginTop="5dp"
-                    android:layout_width="0dp"
-                    android:layout_weight="2"
-                    android:layout_height="wrap_content"
-                    android:text="Connection Interval:\n([6~3200]*1.25ms)"
-                    android:textStyle="bold"
-                    android:layout_gravity="start"
-                    android:textColor="#FFFFFF"
-                    android:gravity="start"
-                    />
-                <EditText
-                    android:id="@+id/cintMin"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:hint="CINT(MIN)"
-                    android:textSize="12sp"
-                    android:inputType="number"
-                    android:layout_height="wrap_content" />
-                <EditText
-                    android:id="@+id/cintMax"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:hint="CINT(MAX)"
-                    android:textSize="12sp"
-                    android:inputType="number"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
-            <!-- Line -->
-            <View
-                android:layout_width="200dp"
-                android:layout_gravity="center"
-                android:layout_height="1dp"
-                android:layout_marginTop="5dp"
-                android:background="#FFFFFF"
-                />
-            <!--aint input-->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="10dp">
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_weight="3"
-                    android:layout_height="match_parent"
-                    android:text="Advertising interval:\n([32~16000] ms)"
-                    android:textStyle="bold"
-                    android:textColor="#FFFFFF"
-                    android:gravity="left"/>
-                <EditText
-                    android:id="@+id/aint"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:hint="@string/aint"
-                    android:textSize="12sp"
-                    android:inputType="number"
-                    android:gravity="center"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
-            <!-- Line -->
-            <View
-                android:layout_width="200dp"
-                android:layout_gravity="center"
-                android:layout_height="1dp"
-                android:layout_marginTop="5dp"
-                android:background="#FFFFFF"
-                />
-            <!--ctout input-->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="10dp">
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_weight="3"
-                    android:layout_height="match_parent"
-                    android:text="Connection supervision timeout:\n([10~3200]*10ms)"
-                    android:textStyle="bold"
-                    android:textColor="#FFFFFF"
-                    android:gravity="left"/>
-
-                <EditText
-                    android:id="@+id/ctout"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:hint="@string/ctout"
-                    android:inputType="number"
-                    android:textSize="12sp"
-                    android:gravity="center"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
-            <View
-                android:layout_width="200dp"
-                android:layout_gravity="center"
-                android:layout_height="1dp"
-                android:layout_marginTop="5dp"
-                android:background="#FFFFFF"
-                />
-
-            <!--layout_baud_rate -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
                 android:orientation="vertical">
-
+                <!-- module name -->
                 <LinearLayout
-                    android:id="@+id/layout_baud_rate"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="left"
+                    android:padding="10dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:textColor="#FFFFFF"
+                        android:textStyle="bold"
+                        android:text="Module Name: " />
+
+                    <TextView
+                        android:id="@+id/deviceName_tv"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:text=""
+                        android:gravity="left" />
+                </LinearLayout>
+                <!-- Line -->
+                <View
+                    android:layout_width="200dp"
+                    android:layout_gravity="center"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="5dp"
+                    android:background="#FFFFFF"
+                    />
+                <!-- rfpm input-->
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:padding="10dp">
+
                     <TextView
-                        android:text="Baud Rate(bps):"
+                        android:text="RFPM:"
                         android:textStyle="bold"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:gravity="left"
-                        android:textColor="#FFFFFF"
-                        />
+                        android:textColor="#FFFFFF"/>
                     <Spinner
-                        android:id="@+id/baud_rate"
+                        android:id="@+id/rfpm"
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="wrap_content"
                         android:scrollbarSize="@android:dimen/app_icon_size"
                         tools:ignore="MissingConstraints" />
                 </LinearLayout>
+                <!-- Line -->
+                <View
+                    android:layout_width="200dp"
+                    android:layout_gravity="center"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="5dp"
+                    android:background="#FFFFFF"
+                    />
+                <!--editText cint min and max -->
 
-            </LinearLayout>
-            <!-- Line -->
-            <View
-                android:layout_width="200dp"
-                android:layout_gravity="center"
-                android:layout_height="1dp"
-                android:layout_marginTop="5dp"
-                android:background="#FFFFFF"
-                />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:padding="10dp"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:layout_marginTop="5dp"
+                        android:layout_width="0dp"
+                        android:layout_weight="2"
+                        android:layout_height="wrap_content"
+                        android:text="Connection Interval:\n([6~3200]*1.25ms)"
+                        android:textStyle="bold"
+                        android:layout_gravity="start"
+                        android:textColor="#FFFFFF"
+                        android:gravity="start"
+                        />
+                    <EditText
+                        android:id="@+id/cintMin"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:hint="CINT(MIN)"
+                        android:textSize="12sp"
+                        android:inputType="number"
+                        android:layout_height="wrap_content" />
+                    <EditText
+                        android:id="@+id/cintMax"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:hint="CINT(MAX)"
+                        android:textSize="12sp"
+                        android:inputType="number"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+                <!-- Line -->
+                <View
+                    android:layout_width="200dp"
+                    android:layout_gravity="center"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="5dp"
+                    android:background="#FFFFFF"
+                    />
+                <!--aint input-->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="10dp">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_weight="3"
+                        android:layout_height="match_parent"
+                        android:text="Advertising interval:\n([32~16000] ms)"
+                        android:textStyle="bold"
+                        android:textColor="#FFFFFF"
+                        android:gravity="left"/>
+                    <EditText
+                        android:id="@+id/aint"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:hint="@string/aint"
+                        android:textSize="12sp"
+                        android:inputType="number"
+                        android:gravity="center"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+                <!-- Line -->
+                <View
+                    android:layout_width="200dp"
+                    android:layout_gravity="center"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="5dp"
+                    android:background="#FFFFFF"
+                    />
+                <!--ctout input-->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="10dp">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_weight="3"
+                        android:layout_height="match_parent"
+                        android:text="Connection supervision timeout:\n([10~3200]*10ms)"
+                        android:textStyle="bold"
+                        android:textColor="#FFFFFF"
+                        android:gravity="left"/>
 
-            <!--checkboxes-->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:orientation="vertical">
-                <!-- switch new_setting,factory_setting-->
-                <CheckBox
-                    android:id="@+id/LED"
+                    <EditText
+                        android:id="@+id/ctout"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:hint="@string/ctout"
+                        android:inputType="number"
+                        android:textSize="12sp"
+                        android:gravity="center"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+                <View
+                    android:layout_width="200dp"
+                    android:layout_gravity="center"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="5dp"
+                    android:background="#FFFFFF"
+                    />
+
+                <!--layout_baud_rate -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:id="@+id/layout_baud_rate"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="10dp">
+                        <TextView
+                            android:text="Baud Rate(bps):"
+                            android:textStyle="bold"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="left"
+                            android:textColor="#FFFFFF"
+                            />
+                        <Spinner
+                            android:id="@+id/baud_rate"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:scrollbarSize="@android:dimen/app_icon_size"
+                            tools:ignore="MissingConstraints" />
+                    </LinearLayout>
+
+                </LinearLayout>
+                <!-- Line -->
+                <View
+                    android:layout_width="200dp"
+                    android:layout_gravity="center"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="5dp"
+                    android:background="#FFFFFF"
+                    />
+
+                <!--checkboxes-->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:orientation="vertical">
+                    <!-- switch new_setting,factory_setting-->
+                    <CheckBox
+                        android:id="@+id/LED"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="3dp"
+                        android:checked="true"
+                        android:textStyle="bold"
+                        android:text="@string/led"/>
+                    <CheckBox
+                        android:id="@+id/checkbox_factorySetting"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="3dp"
+                        android:layout_weight="1"
+                        android:text="Default Setting"
+                        android:textStyle="bold"/>
+                </LinearLayout>
+
+                <!--Btn-->
+                <Button
+                    android:id="@+id/btn_Save_Transmission_parameter"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginStart="3dp"
-                    android:checked="true"
-                    android:textStyle="bold"
-                    android:text="@string/led"/>
-                <CheckBox
-                    android:id="@+id/checkbox_factorySetting"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="3dp"
-                    android:layout_weight="1"
-                    android:text="Default Setting"
-                    android:textStyle="bold"/>
+                    android:layout_gravity="center_horizontal"
+                    android:text="@string/save" />
+
             </LinearLayout>
+        </ScrollView>
 
-            <!--Btn-->
-            <Button
-                android:id="@+id/btn_Save_Transmission_parameter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:text="@string/save" />
 
-        </LinearLayout>
+
+
       </LinearLayout>
 
 

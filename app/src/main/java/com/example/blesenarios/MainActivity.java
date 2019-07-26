@@ -24,6 +24,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AlertDialog;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -221,7 +222,7 @@ public class MainActivity extends Activity {
             scenarioInfo_tv.append("\n");
         }
         if (distance != null) {
-            scenarioInfo_tv.append("distance(meters)= " +distance);
+            scenarioInfo_tv.append("distance= " +distance);
             scenarioInfo_tv.append("\n");
         }
         if (place != null) {
@@ -249,11 +250,11 @@ public class MainActivity extends Activity {
             scenarioInfo_tv.append("\n");
         }
         if(packetLossPercent != null){
-            scenarioInfo_tv.append("packetLossPercent= " + packetLossPercent);
+            scenarioInfo_tv.append("packetLoss=" + packetLossPercent);
             scenarioInfo_tv.append("\n");
         }
         if (explanation != null) {
-            scenarioInfo_tv.append("explanation: "+explanation);
+            scenarioInfo_tv.append(explanation);
         }
     }
     private void showAtCommandsParameters() {
@@ -341,10 +342,14 @@ public class MainActivity extends Activity {
         String timeStamp =pref_currentScenario_info.getString("timeStamp",null);
         String explanation = pref_currentScenario_info.getString("explanation", null);
         String packetLossPercent =pref_currentScenario_info.getString("packetLossPercent",null);
-
+        //check existence of data before insertion:
+        if(timeStamp == null || humidityPercent==null || packetLossPercent==null || led == null || moduleName ==null || distance==null){
+            sent_received_data_tv.setText("Error: Some data does not exist for saving!");
+            return;
+        }
         //Phone insert
         if (!databaseHelper.insertNewPhone(phoneName,phoneManufacturer,phoneBLEVersion)) {
-            sent_received_data_tv.setText("\nThis Phone currently Exists in the database!\n");
+            sent_received_data_tv.setText("This Phone currently Exists in the database!\n");
         }else {
             sent_received_data_tv.setText("New Phone saved successfully!\n");
         }
@@ -381,8 +386,6 @@ public class MainActivity extends Activity {
             sent_received_data_tv.append("New Scenario saved successfully!");
         }
         }
-
-
     // OnCreate, called once to initialize the activity.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -509,7 +512,7 @@ public class MainActivity extends Activity {
             }
         });
         prepare_org_strList();
-        databaseHelper = new DatabaseHelper(this);
+            databaseHelper = new DatabaseHelper(this);
     }
 
 
@@ -851,7 +854,12 @@ public class MainActivity extends Activity {
                 connectionStatus_tv.setText("Disconnected");
                 break;
             case R.id.about:
-                //showDialog("BLE-Scenarios","Version 1.0.0");
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle("About");
+                builder.setMessage("Version 1.1\n" +
+                        "seyedalian@outlook.com");
+                builder.setCancelable(true);
+                builder.show();
                 break;
             case R.id.exit:
                 if(bluetoothGatt!=null){
@@ -872,6 +880,10 @@ public class MainActivity extends Activity {
         }
         return super.onOptionsItemSelected(item);
     }
+
+
+
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.

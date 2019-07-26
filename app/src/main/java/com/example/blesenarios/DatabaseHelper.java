@@ -192,15 +192,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return resultCursor.getCount()!=0;
     }
 
-
-
-
-
     Cursor getConfigId(String ATDEFAULT,String cintMin, String cintMax, String rfpm,
                        String aint, String ctout, String led, String baudRate) {
         String query = "select distinct ConfigId from Config where ATDEFAULT ='"+ATDEFAULT+"' and cintMin='"+cintMin+"' and "+
                 "cintMax='"+cintMax+"' and rfpm='"+rfpm+"' and aint='"+aint+"' and ctout='"+ctout+"' and " +
                 "led='"+led+"' and baudRate='"+baudRate+"';";
+        return myDb.rawQuery(query,null);
+    }
+
+    public Cursor exportScenario() {
+        String query = "select scenId,ATDEFAULT,cintMin,cintMax,rfpm,aint,ctout,led,baudRate," +
+                "Phone.phoneName,phoneManufacturer,phoneBLEVersion,Module.moduleName,moduleBLEVersion,rssi," +
+                "distance,place,obstacleNo,obstacle,humidityPercent,wifi,ipv6,timeStamp,packetLossPercent," +
+                "explanation from Scenario " +
+                "inner join Config on Scenario.configId=Config.configId " +
+                "inner join Phone on Scenario.phoneName=Phone.phoneName " +
+                "inner join Module on Scenario.moduleName=Module.moduleName;";
         return myDb.rawQuery(query,null);
     }
 
