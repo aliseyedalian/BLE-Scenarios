@@ -18,16 +18,9 @@
             android:gravity="center"
             android:textStyle="bold"
             android:textSize="20sp"
-            android:textColor="#0096FF"
+            android:textColor="#FFFF00"
             android:layout_marginTop="5dp"
             tools:ignore="MissingConstraints" />
-        <!-- Line -->
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="2.5dp"
-            android:layout_marginTop="2dp"
-            android:background="#FFFFFF"
-            />
 
         <ScrollView
             android:layout_width="match_parent"
@@ -37,13 +30,14 @@
                 android:id="@+id/layout_parameters"
                 android:layout_marginTop="5dp"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:orientation="vertical">
                 <!-- module name -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="left"
+                    android:background="#000000"
+                    android:gravity="start"
                     android:padding="10dp"
                     android:orientation="horizontal">
 
@@ -61,23 +55,15 @@
                         android:layout_weight="1"
                         android:layout_height="wrap_content"
                         android:text=""
-                        android:gravity="left" />
+                        android:gravity="start" />
                 </LinearLayout>
-                <!-- Line -->
-                <View
-                    android:layout_width="200dp"
-                    android:layout_gravity="center"
-                    android:layout_height="1dp"
-                    android:layout_marginTop="5dp"
-                    android:background="#FFFFFF"
-                    />
+
                 <!-- rfpm input-->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:padding="10dp">
-
                     <TextView
                         android:text="RFPM:"
                         android:textStyle="bold"
@@ -94,20 +80,12 @@
                         android:scrollbarSize="@android:dimen/app_icon_size"
                         tools:ignore="MissingConstraints" />
                 </LinearLayout>
-                <!-- Line -->
-                <View
-                    android:layout_width="200dp"
-                    android:layout_gravity="center"
-                    android:layout_height="1dp"
-                    android:layout_marginTop="5dp"
-                    android:background="#FFFFFF"
-                    />
                 <!--editText cint min and max -->
-
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_gravity="center"
+                    android:background="#000000"
                     android:padding="10dp"
                     android:orientation="horizontal">
                     <TextView
@@ -138,14 +116,6 @@
                         android:inputType="number"
                         android:layout_height="wrap_content" />
                 </LinearLayout>
-                <!-- Line -->
-                <View
-                    android:layout_width="200dp"
-                    android:layout_gravity="center"
-                    android:layout_height="1dp"
-                    android:layout_marginTop="5dp"
-                    android:background="#FFFFFF"
-                    />
                 <!--aint input-->
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -170,18 +140,11 @@
                         android:gravity="center"
                         android:layout_height="wrap_content" />
                 </LinearLayout>
-                <!-- Line -->
-                <View
-                    android:layout_width="200dp"
-                    android:layout_gravity="center"
-                    android:layout_height="1dp"
-                    android:layout_marginTop="5dp"
-                    android:background="#FFFFFF"
-                    />
                 <!--ctout input-->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="#000000"
                     android:orientation="horizontal"
                     android:padding="10dp">
                     <TextView
@@ -203,13 +166,7 @@
                         android:gravity="center"
                         android:layout_height="wrap_content" />
                 </LinearLayout>
-                <View
-                    android:layout_width="200dp"
-                    android:layout_gravity="center"
-                    android:layout_height="1dp"
-                    android:layout_marginTop="5dp"
-                    android:background="#FFFFFF"
-                    />
+
 
                 <!--layout_baud_rate -->
                 <LinearLayout
@@ -242,19 +199,13 @@
                     </LinearLayout>
 
                 </LinearLayout>
-                <!-- Line -->
-                <View
-                    android:layout_width="200dp"
-                    android:layout_gravity="center"
-                    android:layout_height="1dp"
-                    android:layout_marginTop="5dp"
-                    android:background="#FFFFFF"
-                    />
+
 
                 <!--checkboxes-->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="#000000"
                     android:layout_marginTop="20dp"
                     android:orientation="vertical">
                     <!-- switch new_setting,factory_setting-->

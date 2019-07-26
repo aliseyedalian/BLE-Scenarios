@@ -26,5 +26,10 @@
     <string name="transmissions_reports">Transmissions Reports</string>
     <string name="send_at_commands">send At-commands</string>
     <string name="disconnect">Disconnect</string>
+    <string name="scenario_information">Scenario Information</string>
+    <string name="phone_ble_version">Phone BLE Version:</string>
+    <string name="distance_meter">Distance (meter)</string>
+    <string name="number_of_obstacles">Number of Obstacles</string>
+    <string name="explanations">Explanations</string>
 
 </resources>

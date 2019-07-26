@@ -14,20 +14,13 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:text="Scenario Information"
-            android:textColor="#0096FF"
+            android:gravity="center"
+            android:text="@string/scenario_information"
+            android:textColor="#FFFF00"
             android:textStyle="bold"
             android:textSize="20sp"
-            android:layout_marginTop="5dp"
+            android:layout_margin="5dp"
             tools:ignore="MissingConstraints" />
-        <!-- Line -->
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="2dp"
-            android:layout_marginTop="2dp"
-            android:background="#FFFFFF"
-            />
 
         <!-- layout_environmental_parameters -->
         <LinearLayout
@@ -38,6 +31,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="#000000"
                 android:padding="10dp"
                 android:orientation="horizontal">
 
@@ -45,13 +39,13 @@
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:text="Phone BLE Version:"
+                    android:text="@string/phone_ble_version"
                     android:textStyle="bold"/>
                 <Spinner
                     android:id="@+id/phoneBleVersion"
                     android:layout_width="0dp"
                     android:layout_weight="1"
-                    android:layout_marginLeft="20dp"
+                    android:layout_marginStart="20dp"
                     android:layout_height="wrap_content"
                     tools:ignore="MissingConstraints" />
 
@@ -68,8 +62,9 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:inputType="number"
-                    android:hint="Distance(meter)"
-                    android:textSize="15dp"/>
+                    android:hint="@string/distance_meter"
+                    android:gravity="center"
+                    android:textSize="15sp"/>
                 <Spinner
                     android:id="@+id/indoor_outdoor"
                     android:layout_width="0dp"
@@ -81,6 +76,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="#000000"
                 android:orientation="horizontal"
                 android:padding="10dp">
 
@@ -90,8 +86,9 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:inputType="number"
-                    android:hint="Number of Obstacles"
-                    android:textSize="15dp"/>
+                    android:hint="@string/number_of_obstacles"
+                    android:gravity="center"
+                    android:textSize="15sp"/>
 
                 <Spinner
                     android:id="@+id/obstacle"
@@ -100,13 +97,21 @@
                     android:layout_weight="1"
                     tools:ignore="MissingConstraints" />
             </LinearLayout>
+            <EditText
+                android:id="@+id/moreExplanation"
+                android:layout_margin="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/explanations"
+                android:gravity="center"
+                android:textSize="15sp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
+                android:background="#000000"
                 android:padding="10dp">
-
                 <CheckBox
                     android:id="@+id/wifi_cb"
                     android:layout_width="0dp"
@@ -114,7 +119,6 @@
                     android:layout_height="wrap_content"
                     android:text="Wi-Fi"
                     android:textStyle="bold"/>
-
                 <CheckBox
                     android:id="@+id/ipv6_cb"
                     android:layout_width="0dp"
@@ -123,13 +127,6 @@
                     android:text="IP-v6"
                     android:textStyle="bold"/>
             </LinearLayout>
-            <EditText
-                android:id="@+id/moreExplanation"
-                android:layout_margin="10dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="More Explanation"
-                android:textSize="15dp"/>
 
             <!-- Buttons layers-->
             <Button

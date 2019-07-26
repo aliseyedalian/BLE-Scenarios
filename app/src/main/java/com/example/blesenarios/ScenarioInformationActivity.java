@@ -21,7 +21,7 @@ public class ScenarioInformationActivity extends AppCompatActivity {
     String [] indoor_outdoor_list = {"Indoor","Outdoor"};
     Spinner obstacle_spinner;
     ArrayAdapter<String> obstacle_adapter;
-    String [] obstacle_list = {"LOS(Without Obstacles)","Glass","Wood","Metal","Brick","Concrete","Human Body","Water"};
+    String [] obstacle_list = {"LOS","Glass","Wood","Metal","Brick","Concrete","Human Body","Water"};
     EditText input_distance;
     EditText input_obstacleNo;
     CheckBox wifi_cb;
@@ -54,7 +54,7 @@ public class ScenarioInformationActivity extends AppCompatActivity {
     private void saveParameters() {
         //save all input data in string data type:
         String phoneBLEVersion = phoneBleVersion_spinner.getSelectedItem().toString().trim();
-        String distance = input_distance.getText().toString().trim()+" meters";
+        String distance = input_distance.getText().toString().trim();
         String obstacleNo = input_obstacleNo.getText().toString().trim();
         String obstacle = obstacle_spinner.getSelectedItem().toString().trim();
         String place = indoor_outdoor_spinner.getSelectedItem().toString().trim();
@@ -71,17 +71,16 @@ public class ScenarioInformationActivity extends AppCompatActivity {
         } else{
             ipv6 = "No";
         }
-        if(obstacle == "LOS(Without Obstacles)"){
+        if(obstacle == "LOS"){
             obstacleNo="0";
         }
 
         if(isNotEmptyParameters(distance,obstacleNo,obstacle)){
             SharedPreferences.Editor editor = pref_currentScenario_info.edit();
-
             editor.putString("phoneName",android.os.Build.MODEL);
             editor.putString("phoneManufacturer", Build.MANUFACTURER);
             editor.putString("phoneBLEVersion",phoneBLEVersion);
-            editor.putString("distance",distance);
+            editor.putString("distance",distance+" meters");
             editor.putString("place",place);
             editor.putString("obstacleNo",obstacleNo);
             editor.putString("obstacle",obstacle);
