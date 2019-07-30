@@ -627,6 +627,7 @@ public class MainActivity extends Activity {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MMM-dd HH:mm:ss.SSS");
             Date resultDate = new Date(tsLong);
             String timeStamp = sdf.format(resultDate);
+            //String timeStamp = tsLong.toString();
             SharedPreferences.Editor editor = pref_currentScenario_info.edit();
             editor.putString("timeStamp",timeStamp);
             editor.apply();
@@ -667,9 +668,8 @@ public class MainActivity extends Activity {
                     plp_list.add(plp);
                     sendDollar(n-1);
                 }
-            },1000);
+            },0);
         }
-
     }
     private Integer calculate_packetLossPercent(String buffer_rcv,Integer n) {
         //calculate packet error rate(plp) after ping by using buffer_rcv content.
@@ -853,14 +853,7 @@ public class MainActivity extends Activity {
                 }
                 connectionStatus_tv.setText("Disconnected");
                 break;
-            case R.id.about:
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle("About");
-                builder.setMessage("Version 1.1\n" +
-                        "seyedalian@outlook.com");
-                builder.setCancelable(true);
-                builder.show();
-                break;
+
             case R.id.exit:
                 if(bluetoothGatt!=null){
                     isStopSendDollar = true;
