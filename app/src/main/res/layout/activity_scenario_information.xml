@@ -55,22 +55,30 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:padding="10dp">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    android:text="Distance (meter): "/>
 
                 <EditText
-                    android:id="@+id/distance"
+                    android:id="@+id/distanceMin"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:inputType="number"
-                    android:hint="@string/distance_meter"
+                    android:inputType="numberDecimal"
+                    android:hint="Min"
                     android:gravity="center"
                     android:textSize="15sp"/>
-                <Spinner
-                    android:id="@+id/indoor_outdoor"
+                <EditText
+                    android:id="@+id/distanceMax"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    tools:ignore="MissingConstraints" />
+                    android:inputType="numberDecimal"
+                    android:hint="Max"
+                    android:gravity="center"
+                    android:textSize="15sp"/>
             </LinearLayout>
 
             <LinearLayout
@@ -97,14 +105,28 @@
                     android:layout_weight="1"
                     tools:ignore="MissingConstraints" />
             </LinearLayout>
-            <EditText
-                android:id="@+id/moreExplanation"
-                android:layout_margin="10dp"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/explanations"
-                android:gravity="center"
-                android:textSize="15sp" />
+                android:orientation="horizontal">
+                <Spinner
+                    android:id="@+id/indoor_outdoor"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    tools:ignore="MissingConstraints" />
+                <EditText
+                    android:id="@+id/moreExplanation"
+                    android:layout_margin="10dp"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="3"
+                    android:hint="@string/explanations"
+                    android:gravity="center"
+                    android:textSize="15sp" />
+
+            </LinearLayout>
+
 
             <LinearLayout
                 android:layout_width="match_parent"

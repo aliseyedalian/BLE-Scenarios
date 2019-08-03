@@ -32,7 +32,6 @@ public class ScenariosReports extends AppCompatActivity {
     Button showConfigTable_btn;
     Button showScenarioTable_btn;
     Button exportCSV_btn;
-    Button btn_openExcel;
     DatabaseHelper databaseHelper;
     ListView listView;
     List<String> titlesList;
@@ -165,6 +164,7 @@ public class ScenariosReports extends AppCompatActivity {
             buffer.append("ctout : "+resultCursor.getString(6)+"\n");
             buffer.append("led : "+resultCursor.getString(7)+"\n");
             buffer.append("baudRate : "+resultCursor.getString(8)+"\n");
+            buffer.append("pm : "+resultCursor.getString(9)+"\n");
             titlesList.add("Config "+resultCursor.getString(0));
             contentsList.add(buffer.toString());
         }
@@ -197,16 +197,18 @@ public class ScenariosReports extends AppCompatActivity {
             buffer.append("phoneName : "+resultCursor.getString(2)+"\n");
             buffer.append("moduleName : "+resultCursor.getString(3)+"\n");
             buffer.append("rssi : "+resultCursor.getString(4)+"\n");
-            buffer.append("distance : "+resultCursor.getString(5)+"\n");
-            buffer.append("place : "+resultCursor.getString(6)+"\n");
-            buffer.append("obstacleNo : "+resultCursor.getString(7)+"\n");
-            buffer.append("obstacle : "+resultCursor.getString(8)+"\n");
-            buffer.append("humidityPercent : "+resultCursor.getString(9)+"\n");
-            buffer.append("wifi : "+resultCursor.getString(10)+"\n");
-            buffer.append("ipv6 : "+resultCursor.getString(11)+"\n");
-            buffer.append("timeStamp : "+resultCursor.getString(12)+"\n");
-            buffer.append("packetLossPercent : "+resultCursor.getString(13)+"\n");
-            buffer.append("explanation : "+resultCursor.getString(14)+"\n");
+            buffer.append("distanceMin : "+resultCursor.getString(5)+"\n");
+            buffer.append("distanceMax : "+resultCursor.getString(6)+"\n");
+            buffer.append("place : "+resultCursor.getString(7)+"\n");
+            buffer.append("obstacleNo : "+resultCursor.getString(8)+"\n");
+            buffer.append("obstacle : "+resultCursor.getString(9)+"\n");
+            buffer.append("humidityPercent : "+resultCursor.getString(10)+"\n");
+            buffer.append("wifi : "+resultCursor.getString(11)+"\n");
+            buffer.append("ipv6 : "+resultCursor.getString(12)+"\n");
+            buffer.append("startTimeStamp : "+resultCursor.getString(13)+"\n");
+            buffer.append("endTimeStamp : "+resultCursor.getString(14)+"\n");
+            buffer.append("packetLossPercent : "+resultCursor.getString(15)+"\n");
+            buffer.append("explanation : "+resultCursor.getString(16)+"\n");
             titlesList.add("Scenario "+resultCursor.getString(0));
             contentsList.add(buffer.toString());
         }

@@ -199,6 +199,36 @@
                     </LinearLayout>
 
                 </LinearLayout>
+                <!--layout_pm -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="10dp">
+                        <TextView
+                            android:text="Power Mode(PM):"
+                            android:textStyle="bold"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="left"
+                            android:textColor="#FFFFFF"
+                            />
+                        <Spinner
+                            android:id="@+id/pm"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:scrollbarSize="@android:dimen/app_icon_size"
+                            tools:ignore="MissingConstraints" />
+                    </LinearLayout>
+
+                </LinearLayout>
 
 
                 <!--checkboxes-->
@@ -208,7 +238,6 @@
                     android:background="#000000"
                     android:layout_marginTop="20dp"
                     android:orientation="vertical">
-                    <!-- switch new_setting,factory_setting-->
                     <CheckBox
                         android:id="@+id/LED"
                         android:layout_width="wrap_content"
@@ -219,7 +248,7 @@
                         android:textStyle="bold"
                         android:text="@string/led"/>
                     <CheckBox
-                        android:id="@+id/checkbox_factorySetting"
+                        android:id="@+id/checkbox_defaultSetting"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="3dp"

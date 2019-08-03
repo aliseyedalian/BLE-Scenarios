@@ -1,5 +1,6 @@
 package com.example.blesenarios;
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
@@ -16,7 +17,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.icu.text.SimpleDateFormat;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.SimpleDateFormat;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -24,7 +28,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -41,6 +45,7 @@ import android.widget.Toast;
 import java.nio.charset.Charset;
 import java.sql.Date;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -68,9 +73,8 @@ public class MainActivity extends Activity {
     private ArrayList< BluetoothDevice > discoveredBluetoothDevices;
     ListView listView;
     ArrayAdapter<BLEdevice> discoveredDevicesAdapter;
-    private List<String> org_strList = new ArrayList<>();
+    private List<String> org_packetsList = new ArrayList<>();
     private List<String> rssiList = new ArrayList<>();
-    private List<Integer> plp_list = new ArrayList<>();
     private ProgressDialog progressDialog;
     private Handler handler;
     private EditText input;
@@ -79,118 +83,118 @@ public class MainActivity extends Activity {
     TextView connectionStatus_tv;
     TextView sent_received_data_tv;
     Button clear_tv_btn;
-    Button cal_per_btn;
+    Button cal_plp_btn;
     Button saveToDB_btn;
     Button get_humidity_btn;
     Button showBuffer_btn;
     SharedPreferences pref_currentScenario_info;
     SharedPreferences pref_currentATCommands;
     DatabaseHelper databaseHelper;
-    Boolean isStopSendDollar;
+    Boolean isEndReceiving;
     String inComingValue;
     String buffer_rcv;
 
     private void prepare_org_strList() {
-        org_strList.add("salam");
-        org_strList.add("morad");
-        org_strList.add("hamta");
-        org_strList.add("odbar");
-        org_strList.add("pedro");
-        org_strList.add("efghi");
-        org_strList.add("idham");
-        org_strList.add("oodro");
-        org_strList.add("parsi");
-        org_strList.add("Teran");
-        org_strList.add("99883");
-        org_strList.add("54321");
-        org_strList.add("95195");
-        org_strList.add("19123");
-        org_strList.add("75532");
-        org_strList.add("42311");
-        org_strList.add("54362");
-        org_strList.add("56654");
-        org_strList.add("42314");
-        org_strList.add("13451");
-        org_strList.add("ebram");
-        org_strList.add("quran");
-        org_strList.add("Isagh");
-        org_strList.add("KermR");
-        org_strList.add("Risma");
-        org_strList.add("oodak");
-        org_strList.add("Zebra");
-        org_strList.add("Havij");
-        org_strList.add("DATAN");
-        org_strList.add("oject");
-        org_strList.add("45600");
-        org_strList.add("54213");
-        org_strList.add("54374");
-        org_strList.add("09123");
-        org_strList.add("17720");
-        org_strList.add("08642");
-        org_strList.add("19191");
-        org_strList.add("42345");
-        org_strList.add("76876");
-        org_strList.add("23214");
-        org_strList.add("medal");
-        org_strList.add("golab");
-        org_strList.add("IRANI");
-        org_strList.add("Seman");
-        org_strList.add("Bravo");
-        org_strList.add("abcde");
-        org_strList.add("mahdi");
-        org_strList.add("ordoo");
-        org_strList.add("FARSI");
-        org_strList.add("ehran");
-        org_strList.add("23421");
-        org_strList.add("12345");
-        org_strList.add("44444");
-        org_strList.add("09123");
-        org_strList.add("75532");
-        org_strList.add("42311");
-        org_strList.add("54362");
-        org_strList.add("56654");
-        org_strList.add("42314");
-        org_strList.add("13451");
-        org_strList.add("javad");
-        org_strList.add("winow");
-        org_strList.add("WIoij");
-        org_strList.add("dAbir");
-        org_strList.add("Jomid");
-        org_strList.add("pirlo");
-        org_strList.add("naldo");
-        org_strList.add("messi");
-        org_strList.add("tariz");
-        org_strList.add("BYour");
-        org_strList.add("42121");
-        org_strList.add("98132");
-        org_strList.add("42141");
-        org_strList.add("23231");
-        org_strList.add("00000");
-        org_strList.add("53499");
-        org_strList.add("76544");
-        org_strList.add("31224");
-        org_strList.add("98763");
-        org_strList.add("23123");
-        org_strList.add("moham");
-        org_strList.add("kerem");
-        org_strList.add("tibal");
-        org_strList.add("farda");
-        org_strList.add("krain");
-        org_strList.add("majid");
-        org_strList.add("wbtel");
-        org_strList.add("olaie");
-        org_strList.add("ASTAN");
-        org_strList.add("amyab");
-        org_strList.add("53912");
-        org_strList.add("21310");
-        org_strList.add("54374");
-        org_strList.add("46782");
-        org_strList.add("09390");
-        org_strList.add("02323");
-        org_strList.add("98765");
-        org_strList.add("91452");
-        org_strList.add("91352");
-        org_strList.add("BYE00");
+        org_packetsList.add("salam");
+        org_packetsList.add("morad");
+        org_packetsList.add("hamta");
+        org_packetsList.add("odbar");
+        org_packetsList.add("pedro");
+        org_packetsList.add("efghi");
+        org_packetsList.add("idham");
+        org_packetsList.add("oodro");
+        org_packetsList.add("parsi");
+        org_packetsList.add("Teran");
+        org_packetsList.add("99883");
+        org_packetsList.add("54321");
+        org_packetsList.add("95195");
+        org_packetsList.add("19123");
+        org_packetsList.add("75532");
+        org_packetsList.add("42311");
+        org_packetsList.add("54362");
+        org_packetsList.add("56654");
+        org_packetsList.add("42314");
+        org_packetsList.add("13451");
+        org_packetsList.add("ebram");
+        org_packetsList.add("quran");
+        org_packetsList.add("Isagh");
+        org_packetsList.add("KermR");
+        org_packetsList.add("Risma");
+        org_packetsList.add("oodak");
+        org_packetsList.add("Zebra");
+        org_packetsList.add("Havij");
+        org_packetsList.add("DATAN");
+        org_packetsList.add("oject");
+        org_packetsList.add("45600");
+        org_packetsList.add("54213");
+        org_packetsList.add("54374");
+        org_packetsList.add("09123");
+        org_packetsList.add("17720");
+        org_packetsList.add("08642");
+        org_packetsList.add("19191");
+        org_packetsList.add("42345");
+        org_packetsList.add("76876");
+        org_packetsList.add("23214");
+        org_packetsList.add("medal");
+        org_packetsList.add("golab");
+        org_packetsList.add("IRANI");
+        org_packetsList.add("Seman");
+        org_packetsList.add("Bravo");
+        org_packetsList.add("abcde");
+        org_packetsList.add("mahdi");
+        org_packetsList.add("ordoo");
+        org_packetsList.add("FARSI");
+        org_packetsList.add("ehran");
+        org_packetsList.add("23421");
+        org_packetsList.add("12345");
+        org_packetsList.add("44444");
+        org_packetsList.add("09123");
+        org_packetsList.add("75532");
+        org_packetsList.add("42311");
+        org_packetsList.add("54362");
+        org_packetsList.add("56654");
+        org_packetsList.add("42314");
+        org_packetsList.add("13451");
+        org_packetsList.add("javad");
+        org_packetsList.add("winow");
+        org_packetsList.add("WIoij");
+        org_packetsList.add("dAbir");
+        org_packetsList.add("Jomid");
+        org_packetsList.add("pirlo");
+        org_packetsList.add("naldo");
+        org_packetsList.add("messi");
+        org_packetsList.add("tariz");
+        org_packetsList.add("BYour");
+        org_packetsList.add("42121");
+        org_packetsList.add("98132");
+        org_packetsList.add("42141");
+        org_packetsList.add("23231");
+        org_packetsList.add("00000");
+        org_packetsList.add("53499");
+        org_packetsList.add("76544");
+        org_packetsList.add("31224");
+        org_packetsList.add("98763");
+        org_packetsList.add("23123");
+        org_packetsList.add("moham");
+        org_packetsList.add("kerem");
+        org_packetsList.add("tibal");
+        org_packetsList.add("farda");
+        org_packetsList.add("krain");
+        org_packetsList.add("majid");
+        org_packetsList.add("wbtel");
+        org_packetsList.add("olaie");
+        org_packetsList.add("ASTAN");
+        org_packetsList.add("amyab");
+        org_packetsList.add("53912");
+        org_packetsList.add("21310");
+        org_packetsList.add("54374");
+        org_packetsList.add("46782");
+        org_packetsList.add("09390");
+        org_packetsList.add("02323");
+        org_packetsList.add("98765");
+        org_packetsList.add("91452");
+        org_packetsList.add("91352");
+        org_packetsList.add("BYE00");
     }
     private void showScenarioInformation() {
         scenarioInfo_tv.setText("");
@@ -202,7 +206,8 @@ public class MainActivity extends Activity {
         String phoneName = pref_currentScenario_info.getString("phoneName", null);
         String phoneManufacturer = pref_currentScenario_info.getString("phoneManufacturer", null);
         String phoneBLEVersion = pref_currentScenario_info.getString("phoneBLEVersion",null);
-        String distance = pref_currentScenario_info.getString("distance", null);
+        String distanceMin = pref_currentScenario_info.getString("distanceMin", null);
+        String distanceMax = pref_currentScenario_info.getString("distanceMax", null);
         String place = pref_currentScenario_info.getString("place", null); //indoor/outdoor
         String obstacleNo = pref_currentScenario_info.getString("obstacleNo", null);
         String obstacle = pref_currentScenario_info.getString("obstacle", null);
@@ -210,7 +215,8 @@ public class MainActivity extends Activity {
         String ipv6 = pref_currentScenario_info.getString("ipv6", null);
         String explanation = pref_currentScenario_info.getString("explanation", null);
         String humidityPercent = pref_currentScenario_info.getString("humidityPercent", null);
-        String timeStamp =pref_currentScenario_info.getString("timeStamp",null);
+        String startTimeStamp =pref_currentScenario_info.getString("startTimeStamp",null);
+        String endTimeStamp =pref_currentScenario_info.getString("endTimeStamp",null);
         String packetLossPercent = pref_currentScenario_info.getString("packetLossPercent",null);
         //show parameters in scenarioInfo textView
         if (rssi != null) {
@@ -221,8 +227,12 @@ public class MainActivity extends Activity {
             scenarioInfo_tv.append(phoneManufacturer+" "+phoneName+" "+"\nBLE Version: "+phoneBLEVersion);
             scenarioInfo_tv.append("\n");
         }
-        if (distance != null) {
-            scenarioInfo_tv.append("distance= " +distance);
+        if (distanceMin != null) {
+            scenarioInfo_tv.append("distanceMin= " +distanceMin+" m");
+            scenarioInfo_tv.append("\n");
+        }
+        if (distanceMax != null) {
+            scenarioInfo_tv.append("distanceMax= " +distanceMax+" m");
             scenarioInfo_tv.append("\n");
         }
         if (place != null) {
@@ -245,12 +255,16 @@ public class MainActivity extends Activity {
             scenarioInfo_tv.append("ipv6: " + ipv6);
             scenarioInfo_tv.append("\n");
         }
-        if(timeStamp != null){
-            scenarioInfo_tv.append("timeStamp:" + timeStamp);
+        if(startTimeStamp != null){
+            scenarioInfo_tv.append("startTimeStamp:" + startTimeStamp);
             scenarioInfo_tv.append("\n");
         }
         if(packetLossPercent != null){
             scenarioInfo_tv.append("packetLoss=" + packetLossPercent);
+            scenarioInfo_tv.append("\n");
+        }
+        if(endTimeStamp != null){
+            scenarioInfo_tv.append("endTimeStamp:" + endTimeStamp);
             scenarioInfo_tv.append("\n");
         }
         if (explanation != null) {
@@ -272,6 +286,7 @@ public class MainActivity extends Activity {
         String aint = pref_currentATCommands.getString("aint", null);
         String ctout = pref_currentATCommands.getString("ctout", null);
         String baudRate = pref_currentATCommands.getString("baudRate", null);
+        String pm = pref_currentATCommands.getString("pm", null);
         String led = pref_currentATCommands.getString("led", null);
 
         //show at commands parameters in at_commands_tv textView
@@ -315,6 +330,10 @@ public class MainActivity extends Activity {
             at_commands_tv.append("led: "+led);
             at_commands_tv.append("\n");
         }
+        if (pm != null) {
+            at_commands_tv.append("pm: "+pm);
+            at_commands_tv.append("\n");
+        }
     }
     private void saveToDB() {
         //get all String data from preferences:
@@ -332,18 +351,22 @@ public class MainActivity extends Activity {
         String ctout = pref_currentATCommands.getString("ctout", null);
         String led = pref_currentATCommands.getString("led", null);
         String baudRate = pref_currentATCommands.getString("baudRate", null);
-        String distance = pref_currentScenario_info.getString("distance", null);
+        String pm = pref_currentATCommands.getString("pm", null);
+        String distanceMin = pref_currentScenario_info.getString("distanceMin", null);
+        String distanceMax = pref_currentScenario_info.getString("distanceMax", null);
         String place = pref_currentScenario_info.getString("place", null); //indoor/outdoor
         String obstacleNo =pref_currentScenario_info.getString("obstacleNo", null);
         String obstacle = pref_currentScenario_info.getString("obstacle", null);
         String humidityPercent = pref_currentScenario_info.getString("humidityPercent", null);
         String wifi = pref_currentScenario_info.getString("wifi", null);
         String ipv6 = pref_currentScenario_info.getString("ipv6", null);
-        String timeStamp =pref_currentScenario_info.getString("timeStamp",null);
+        String startTimeStamp =pref_currentScenario_info.getString("startTimeStamp",null);
+        String endTimeStamp =pref_currentScenario_info.getString("endTimeStamp",null);
         String explanation = pref_currentScenario_info.getString("explanation", null);
         String packetLossPercent =pref_currentScenario_info.getString("packetLossPercent",null);
         //check existence of data before insertion:
-        if(timeStamp == null || humidityPercent==null || packetLossPercent==null || led == null || moduleName ==null || distance==null){
+        if(startTimeStamp == null || humidityPercent==null || packetLossPercent==null ||
+                led == null || moduleName ==null || distanceMin==null || distanceMax==null){
             sent_received_data_tv.setText("Error: Some data does not exist for saving!");
             return;
         }
@@ -360,7 +383,7 @@ public class MainActivity extends Activity {
             sent_received_data_tv.append("New Module saved successfully!\n");
         }
         //Config insert
-        if(!databaseHelper.insertNewConfig(ATDEFAULT,cintMin,cintMax,rfpm,aint,ctout,led,baudRate)){
+        if(!databaseHelper.insertNewConfig(ATDEFAULT,cintMin,cintMax,rfpm,aint,ctout,led,baudRate,pm)){
             sent_received_data_tv.append("This Config currently Exists in the database!\n");
         }else {
             sent_received_data_tv.append("New Config saved successfully!\n");
@@ -368,7 +391,7 @@ public class MainActivity extends Activity {
 
         //Scenario insert
         // I)obtain correct configId:
-        Cursor configIdCursor = databaseHelper.getConfigId(ATDEFAULT,cintMin,cintMax,rfpm,aint,ctout,led,baudRate);
+        Cursor configIdCursor = databaseHelper.getConfigId(ATDEFAULT,cintMin,cintMax,rfpm,aint,ctout,led,baudRate,pm);
         if(configIdCursor.getCount()==0){
             sent_received_data_tv.append("Error: correct configId Not Found!");
             return;
@@ -379,13 +402,13 @@ public class MainActivity extends Activity {
         }
         Integer configId =  Integer.parseInt(buffer.toString());
         // II)saving:
-        if(!databaseHelper.insertNewScenario(configId,phoneName,moduleName,rssi,distance,place,obstacleNo,obstacle,humidityPercent,wifi,
-                ipv6,timeStamp,packetLossPercent,explanation)){
+        if(!databaseHelper.insertNewScenario(configId,phoneName,moduleName,rssi,distanceMin,distanceMax,place,obstacleNo,obstacle,humidityPercent,wifi,
+                ipv6,startTimeStamp,endTimeStamp,packetLossPercent,explanation)){
             sent_received_data_tv.append("This Scenario currently Exists in the database!");
         }else {
             sent_received_data_tv.append("New Scenario saved successfully!");
         }
-        }
+    }
     // OnCreate, called once to initialize the activity.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -412,6 +435,7 @@ public class MainActivity extends Activity {
         discoveredDevicesAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, discoveredDevices);
         listView.setAdapter(discoveredDevicesAdapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @SuppressLint("SetTextI18n")
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                 ScanLeDevice(false);
@@ -472,6 +496,7 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View view) {
                 sent_received_data_tv.setText("");
+                buffer_rcv="";
             }
         });
         clear_tv_btn.setOnLongClickListener(new View.OnLongClickListener() {
@@ -483,11 +508,11 @@ public class MainActivity extends Activity {
         });
         pref_currentScenario_info = getSharedPreferences("currentScenario_info",MODE_PRIVATE);
         pref_currentATCommands = getSharedPreferences("currentATCommands",MODE_PRIVATE);
-        cal_per_btn = findViewById(R.id.cal_per_btn);
-        cal_per_btn.setOnClickListener(new View.OnClickListener() {
+        cal_plp_btn = findViewById(R.id.cal_plp_btn);
+        cal_plp_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                calculate_avg_packetLossPercent(plp_list);
+                cal_plp();
             }
         });
         saveToDB_btn = findViewById(R.id.btn_saveToDB);
@@ -514,7 +539,6 @@ public class MainActivity extends Activity {
         prepare_org_strList();
             databaseHelper = new DatabaseHelper(this);
     }
-
 
     //BluetoothGattCallback: Main BLE device callback where much of the logic occurs:
     private BluetoothGattCallback gattCallback = new BluetoothGattCallback()   {
@@ -598,16 +622,33 @@ public class MainActivity extends Activity {
 
         // Called when a remote characteristic changes (like the RX characteristic).
         @Override
-        public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
+        public void onCharacteristicChanged(BluetoothGatt gatt, final BluetoothGattCharacteristic characteristic) {
             super.onCharacteristicChanged(gatt, characteristic);
-            inComingValue = characteristic.getStringValue(0);
-            buffer_rcv += inComingValue;
-            //sent_received_data_tv.append(inComingValue);
+            new Thread(new Runnable() {
+                public void run(){
+                    inComingValue = characteristic.getStringValue(0);
+                    Log.d("salis",".\n");
+                    buffer_rcv += inComingValue;
+                    if(buffer_rcv.substring(buffer_rcv.length()-1).equals("*")){
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                String timeStamp = getTimeStamp();
+                                SharedPreferences.Editor editor = pref_currentScenario_info.edit();
+                                editor.putString("endTimeStamp",timeStamp);
+                                editor.apply();
+                                showScenarioInformation();
+                                cal_plp();
+                            }
+                        });
+                    }
+                }
+            }).start();
         }
     };
 
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
+
     public void sendClick(){
         //get message from input
         String message = input.getText().toString();
@@ -623,82 +664,102 @@ public class MainActivity extends Activity {
         buffer_rcv = "";
         if(message.trim().equals("$")){
             //getting timeStamp and save it to preferences:
-            Long tsLong = System.currentTimeMillis();
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MMM-dd HH:mm:ss.SSS");
-            Date resultDate = new Date(tsLong);
-            String timeStamp = sdf.format(resultDate);
-            //String timeStamp = tsLong.toString();
+            String timeStamp = getTimeStamp();
             SharedPreferences.Editor editor = pref_currentScenario_info.edit();
-            editor.putString("timeStamp",timeStamp);
+            editor.putString("startTimeStamp",timeStamp);
             editor.apply();
             showScenarioInformation();
-            //sent message "$" 100 times - for each time calculate packet loss percent and add it to plp_list:
-            plp_list.clear();
             setProgressBarIndeterminateVisibility(true);
-            isStopSendDollar = false;
-            final Integer n = 10;
-            sendDollar(n);
+            isEndReceiving = false;
+            buffer_rcv = "";
+            tx.setValue("$".getBytes(Charset.forName("UTF-8")));
+            if(bluetoothGatt.writeCharacteristic(tx)) {
+                Log.d("salis","$ sent");
+            }
+            //terminate scenario after 15 s
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    if(!isEndReceiving){
+                        String timeStamp = getTimeStamp();
+                        SharedPreferences.Editor editor = pref_currentScenario_info.edit();
+                        editor.putString("endTimeStamp",timeStamp);
+                        editor.apply();
+                        showScenarioInformation();
+                        cal_plp();
+                    }
+                }
+            },15000);
         }
         //send test input
         else {
             //Update TX characteristic value.  Note the setValue overload that takes a byte array must be used.
             tx.setValue(message.getBytes(Charset.forName("UTF-8")));
             if (bluetoothGatt.writeCharacteristic(tx)) {
-                //sent_received_data_tv.append("#NEW TEST SESSION:\n\nSENT:\n{"+message+"}\n\nRECEIVED:\n");
                 input.getText().clear();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        sent_received_data_tv.append(buffer_rcv);
+                    }
+                },message.length()*200);
             }
         }
     }
-    //send n $(request data from bluetooth module) each 1 second.
-    private void sendDollar(final Integer n) {
-        if(n==0 || isStopSendDollar){
-            setProgressBarIndeterminateVisibility(false);
+
+    private String getTimeStamp() {
+        Long tsLong = System.currentTimeMillis();
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss.SSS");
+        Date resultDate = new Date(tsLong);
+        String timeStamp = sdf.format(resultDate);
+        return timeStamp;
+    }
+
+    private void cal_plp() {
+        isEndReceiving=true;
+        setProgressBarIndeterminateVisibility(false);
+        if(buffer_rcv==null || buffer_rcv.length()==0){
             return;
         }
-        buffer_rcv = "";
-        tx.setValue("$".getBytes(Charset.forName("UTF-8")));
-        if(bluetoothGatt.writeCharacteristic(tx)) {
-            //if sent successfully, wait 1 second and then add calculated packet loss percent  to plp_list
-            //then send next "$"
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    //after delay calculate packetLossPercent and add it to plp_list
-                    Integer plp = calculate_packetLossPercent(buffer_rcv,n);
-                    plp_list.add(plp);
-                    sendDollar(n-1);
-                }
-            },0);
+        //eliminate *s from end of buffer
+        while (buffer_rcv.substring(buffer_rcv.length()-1).equals("*")) {
+            buffer_rcv = buffer_rcv.replace(buffer_rcv.substring(buffer_rcv.length() - 1), "");
         }
-    }
-    private Integer calculate_packetLossPercent(String buffer_rcv,Integer n) {
-        //calculate packet error rate(plp) after ping by using buffer_rcv content.
-        int ack = 0;
-        String[] rcv_strList = buffer_rcv.split("-");
-        for (String s : rcv_strList) {
-            if (org_strList.contains(s)) {
-                ack++;
+        //calculate plp:
+        int correctPacket = 0;
+        String[] rcv_packetsList = buffer_rcv.split("-");
+        for (String s : rcv_packetsList) {
+            if (org_packetsList.contains(s)) {
+                correctPacket++;
             }
         }
-        int plp = 100 - ack;
-        sent_received_data_tv.append("PacketLossPercent"+n.toString()+": "+plp +"%\n");
-        return plp;
-    }
-    private void calculate_avg_packetLossPercent(List<Integer> plp_list) {
-        if(plp_list.isEmpty()){
-            return;
-        }
-        isStopSendDollar = true;
-        float sum = (float) 0;
-        for (Integer plp : plp_list) {
-            sum += plp;
-        }
-        float avg = sum / plp_list.size();
+        float pl = 2000 - correctPacket;
+        double plp = (pl / 2000) * 100;
+        plp = round(plp,2);
+
+        Log.d("salis","cal_plp_buffer:\n"+buffer_rcv);
+        Log.d("salis","rcv_packetsList:\n"+ Arrays.toString(rcv_packetsList));
+        Log.d("salis","packetLoss: "+ pl);
+        Log.d("salis","rcv_packetsList.length: "+ rcv_packetsList.length);
+        Log.d("salis","PacketLossPercent: "+ plp);
+
+        //show and save result:
+        sent_received_data_tv.setText("Received packet number: " + correctPacket);
+        sent_received_data_tv.append("\nLost packet number: "+pl);
         SharedPreferences.Editor editor = pref_currentScenario_info.edit();
-        editor.putString("packetLossPercent", Float.toString(avg)+" %");
+        editor.putString("packetLossPercent", plp+" %");
         editor.apply();
         showScenarioInformation();
+
+
     }
+    private static double round(double value, int places) {
+        if (places < 0) throw new IllegalArgumentException();
+        BigDecimal bd = new BigDecimal(Double.toString(value));
+        bd = bd.setScale(places, RoundingMode.HALF_UP);
+        return bd.doubleValue();
+    }
+
     private void getHumidity() {
         if (tx == null) {
             return;
@@ -750,7 +811,6 @@ public class MainActivity extends Activity {
 
     };
     private void ScanLeDevice(final boolean enable) {
-
         if (enable) {
             // Stops scanning after a pre-defined scan period.
             handler.postDelayed(new Runnable() {
@@ -811,7 +871,7 @@ public class MainActivity extends Activity {
         switch (item.getItemId()){
             case R.id.action_scan:
                 if(bluetoothGatt!=null){
-                    isStopSendDollar = true;
+                    isEndReceiving = true;
                     bluetoothGatt.disconnect();
                     bluetoothGatt.close();
                     bluetoothGatt=null;
@@ -841,31 +901,11 @@ public class MainActivity extends Activity {
                 startActivity(new Intent(MainActivity.this , ScenariosReports.class));
                 break;
             case R.id.disconnect:
-                if(bluetoothGatt != null){
-                    isStopSendDollar = true;
-                    bluetoothGatt.disconnect();
-                    bluetoothGatt.close();
-                    bluetoothGatt = null;
-                }
-                if(tx!=null || rx !=null){
-                    tx = null;
-                    rx = null;
-                }
-                connectionStatus_tv.setText("Disconnected");
+                disconnect();
                 break;
 
             case R.id.exit:
-                if(bluetoothGatt!=null){
-                    isStopSendDollar = true;
-                    bluetoothGatt.disconnect();
-                    bluetoothGatt.close();
-                    bluetoothGatt=null;
-                }
-                if(tx!=null || rx !=null){
-                    tx = null;
-                    rx = null;
-                }
-                connectionStatus_tv.setText("Disconnected");
+                disconnect();
                 finish();
                 break;
             default:
@@ -874,7 +914,18 @@ public class MainActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
-
+    private void disconnect() {
+        if(bluetoothGatt!=null){
+            bluetoothGatt.disconnect();
+            bluetoothGatt.close();
+            bluetoothGatt=null;
+            tx = null;
+            rx = null;
+        }
+        setProgressBarIndeterminateVisibility(false);
+        isEndReceiving = true;
+        connectionStatus_tv.setText("Disconnected");
+    }
 
 
     @Override

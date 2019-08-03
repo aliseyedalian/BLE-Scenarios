@@ -16,13 +16,14 @@ public class ScenarioInformationActivity extends AppCompatActivity {
     Spinner phoneBleVersion_spinner;
     ArrayAdapter<String> phoneBleVersion_adapter;
     String [] phoneBleVersion_list = {"v4.0","v4.1","v4.2","v5.0"};
-    Spinner indoor_outdoor_spinner;
-    ArrayAdapter<String> indoor_outdoor_adapter;
+    Spinner place_spinner;
+    ArrayAdapter<String> place_adapter;
     String [] indoor_outdoor_list = {"Indoor","Outdoor"};
     Spinner obstacle_spinner;
     ArrayAdapter<String> obstacle_adapter;
-    String [] obstacle_list = {"LOS","Glass","Wood","Metal","Brick","Concrete","Human Body","Water"};
-    EditText input_distance;
+    String [] obstacle_list = {"LOS","Glass","Wood","Metal","Brick","Concrete","Human Body"};
+    EditText input_distanceMin;
+    EditText input_distanceMax;
     EditText input_obstacleNo;
     CheckBox wifi_cb;
     CheckBox ipv6_cb;
@@ -45,19 +46,59 @@ public class ScenarioInformationActivity extends AppCompatActivity {
             }
         });
         //load the last scenario information
-        loadScenarioInformation();
+        loadLastScenInfo();
     }
 
-    private void loadScenarioInformation() {
+    private void loadLastScenInfo() {
+        //obtain parameters from preferences
+        String phoneBLEVersion = pref_currentScenario_info.getString("phoneBLEVersion",null);
+        String distanceMin = pref_currentScenario_info.getString("distanceMin", null);
+        String distanceMax = pref_currentScenario_info.getString("distanceMax", null);
+        String place = pref_currentScenario_info.getString("place", null); //indoor/outdoor
+        String obstacleNo = pref_currentScenario_info.getString("obstacleNo", null);
+        String obstacle = pref_currentScenario_info.getString("obstacle", null);
+        String wifi = pref_currentScenario_info.getString("wifi", null);
+        String ipv6 = pref_currentScenario_info.getString("ipv6", null);
+
+        if(phoneBLEVersion != null){
+            int spinnerPosition = phoneBleVersion_adapter.getPosition(phoneBLEVersion);
+            phoneBleVersion_spinner.setSelection(spinnerPosition);
+        }
+        if(distanceMin != null){
+            input_distanceMin.setText(distanceMin);
+        }
+        if(distanceMax != null){
+            input_distanceMax.setText(distanceMax);
+        }
+        if(place != null){
+            int spinnerPosition = place_adapter.getPosition(place);
+            place_spinner.setSelection(spinnerPosition);
+        }
+        if(obstacleNo != null){
+            input_obstacleNo.setText(obstacleNo);
+        }
+        if(obstacle != null){
+            int spinnerPosition = obstacle_adapter.getPosition(obstacle);
+            obstacle_spinner.setSelection(spinnerPosition);
+        }
+        if(wifi!=null && wifi.equals("Yes")){
+            wifi_cb.setChecked(true);
+        }
+        if(ipv6!=null && ipv6.equals("Yes")){
+            ipv6_cb.setChecked(true);
+        }
+
     }
+
 
     private void saveParameters() {
         //save all input data in string data type:
         String phoneBLEVersion = phoneBleVersion_spinner.getSelectedItem().toString().trim();
-        String distance = input_distance.getText().toString().trim();
+        String distanceMin = input_distanceMin.getText().toString().trim();
+        String distanceMax = input_distanceMax.getText().toString().trim();
         String obstacleNo = input_obstacleNo.getText().toString().trim();
         String obstacle = obstacle_spinner.getSelectedItem().toString().trim();
-        String place = indoor_outdoor_spinner.getSelectedItem().toString().trim();
+        String place = place_spinner.getSelectedItem().toString().trim();
         String explanation = input_moreExplanation.getText().toString().trim();
         String wifi;
         String ipv6;
@@ -75,12 +116,13 @@ public class ScenarioInformationActivity extends AppCompatActivity {
             obstacleNo="0";
         }
 
-        if(isNotEmptyParameters(distance,obstacleNo,obstacle)){
+        if(isNotEmptyParameters(distanceMin,distanceMax,obstacleNo,obstacle)){
             SharedPreferences.Editor editor = pref_currentScenario_info.edit();
             editor.putString("phoneName",android.os.Build.MODEL);
             editor.putString("phoneManufacturer", Build.MANUFACTURER);
             editor.putString("phoneBLEVersion",phoneBLEVersion);
-            editor.putString("distance",distance+" meters");
+            editor.putString("distanceMin",distanceMin);
+            editor.putString("distanceMax",distanceMax);
             editor.putString("place",place);
             editor.putString("obstacleNo",obstacleNo);
             editor.putString("obstacle",obstacle);
@@ -93,10 +135,14 @@ public class ScenarioInformationActivity extends AppCompatActivity {
         }
     }
 
-    private boolean isNotEmptyParameters(String distance, String obstacle_count,String obstacle) {
+    private boolean isNotEmptyParameters(String distanceMin,String distanceMax, String obstacle_count,String obstacle) {
         //check validation of inputs
-        if(distance.isEmpty()){
-            input_distance.requestFocus();
+        if(distanceMin.isEmpty()){
+            input_distanceMin.requestFocus();
+            return false;
+        }
+        if(distanceMax.isEmpty()){
+            input_distanceMax.requestFocus();
             return false;
         }
         else if(obstacle_count.isEmpty() && !obstacle.equals("LOS(Without Obstacles)")){
@@ -112,10 +158,10 @@ public class ScenarioInformationActivity extends AppCompatActivity {
         phoneBleVersion_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         phoneBleVersion_spinner.setAdapter(phoneBleVersion_adapter);
 
-        indoor_outdoor_spinner = findViewById(R.id.indoor_outdoor);
-        indoor_outdoor_adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, indoor_outdoor_list);
-        indoor_outdoor_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        indoor_outdoor_spinner.setAdapter(indoor_outdoor_adapter);
+        place_spinner = findViewById(R.id.indoor_outdoor);
+        place_adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, indoor_outdoor_list);
+        place_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        place_spinner.setAdapter(place_adapter);
 
         obstacle_spinner = findViewById(R.id.obstacle);
         obstacle_adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, obstacle_list);
@@ -123,13 +169,15 @@ public class ScenarioInformationActivity extends AppCompatActivity {
         obstacle_spinner.setAdapter(obstacle_adapter);
 
 
-        input_distance = findViewById(R.id.distance);
+        input_distanceMin = findViewById(R.id.distanceMin);
+        input_distanceMax = findViewById(R.id.distanceMax);
         input_obstacleNo =findViewById(R.id.obstacle_count);
         input_moreExplanation = findViewById(R.id.moreExplanation);
         wifi_cb =findViewById(R.id.wifi_cb);
         ipv6_cb =findViewById(R.id.ipv6_cb);
         save_btn = findViewById(R.id.btn_Save);
     }
+    //back Arrow:
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if(item.getItemId()==android.R.id.home)

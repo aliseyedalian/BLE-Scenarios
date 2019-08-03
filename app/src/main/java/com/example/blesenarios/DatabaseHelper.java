@@ -40,7 +40,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "aint TEXT," +
                 "ctout TEXT,"+
                 "led TEXT,"+
-                "baudRate TEXT);"
+                "baudRate TEXT," +
+                "pm TEXT);"
         );
         sqLiteDatabase.execSQL("create table Scenario(" +
                 "scenId INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -48,14 +49,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "phoneName TEXT," +
                 "moduleName TEXT," +
                 "rssi TEXT," +
-                "distance TEXT," +
+                "distanceMin TEXT," +
+                "distanceMax TEXT," +
                 "place TEXT," +
                 "obstacleNo TEXT," +
                 "obstacle TEXT," +
                 "humidityPercent TEXT," +
                 "wifi TEXT," +
                 "ipv6 TEXT," +
-                "timeStamp TEXT," +
+                "startTimeStamp TEXT," +
+                "endTimeStamp TEXT," +
                 "packetLossPercent TEXT," +
                 "explanation TEXT default 'None'," +
                 "FOREIGN KEY (configId) REFERENCES Config(configId)" +
@@ -104,8 +107,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return resultModule!=-1;
     }
     boolean insertNewConfig(String ATDEFAULT,String cintMin,String cintMax,String rfpm,String aint,
-                            String ctout ,String led ,String baudRate ){
-        if(isExistConfig(ATDEFAULT,cintMin,cintMax,rfpm,aint,ctout,led,baudRate)){
+                            String ctout ,String led ,String baudRate,String pm ){
+        if(isExistConfig(ATDEFAULT,cintMin,cintMax,rfpm,aint,ctout,led,baudRate,pm)){
             return false;
         }
         ContentValues contentValuesModule = new ContentValues();
@@ -117,12 +120,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         contentValuesModule.put("ctout",ctout);
         contentValuesModule.put("led",led);
         contentValuesModule.put("baudRate",baudRate);
+        contentValuesModule.put("pm",pm);
         long resultConfig = myDb.insert("Config",null,contentValuesModule);
         return resultConfig!=-1;
     }
-    boolean insertNewScenario(Integer configId, String phoneName, String moduleName,String rssi, String distance, String place, String obstacleNo,
-                              String obstacle, String humidityPercent, String wifi, String ipv6, String timeStamp, String packetLossPercent, String explanation){
-        if(isExistScenario(configId,phoneName,moduleName,rssi,distance,place,obstacleNo,obstacle,humidityPercent,wifi,ipv6,timeStamp,packetLossPercent,explanation)){
+    boolean insertNewScenario(Integer configId, String phoneName, String moduleName,String rssi, String distanceMin,String distanceMax,
+                              String place, String obstacleNo,String obstacle, String humidityPercent, String wifi, String ipv6,
+                              String startTimeStamp,String endTimeStamp, String packetLossPercent, String explanation){
+        if(isExistScenario(configId,phoneName,moduleName,rssi,distanceMin,distanceMax,place,obstacleNo,obstacle,humidityPercent,wifi,ipv6,startTimeStamp,packetLossPercent,explanation)){
             return false;
         }
         ContentValues contentValuesModule = new ContentValues();
@@ -130,14 +135,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         contentValuesModule.put("phoneName",phoneName);
         contentValuesModule.put("moduleName",moduleName);
         contentValuesModule.put("rssi",rssi);
-        contentValuesModule.put("distance",distance);
+        contentValuesModule.put("distanceMin",distanceMin);
+        contentValuesModule.put("distanceMax",distanceMax);
         contentValuesModule.put("place",place);
         contentValuesModule.put("obstacleNo",obstacleNo);
         contentValuesModule.put("obstacle",obstacle);
         contentValuesModule.put("humidityPercent",humidityPercent);
         contentValuesModule.put("wifi",wifi);
         contentValuesModule.put("ipv6",ipv6);
-        contentValuesModule.put("timeStamp",timeStamp);
+        contentValuesModule.put("startTimeStamp",startTimeStamp);
+        contentValuesModule.put("endTimeStamp",endTimeStamp);
         contentValuesModule.put("packetLossPercent",packetLossPercent);
         contentValuesModule.put("explanation",explanation);
         long resultScenario = myDb.insert("Scenario",null,contentValuesModule);
@@ -174,36 +181,36 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return resultCursor.getCount()!=0;
     }
     private boolean isExistConfig(String ATDEFAULT, String cintMin, String cintMax, String rfpm,
-                                  String aint, String ctout, String led, String baudRate){
+                                  String aint, String ctout, String led, String baudRate,String pm){
         String query = "select ConfigId from Config where ATDEFAULT ='"+ATDEFAULT+"' and cintMin='"+cintMin+"' and "+
                 "cintMax='"+cintMax+"' and rfpm='"+rfpm+"' and aint='"+aint+"' and ctout='"+ctout+"' and " +
-                "led='"+led+"' and baudRate='"+baudRate+"';";
+                "led='"+led+"' and baudRate='"+baudRate+"' and pm='"+pm+"';";
         @SuppressLint("Recycle") Cursor resultCursor = myDb.rawQuery(query,null);
         return resultCursor.getCount()!=0;
     }
-    private boolean isExistScenario(Integer configId, String phoneName, String moduleName,String rssi,String distance, String place,
-                                    String obstacleNo, String obstacle, String humidityPercent, String wifi,
-                                    String ipv6, String timeStamp, String packetLossPercent, String explanation) {
+    private boolean isExistScenario(Integer configId, String phoneName, String moduleName,String rssi,String distanceMin,String distanceMax,
+                                    String place, String obstacleNo, String obstacle, String humidityPercent, String wifi,
+                                    String ipv6, String startTimeStamp, String packetLossPercent, String explanation) {
         String query = "select * from Scenario where configId ="+configId+" and phoneName='"+phoneName+"' and "+
-                "moduleName='"+moduleName+"' and distance='"+distance+"' and rssi='"+rssi+"' and place='"+place+"' and obstacleNo='"+obstacleNo+"' and " +
+                "moduleName='"+moduleName+"' and distanceMin='"+distanceMin+"' and distanceMax='"+distanceMax+"' and rssi='"+rssi+"' and place='"+place+"' and obstacleNo='"+obstacleNo+"' and " +
                 "obstacle='"+obstacle+"' and humidityPercent='"+humidityPercent+"' and wifi='"+wifi+"' and ipv6='"+ipv6+"' and " +
-                "timeStamp='"+timeStamp+"' and packetLossPercent='"+packetLossPercent+"' and explanation='"+explanation+"';";
+                "startTimeStamp='"+startTimeStamp+"' and packetLossPercent='"+packetLossPercent+"' and explanation='"+explanation+"';";
         @SuppressLint("Recycle") Cursor resultCursor = myDb.rawQuery(query,null);
         return resultCursor.getCount()!=0;
     }
 
     Cursor getConfigId(String ATDEFAULT,String cintMin, String cintMax, String rfpm,
-                       String aint, String ctout, String led, String baudRate) {
+                       String aint, String ctout, String led, String baudRate,String pm) {
         String query = "select distinct ConfigId from Config where ATDEFAULT ='"+ATDEFAULT+"' and cintMin='"+cintMin+"' and "+
                 "cintMax='"+cintMax+"' and rfpm='"+rfpm+"' and aint='"+aint+"' and ctout='"+ctout+"' and " +
-                "led='"+led+"' and baudRate='"+baudRate+"';";
+                "led='"+led+"' and baudRate='"+baudRate+"' and pm='"+pm+"';";
         return myDb.rawQuery(query,null);
     }
 
     public Cursor exportScenario() {
-        String query = "select scenId,ATDEFAULT,cintMin,cintMax,rfpm,aint,ctout,led,baudRate," +
+        String query = "select scenId,ATDEFAULT,cintMin,cintMax,rfpm,aint,ctout,led,baudRate,pm," +
                 "Phone.phoneName,phoneManufacturer,phoneBLEVersion,Module.moduleName,moduleBLEVersion,rssi," +
-                "distance,place,obstacleNo,obstacle,humidityPercent,wifi,ipv6,timeStamp,packetLossPercent," +
+                "distanceMin,distanceMax,place,obstacleNo,obstacle,humidityPercent,wifi,ipv6,startTimeStamp,endTimeStamp,packetLossPercent," +
                 "explanation from Scenario " +
                 "inner join Config on Scenario.configId=Config.configId " +
                 "inner join Phone on Scenario.phoneName=Phone.phoneName " +
