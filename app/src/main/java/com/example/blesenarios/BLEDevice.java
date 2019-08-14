@@ -1,6 +1,6 @@
 package com.example.blesenarios;
 
-public class BLEdevice {
+public class BLEDevice {
     private String name;
     private String mac;
     private String rssi;

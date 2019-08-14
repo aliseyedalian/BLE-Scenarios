@@ -6,6 +6,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -43,6 +44,9 @@ public class ATCommandParametersActivity extends AppCompatActivity {
         if(getSupportActionBar()!= null){
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
+        //Prevent the keyboard from displaying on activity start:
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+
         pref_currentATCommands = getSharedPreferences("currentATCommands",MODE_PRIVATE);
         init();
         btn_Save.setOnClickListener(new View.OnClickListener() {
@@ -56,6 +60,8 @@ public class ATCommandParametersActivity extends AppCompatActivity {
             input_CINT_MIN.setEnabled(false);
             input_CINT_MAX.setEnabled(false);
             input_CTOUT.setEnabled(false);
+            TextView aint_text = findViewById(R.id.aint_text);
+            aint_text.setText("Advertising interval:\n([20~10000] ms)");
         }else {
             pm_spinner.setEnabled(false);
         }

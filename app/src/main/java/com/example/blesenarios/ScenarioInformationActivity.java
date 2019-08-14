@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -37,6 +38,9 @@ public class ScenarioInformationActivity extends AppCompatActivity {
         if(getSupportActionBar()!= null){
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
+        //Prevent the keyboard from displaying on activity start:
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+
         init();
         pref_currentScenario_info = getSharedPreferences("currentScenario_info",MODE_PRIVATE);
         save_btn.setOnClickListener(new View.OnClickListener() {

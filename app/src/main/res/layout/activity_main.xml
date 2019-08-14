@@ -60,12 +60,12 @@
             android:background="#1D1C22"
             android:orientation="horizontal">
             <Button
-                android:id="@+id/clear_tv_btn"
+                android:id="@+id/clean_tv_btn"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="match_parent"
                 android:textColor="#FFFFFF"
-                android:text="Clear"
+                android:text="clean"
                 android:textSize="10sp"/>
             <Button
                 android:id="@+id/btn_saveToDB"
@@ -100,7 +100,7 @@
                 android:text="Buffer"
                 android:textSize="10sp"/>
         </LinearLayout>
-
+        <!-- AT commands and Scenario information -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
@@ -165,7 +165,7 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!--receive layout -->
+        <!--save and receive data layout -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
@@ -201,31 +201,48 @@
         </LinearLayout>
     </LinearLayout>
 
-    <ListView
-        android:id="@+id/lv_devices"
+
+
+    <LinearLayout
+        android:id="@+id/scannedDevicesList_layout"
+        android:visibility="invisible"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_margin="70dp"
-        android:background="#FFFFFF"
-        android:visibility="invisible"
-        android:padding="5dp" />
-
-
-
-    <!--log writeLines-->
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:visibility="gone"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentStart="true">
-        <TextView
-            android:id="@+id/messages"
+        android:padding="50dp"
+        android:orientation="vertical">
+        <LinearLayout
             android:layout_width="match_parent"
-            android:textColor="#FFFFFF"
-            android:layout_height="wrap_content" />
-    </ScrollView>
+            android:layout_height="wrap_content"
+            android:background="#FFFFFF"
+            android:orientation="horizontal">
+            <Button
+                android:id="@+id/rescan_btn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_margin="2dp"
+                android:text="Rescan" />
+            <Button
+                android:id="@+id/close_scanList_btn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_margin="2dp"
+                android:text="Close" />
+        </LinearLayout>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="#615858"/>
+
+
+        <ListView
+            android:id="@+id/lv_devices"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#FFFFFF"
+            android:padding="5dp" />
+    </LinearLayout>
 
 
 </RelativeLayout>

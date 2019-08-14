@@ -15,6 +15,10 @@
         android:title="Scenario Information"
         android:orderInCategory="100"
         app:showAsAction="never" />
+    <item android:id="@+id/send_periodic"
+        android:title="Send Periodic"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
     <item android:id="@+id/ScenariosReports"
         android:title="Scenarios Reports"
         android:orderInCategory="100"

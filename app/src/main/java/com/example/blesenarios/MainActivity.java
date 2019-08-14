@@ -21,6 +21,7 @@ import android.database.Cursor;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
+
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -38,6 +39,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -50,18 +52,15 @@ import java.util.List;
 import java.util.UUID;
 
 public class MainActivity extends Activity {
-    private static final String EMPTY = "";
+    public static final String TAG = "salis";
     // UUIDs for UAT service and associated characteristics.
     public static UUID UART_UUID = UUID.fromString("0000FFE0-0000-1000-8000-00805F9B34FB");
     public static UUID TX_UUID = UUID.fromString("0000FFE1-0000-1000-8000-00805F9B34FB");
     public static UUID RX_UUID = UUID.fromString("0000FFE1-0000-1000-8000-00805F9B34FB");
     //UUID for the BLE client characteristic,necessary for notifications:
     public static UUID CLIENT_UUID = UUID.fromString("00002902-0000-1000-8000-00805F9B34FB");
-
     //For Energy efficiency stops scanning after 5 seconds.
     private static final long SCAN_PERIOD = 5000;
-    // UI elements:
-    private TextView logs;
     private BluetoothAdapter bluetoothAdapter;
     private BluetoothGatt bluetoothGatt;
     private BluetoothDevice device;
@@ -69,10 +68,11 @@ public class MainActivity extends Activity {
     private BluetoothGattCharacteristic rx;
     private static final int REQ_ENABLE_BT = 1221 ;
     private static final int REQ_PERMISSION_LOC = 3663 ;
-    private ArrayList<BLEdevice> discoveredDevices;
+    private ArrayList<BLEDevice> discoveredDevices;
     private ArrayList< BluetoothDevice > discoveredBluetoothDevices;
     ListView listView;
-    ArrayAdapter<BLEdevice> discoveredDevicesAdapter;
+    LinearLayout scannedDevicesList_layout;
+    ArrayAdapter<BLEDevice> discoveredDevicesAdapter;
     private List<String> org_packetsList = new ArrayList<>();
     private List<String> rssiList = new ArrayList<>();
     private ProgressDialog progressDialog;
@@ -82,15 +82,18 @@ public class MainActivity extends Activity {
     TextView scenarioInfo_tv;
     TextView connectionStatus_tv;
     TextView sent_received_data_tv;
-    Button clear_tv_btn;
+    Button clean_tv_btn;
     Button cal_plp_btn;
     Button saveToDB_btn;
     Button get_humidity_btn;
     Button showBuffer_btn;
+    Button rescan_btn;
+    Button close_scanList_btn;
     SharedPreferences pref_currentScenario_info;
     SharedPreferences pref_currentATCommands;
     DatabaseHelper databaseHelper;
     Boolean isEndReceiving;
+    Boolean isFinishScan;
     String inComingValue;
     String buffer_rcv;
 
@@ -244,7 +247,7 @@ public class MainActivity extends Activity {
             scenarioInfo_tv.append("\n");
         }
         if (humidityPercent != null) {
-            scenarioInfo_tv.append("humidityPercent= " + humidityPercent);
+            scenarioInfo_tv.append("humidityPercent=" + humidityPercent);
             scenarioInfo_tv.append("\n");
         }
         if (wifi != null) {
@@ -413,21 +416,24 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         //Prevent the keyboard from displaying on activity start:
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+        //progress
+        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.activity_main);
         setProgressBarIndeterminate(true);
-        //handler for scanning timing delay
+
+        //handler for timing delay
         handler = new Handler();
-        // Grab references to UI elements:
-        logs = findViewById(R.id.messages);
         //scanning progress dialog:
         progressDialog = new ProgressDialog(this);
         progressDialog.setIndeterminate(true);
         progressDialog.setCancelable(false);
+
         //list view which shows discovered Bluetooth Devices:
         listView = findViewById(R.id.lv_devices);
+
+        scannedDevicesList_layout = findViewById(R.id.scannedDevicesList_layout);
         //discoveredDevices is a array which has found bluetooth devices 'name' and 'mac address'.
         discoveredDevices = new ArrayList<>();
         //discoveredBluetoothDevices is a array which has found bluetooth devices.
@@ -439,7 +445,6 @@ public class MainActivity extends Activity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                 ScanLeDevice(false);
-                writeLine("#"+ discoveredBluetoothDevices.get(position).getName()+" scenario:");
                 device = discoveredBluetoothDevices.get(position);
                 //save rssi in scenario information
                 SharedPreferences.Editor editor1 = pref_currentScenario_info.edit();
@@ -466,7 +471,7 @@ public class MainActivity extends Activity {
                 connectGatt() method,passing in a callback for GATT events
                 */
                 bluetoothGatt = device.connectGatt(MainActivity.this, true, gattCallback);
-                writeLine("#Connecting to "+device.getName()+"...");
+                Log.d(TAG,"#Connecting to "+device.getName()+"...");
                 connectionStatus_tv.setText("Connecting...");
             }
         });
@@ -475,7 +480,9 @@ public class MainActivity extends Activity {
             @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onClick(View view) {
-                sendClick();
+                //get message from input
+                String message = input.getText().toString().trim();
+                send(message);
             }
         });
         input = findViewById(R.id.input);
@@ -491,18 +498,18 @@ public class MainActivity extends Activity {
         scenarioInfo_tv = findViewById(R.id.comm_info_tv);
         connectionStatus_tv = findViewById(R.id.connection_status);
         sent_received_data_tv = findViewById(R.id.recv_tv);
-        clear_tv_btn = findViewById(R.id.clear_tv_btn);
-        clear_tv_btn.setOnClickListener(new View.OnClickListener() {
+        clean_tv_btn = findViewById(R.id.clean_tv_btn);
+        clean_tv_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 sent_received_data_tv.setText("");
                 buffer_rcv="";
             }
         });
-        clear_tv_btn.setOnLongClickListener(new View.OnLongClickListener() {
+        clean_tv_btn.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                cleanTextViewsAndPreferences();
+                clean();
                 return false;
             }
         });
@@ -512,7 +519,7 @@ public class MainActivity extends Activity {
         cal_plp_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                cal_plp();
+                calculate_plp();
             }
         });
         saveToDB_btn = findViewById(R.id.btn_saveToDB);
@@ -537,33 +544,53 @@ public class MainActivity extends Activity {
             }
         });
         prepare_org_strList();
-            databaseHelper = new DatabaseHelper(this);
+        databaseHelper = new DatabaseHelper(this);
+        close_scanList_btn = findViewById(R.id.close_scanList_btn);
+        close_scanList_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ScanLeDevice(false);
+                connectionStatus_tv.setText("Disconnected");
+            }
+        });
+        rescan_btn = findViewById(R.id.rescan_btn);
+        rescan_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ScanLeDevice(true);
+            }
+        });
     }
 
     //BluetoothGattCallback: Main BLE device callback where much of the logic occurs:
-    private BluetoothGattCallback gattCallback = new BluetoothGattCallback()   {
+    private BluetoothGattCallback gattCallback = new BluetoothGattCallback(){
         // Called whenever the device connection state changes, i.e. from disconnected to connected.
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             super.onConnectionStateChange(gatt, status, newState);
+            Log.d(TAG,"onConnectionStateChange:");
+            Log.d(TAG,"gatt:"+gatt);
+            Log.d(TAG,"status:"+status);
+            Log.d(TAG,"newState:"+newState);
             if (status == BluetoothGatt.GATT_SUCCESS && newState== BluetoothProfile.STATE_CONNECTED) {
-                writeLine("#GATT Connected.");
-                //once connected, Discover all services on the device before we can read and
-                //and write their characteristics.
-                gatt.discoverServices();
-                writeLine("#discovering services...");
-                if (!gatt.discoverServices()) {
-                    writeLine("#Failed to start discovering services!");
-                    connectionStatus_tv.setText("Disconnected");
+                //this block runs after every connection:
+                Log.d(TAG,"status=BluetoothGatt.GATT_SUCCESS && newState=BluetoothProfile.STATE_CONNECTED:");
+                Log.d(TAG,"#GATT Connected.");
+                if(gatt.discoverServices()){
+                    Log.d(TAG,"#Discovered Services:"+gatt.getServices());
+                }else{
+                    Log.d(TAG,"#Failed to Discovering Services!");
                 }
-
-            }else if (status == BluetoothGatt.GATT_SUCCESS && newState == BluetoothProfile.STATE_DISCONNECTED) {
+            }
+            else if (status == BluetoothGatt.GATT_SUCCESS && newState == BluetoothProfile.STATE_DISCONNECTED) {
+                Log.d(TAG,"#status == BluetoothGatt.GATT_SUCCESS && newState == BluetoothProfile.STATE_DISCONNECTED:");
+                Log.d(TAG,"Disconnected");
                 connectionStatus_tv.setText("Disconnected");
-                writeLine("#Disconnected.");
-
-            }else if(newState != BluetoothGatt.GATT_SUCCESS){
+            }
+            else if(newState != BluetoothGatt.GATT_SUCCESS){
                 connectionStatus_tv.setText("Disconnected");
-                writeLine("#GATT Connecting was not Successful. Try again!");
+                Log.d(TAG,"newState != BluetoothGatt.GATT_SUCCESS:");
+                Log.d(TAG,"Disconnected");
                 gatt.disconnect();
             }
         }
@@ -574,49 +601,46 @@ public class MainActivity extends Activity {
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             super.onServicesDiscovered(gatt, status);
+            Log.d(TAG,"onServicesDiscovered:");
+            Log.d(TAG,"gatt:"+gatt);
+            Log.d(TAG,"status:"+status);
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                writeLine("#Service discovery completed.");
+                Log.d(TAG,"status == BluetoothGatt.GATT_SUCCESS");
+                Log.d(TAG,"Service discovery completed");
             } else {
-                writeLine("#Service discovery failed with status: " + status);
+                Log.d(TAG,"status != BluetoothGatt.GATT_SUCCESS");
+                Log.d(TAG,"Service discovery failed");
             }
-
             BluetoothGattService gattService = gatt.getService(UART_UUID);
+            Log.d(TAG,"gattService:"+gattService);
             // Save reference to each characteristic.
             if (gattService != null) {
                 tx = gattService.getCharacteristic(TX_UUID);
                 rx = gattService.getCharacteristic(RX_UUID);
+                Log.d(TAG,"TX:"+tx);
+                Log.d(TAG,"RX:"+rx);
             }
-            if (rx == null) {
-                writeLine("#RX Characteristic not found!");
-            }
-            if (tx == null) {
-                writeLine("#TX Characteristic not found!");
-            }
-
-            /*
-            Setup notifications on RX characteristic changes (i.e. data received).
-            First call setCharacteristicNotification to enable notification.
-            */
-            gatt.setCharacteristicNotification(rx , true);
             if (gatt.setCharacteristicNotification(rx, true)) {
-                writeLine("#Notification Enabled for RX characteristic.");
+                Log.d(TAG,"gatt.setCharacteristicNotification(rx, true) --> OK");
             } else {
-                writeLine("#Couldn't set notifications for RX characteristic!");
+                Log.d(TAG,"gatt.setCharacteristicNotification(rx, true) --> FAILED!");
             }
             // Next update the RX characteristic's client descriptor to enable notifications.
             BluetoothGattDescriptor rxGattDescriptor = rx.getDescriptor(CLIENT_UUID);
-            if (rxGattDescriptor != null) {
-                writeLine("#RX client descriptor is OK.");
+            if (rxGattDescriptor == null) {
+                Log.d(TAG,"rxGattDescriptor is null: Couldn't get RX client descriptor!");
+            }
+            else {
+                Log.d(TAG,"rxGattDescriptor:"+rxGattDescriptor);
+                Log.d(TAG,"RX client descriptor is OK");
                 rxGattDescriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-                if (!gatt.writeDescriptor(rxGattDescriptor)) {
-                    writeLine("#Couldn't write RX client descriptor value!");
-                } else {
-                    writeLine("#Could write RX client descriptor value.");
+                if (gatt.writeDescriptor(rxGattDescriptor)) {
+                    Log.d(TAG,"#Could write RX client descriptor value.");
                     String connection_state = device.getName()+": UART service is ready";
                     connectionStatus_tv.setText(connection_state);
+                } else {
+                    Log.d(TAG,"##Could not write RX client descriptor value!");
                 }
-            } else {
-                writeLine("#Couldn't get RX client descriptor!");
             }
         }
 
@@ -624,10 +648,11 @@ public class MainActivity extends Activity {
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, final BluetoothGattCharacteristic characteristic) {
             super.onCharacteristicChanged(gatt, characteristic);
+            Log.d(TAG,"characteristic value:"+ Arrays.toString(characteristic.getValue()));
             new Thread(new Runnable() {
                 public void run(){
                     inComingValue = characteristic.getStringValue(0);
-                    Log.d("salis",".\n");
+                    Log.d(TAG,"Sending...\n");
                     buffer_rcv += inComingValue;
                     if(buffer_rcv.substring(buffer_rcv.length()-1).equals("*")){
                         runOnUiThread(new Runnable() {
@@ -638,7 +663,7 @@ public class MainActivity extends Activity {
                                 editor.putString("endTimeStamp",timeStamp);
                                 editor.apply();
                                 showScenarioInformation();
-                                cal_plp();
+                                calculate_plp();
                             }
                         });
                     }
@@ -648,15 +673,12 @@ public class MainActivity extends Activity {
     };
 
 
-
-    public void sendClick(){
-        //get message from input
-        String message = input.getText().toString();
+    public void send(String message){
         if (tx == null) {
             // Do nothing if there is no device or message.
             return;
         }
-        if(message.isEmpty()){
+        if(message.trim().isEmpty()){
             message = "$";
         }
         //clear send and received data text view and clear buffer
@@ -674,7 +696,7 @@ public class MainActivity extends Activity {
             buffer_rcv = "";
             tx.setValue("$".getBytes(Charset.forName("UTF-8")));
             if(bluetoothGatt.writeCharacteristic(tx)) {
-                Log.d("salis","$ sent");
+                Log.d(TAG,"$ sent");
             }
             //terminate scenario after 15 s
             handler.postDelayed(new Runnable() {
@@ -686,7 +708,7 @@ public class MainActivity extends Activity {
                         editor.putString("endTimeStamp",timeStamp);
                         editor.apply();
                         showScenarioInformation();
-                        cal_plp();
+                        calculate_plp();
                     }
                 }
             },15000);
@@ -707,6 +729,34 @@ public class MainActivity extends Activity {
         }
     }
 
+    private void send_by_connectionInterval(final String message, final int connectionInterval, final int roundNumber) {
+        /* A BLE connection interval is the time between two data transfer events (BLE connection events)
+        between the central and the peripheral device.*/
+        Log.d("sandis","send_by_connectionInterval "+roundNumber+":");
+        if(roundNumber == 0 || tx == null){
+            Log.d("sandis","send_by_connectionInterval terminate!");
+            return;
+        }
+        Log.d("sandis","bluetoothGatt:"+bluetoothGatt);
+        Log.d("sandis","tx:"+tx);
+        tx.setValue(message.trim().getBytes(Charset.forName("UTF-8")));
+        if(bluetoothGatt.writeCharacteristic(tx)) {
+            Log.d("sandis", "send_by_connectionInterval sends message " + roundNumber);
+            disconnect();
+            Log.d("sandis", "Disconnected");
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    bluetoothGatt = device.connectGatt(MainActivity.this, false, gattCallback);
+                    Log.d("sandis", "Connected again.");
+                    send_by_connectionInterval(message, connectionInterval, roundNumber - 1);
+                }
+            }, connectionInterval);
+        }else {
+            Log.d("sandis", "send_by_connectionInterval error\n" +
+                    "bluetoothGatt.writeCharacteristic(tx)=false");
+        }
+    }
     private String getTimeStamp() {
         Long tsLong = System.currentTimeMillis();
         @SuppressLint("SimpleDateFormat") SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss.SSS");
@@ -714,8 +764,7 @@ public class MainActivity extends Activity {
         String timeStamp = sdf.format(resultDate);
         return timeStamp;
     }
-
-    private void cal_plp() {
+    private void calculate_plp() {
         isEndReceiving=true;
         setProgressBarIndeterminateVisibility(false);
         if(buffer_rcv==null || buffer_rcv.length()==0){
@@ -737,11 +786,11 @@ public class MainActivity extends Activity {
         double plp = (pl / 2000) * 100;
         plp = round(plp,2);
 
-        Log.d("salis","cal_plp_buffer:\n"+buffer_rcv);
-        Log.d("salis","rcv_packetsList:\n"+ Arrays.toString(rcv_packetsList));
-        Log.d("salis","packetLoss: "+ pl);
-        Log.d("salis","rcv_packetsList.length: "+ rcv_packetsList.length);
-        Log.d("salis","PacketLossPercent: "+ plp);
+        Log.d(TAG,"cal_plp_buffer:\n"+buffer_rcv);
+        Log.d(TAG,"rcv_packetsList:\n"+ Arrays.toString(rcv_packetsList));
+        Log.d(TAG,"packetLoss: "+ pl);
+        Log.d(TAG,"rcv_packetsList.length: "+ rcv_packetsList.length);
+        Log.d(TAG,"PacketLossPercent: "+ plp);
 
         //show and save result:
         sent_received_data_tv.setText("Received packet number: " + correctPacket);
@@ -759,7 +808,6 @@ public class MainActivity extends Activity {
         bd = bd.setScale(places, RoundingMode.HALF_UP);
         return bd.doubleValue();
     }
-
     private void getHumidity() {
         if (tx == null) {
             return;
@@ -780,7 +828,7 @@ public class MainActivity extends Activity {
         //save humidity to preference:
         String humidityPercent = buffer_rcv.trim();
         SharedPreferences.Editor editor = pref_currentScenario_info.edit();
-        editor.putString("humidityPercent",humidityPercent+ " %");
+        editor.putString("humidityPercent",humidityPercent+ "%");
         editor.apply();
         showScenarioInformation(); //update scenario info for showing Humidity
     }
@@ -795,8 +843,8 @@ public class MainActivity extends Activity {
                 public void run() {
                     if(!discoveredBluetoothDevices.contains(bluetoothDevice)) {
                         discoveredBluetoothDevices.add(bluetoothDevice);
-                        //BLEdevice class which have each BLE device's name and mac address Strings
-                        BLEdevice BLEdevice = new BLEdevice();
+                        //BLEDevice class which have each BLE device's name and mac address Strings
+                        BLEDevice BLEdevice = new BLEDevice();
                         BLEdevice.setName(bluetoothDevice.getName());
                         BLEdevice.setMac(bluetoothDevice.getAddress());
                         BLEdevice.setRssi("RSSI: "+ rssi +"dBm");
@@ -812,75 +860,47 @@ public class MainActivity extends Activity {
     };
     private void ScanLeDevice(final boolean enable) {
         if (enable) {
-            // Stops scanning after a pre-defined scan period.
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    bluetoothAdapter.stopLeScan(leScanCallback);
-                    setProgressBarIndeterminateVisibility(false);
-                    if(device == null){
-                        writeLine("Scanning finished.");
-                    }
-                    if(discoveredBluetoothDevices.size()==0){
-                        listView.setVisibility(View.INVISIBLE);
-                    }
-                }
-            },SCAN_PERIOD);
+            isFinishScan = false;
+            rescan_btn.setEnabled(false);
+            disconnect();
             discoveredDevices.clear();
             discoveredBluetoothDevices.clear();
             rssiList.clear();
             device = null;
             discoveredDevicesAdapter.notifyDataSetChanged();
-            listView.setVisibility(View.VISIBLE);
+            scannedDevicesList_layout.setVisibility(View.VISIBLE);
             setProgressBarIndeterminateVisibility(true);
-            //writeLine("#Scanning BLE Devices...");
             bluetoothAdapter.startLeScan(leScanCallback);
-        }else {   // enable == false
-            listView.setVisibility(View.INVISIBLE);
-            //writeLine("#Scanning Stop.");
+            connectionStatus_tv.setText("Scanning...");
+            // Stops scanning after a pre-defined scan period.
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    if(!isFinishScan){
+                        bluetoothAdapter.stopLeScan(leScanCallback);
+                        setProgressBarIndeterminateVisibility(false);
+                        rescan_btn.setEnabled(true);
+                        if(device==null){
+                            //The user has not yet selected the device from result list.
+                            connectionStatus_tv.setText("Scanning finished");
+                        }
+                    }
+                }
+            },SCAN_PERIOD);
+        }
+        else {   // enable == false
+            isFinishScan=true;
+            scannedDevicesList_layout.setVisibility(View.INVISIBLE);
             bluetoothAdapter.stopLeScan(leScanCallback);
             setProgressBarIndeterminateVisibility(false);
+            rescan_btn.setEnabled(true);
         }
-    }
-    private void cleanTextViewsAndPreferences() {
-        scenarioInfo_tv.setText("");
-        at_commands_tv.setText("");
-        sent_received_data_tv.setText("");
-        SharedPreferences.Editor editor1;
-        editor1 = pref_currentATCommands.edit();
-        editor1.clear();
-        editor1.apply();
-        SharedPreferences.Editor editor2;
-        editor2 = pref_currentScenario_info.edit();
-        editor2.clear();
-        editor2.apply();
-        buffer_rcv = "";
-    }
-    // Write some text to the messages text view.
-    private void writeLine(final String text) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                logs.append(text);
-                logs.append("\n");
-            }
-        });
     }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.action_scan:
-                if(bluetoothGatt!=null){
-                    isEndReceiving = true;
-                    bluetoothGatt.disconnect();
-                    bluetoothGatt.close();
-                    bluetoothGatt=null;
-                }
-                if(tx!=null || rx !=null){
-                    tx = null;
-                    rx = null;
-                }
-                connectionStatus_tv.setText("Disconnected");
+                disconnect();
                 ScanLeDevice(true);
                 break;
             case R.id.AtCommandConfigs:
@@ -895,6 +915,11 @@ public class MainActivity extends Activity {
             case R.id.ScenarioInformation:
                 //go to communication_setting activity
                 startActivity(new Intent(MainActivity.this , ScenarioInformationActivity.class));
+                break;
+            case R.id.send_periodic:
+                if(bluetoothGatt!=null) {
+                    send_by_connectionInterval("sandis", 5000, 10);
+                }
                 break;
             case R.id.ScenariosReports:
                 //go to report activity
@@ -914,6 +939,7 @@ public class MainActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
+
     private void disconnect() {
         if(bluetoothGatt!=null){
             bluetoothGatt.disconnect();
@@ -926,8 +952,20 @@ public class MainActivity extends Activity {
         isEndReceiving = true;
         connectionStatus_tv.setText("Disconnected");
     }
-
-
+    private void clean() {
+        scenarioInfo_tv.setText("");
+        at_commands_tv.setText("");
+        sent_received_data_tv.setText("");
+        SharedPreferences.Editor editor1;
+        editor1 = pref_currentATCommands.edit();
+        editor1.clear();
+        editor1.apply();
+        SharedPreferences.Editor editor2;
+        editor2 = pref_currentScenario_info.edit();
+        editor2.clear();
+        editor2.apply();
+        buffer_rcv = "";
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -938,19 +976,20 @@ public class MainActivity extends Activity {
     protected void onResume() {
         super.onResume();
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-            Toast.makeText(this, R.string.ble_not_supported, Toast.LENGTH_SHORT).show();
+            //ble not supported by phone!
             finish();
         }
         checkPermission_ACCESS_FINE_LOCATION();
-        if(!bluetoothAdapter.isEnabled() || bluetoothAdapter == null){  //is BT off
+        if(!bluetoothAdapter.isEnabled() || bluetoothAdapter == null){  //is BT off send request
             Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(intent,REQ_ENABLE_BT);
         }
         showScenarioInformation();
         showAtCommandsParameters();
+        //for reconnect after return to main activity
         if(device != null){
             bluetoothGatt = device.connectGatt(MainActivity.this, true, gattCallback);
-            writeLine("#Connecting to "+device.getName()+"...");
+            Log.d(TAG,"#Connecting to "+device.getName()+"...");
             connectionStatus_tv.setText("Connecting...");
         }
     }
