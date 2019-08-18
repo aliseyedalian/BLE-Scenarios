@@ -22,8 +22,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
-            android:name=".WelcomeActivity">
+            android:name=".WelcomeActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -32,18 +32,23 @@
         </activity>
         <activity
             android:name=".MainActivity"
-            android:label="@string/app_name">
-        </activity>
+            android:label="@string/app_name"></activity>
         <activity
             android:name=".ATCommandParametersActivity"
+            android:label="AT Commands Configs"
             android:theme="@style/Theme.AppCompat" />
         <activity
             android:name=".ScenarioInformationActivity"
+            android:label="Scenario Information"
             android:theme="@style/Theme.AppCompat" />
         <activity
             android:name=".ScenariosReports"
+            android:label="Scenario Report"
             android:theme="@style/Theme.AppCompat" />
-
+        <activity
+            android:name=".AboutActivity"
+            android:label="About"
+            android:theme="@style/Theme.AppCompat" />
 
         <service android:name=".BLEService" />
     </application>

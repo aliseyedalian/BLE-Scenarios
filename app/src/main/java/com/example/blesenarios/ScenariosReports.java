@@ -272,7 +272,7 @@ public class ScenariosReports extends AppCompatActivity {
                 this.dialog.dismiss();
             }
             if (success) {
-                showDialog("Export Done","Scenarios saved in /storage/emulated/0/scens/scenarios.csv");
+                showDialog("Export Done","Scenarios were saved in this address:\n/storage/emulated/0/scens/scenarios.csv");
             } else {
                 showDialog("Error","Export to excel file failed!");
             }

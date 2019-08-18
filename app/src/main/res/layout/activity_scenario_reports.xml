@@ -11,20 +11,10 @@
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:padding="5dp">
-        <!-- Title -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:gravity="center_horizontal"
-            android:text="Scenarios Reports"
-            android:textColor="#FFFF00"
-            android:textSize="20sp"
-            android:textStyle="bold" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#000000"
             android:layout_gravity="center"
             android:layout_marginTop="5dp"
             android:layout_marginLeft="5dp"
@@ -51,7 +41,6 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#000000"
             android:layout_gravity="center"
             android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"
@@ -88,7 +77,7 @@
                 android:id="@+id/btn_export"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
-                android:text="Export to excel file" />
+                android:text="Export to excel" />
             </LinearLayout>
     </LinearLayout>
 
