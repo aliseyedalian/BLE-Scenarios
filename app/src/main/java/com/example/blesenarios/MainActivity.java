@@ -17,17 +17,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.text.SimpleDateFormat;
-
-import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.SystemClock;
-import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
@@ -47,8 +39,11 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.charset.Charset;
 import java.sql.Date;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -94,7 +89,7 @@ public class MainActivity extends Activity {
     Boolean isFinishScan;
     String buffer_rcv;
 
-    private void prepare_org_strList() {
+    private void prepare_org_packetsList() {
         org_packetsList.add("salam");
         org_packetsList.add("morad");
         org_packetsList.add("hamta");
@@ -491,7 +486,7 @@ public class MainActivity extends Activity {
                 make a connection with the device using the special LE-specific
                 connectGatt() method,passing in a callback for GATT events
                 */
-                bluetoothGatt = device.connectGatt(MainActivity.this, true, gattCallback);
+                bluetoothGatt = device.connectGatt(MainActivity.this, false, gattCallback);
                 Log.d(TAG,"#Connecting to "+device.getName()+"...");
                 connectionStatus_tv.setText("Connecting...");
             }
@@ -516,6 +511,7 @@ public class MainActivity extends Activity {
                     if(inputs.length == 2){
                         int roundNumber = Integer.parseInt(inputs[0]);
                         int cint = Integer.parseInt(inputs[1]);
+                        results_tv.setText("");
                         send_by_connectionInterval(roundNumber,cint);
                     }
                 }
@@ -590,7 +586,7 @@ public class MainActivity extends Activity {
         pref_currentScenario_info = getSharedPreferences("currentScenario_info",MODE_PRIVATE);
         pref_currentATCommands = getSharedPreferences("currentATCommands",MODE_PRIVATE);
         databaseHelper = new DatabaseHelper(this);
-        prepare_org_strList(); //the ble module will send this strings and phone will evaluate them.
+        prepare_org_packetsList(); //the ble module will send this strings and phone will evaluate them.
     }
 
     //BluetoothGattCallback: determines BLE connection behaviors:
@@ -612,15 +608,14 @@ public class MainActivity extends Activity {
                     Log.d(TAG,"#Failed to Discovering Services!");
                 }
             }
+            else if (status == BluetoothGatt.GATT_SUCCESS &&  newState == BluetoothProfile.STATE_CONNECTING) {
+                Log.d(TAG, "Attempting to connect to GATT server...");
+                connectionStatus_tv.setText("Connecting...");
+            }
             else if (status == BluetoothGatt.GATT_SUCCESS && newState == BluetoothProfile.STATE_DISCONNECTED) {
                 Log.d(TAG,"#status == BluetoothGatt.GATT_SUCCESS && newState == BluetoothProfile.STATE_DISCONNECTED:");
                 Log.d(TAG,"Disconnected");
                 connectionStatus_tv.setText("Disconnected");
-            }
-            else if(newState != BluetoothGatt.GATT_SUCCESS){
-                connectionStatus_tv.setText("Disconnected");
-                Log.d(TAG,"newState != BluetoothGatt.GATT_SUCCESS: Disconnected");
-                gatt.disconnect();
             }
         }
         @Override
@@ -819,14 +814,12 @@ public class MainActivity extends Activity {
         Log.d(TAG,"PacketLossPercent: "+ plp);
 
         //show and save result:
-        results_tv.setText("Received packets number: " + correctPacket);
-        results_tv.append("\nLost packets number: "+pl);
+        String result = "Received packets number: " + correctPacket+"\nLost packets number: "+pl ;
+        results_tv.setText(result);
         SharedPreferences.Editor editor = pref_currentScenario_info.edit();
         editor.putString("packetLossPercent", plp+" %");
         editor.apply();
         showScenarioInformation();
-
-
     }
     private static double round(double value, int places) {
         if (places < 0) throw new IllegalArgumentException();
@@ -888,7 +881,7 @@ public class MainActivity extends Activity {
         if (enable) {
             isFinishScan = false;
             rescan_btn.setEnabled(false);
-            disconnect();
+            disconnectClose();
             discoveredDevices.clear();
             discoveredBluetoothDevices.clear();
             rssiList.clear();
@@ -926,7 +919,7 @@ public class MainActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.action_scan:
-                disconnect();
+                disconnectClose();
                 ScanLeDevice(true);
                 break;
             case R.id.AtCommandConfigs:
@@ -947,13 +940,13 @@ public class MainActivity extends Activity {
                 startActivity(new Intent(MainActivity.this , ScenariosReports.class));
                 break;
             case R.id.disconnect:
-                disconnect();
+                disconnectClose();
                 break;
             case R.id.about:
                 startActivity(new Intent(MainActivity.this , AboutActivity.class));
                 break;
             case R.id.exit:
-                disconnect();
+                disconnectClose();
                 finish();
                 break;
             default:
@@ -963,12 +956,13 @@ public class MainActivity extends Activity {
     }
 
 
-    private void disconnect() {
+    private void disconnectClose() {
         if(bluetoothGatt!=null){
             bluetoothGatt.disconnect();
             bluetoothGatt.close();
             bluetoothGatt=null;
         }
+
         tx = null;
         rx = null;
         device = null;
@@ -1012,7 +1006,7 @@ public class MainActivity extends Activity {
         showAtCommandsParameters();
         //for reconnect after return to main activity
         if(device != null){
-            bluetoothGatt = device.connectGatt(MainActivity.this, true, gattCallback);
+            bluetoothGatt = device.connectGatt(MainActivity.this, false, gattCallback);
             Log.d(TAG,"#Connecting to "+device.getName()+"...");
             connectionStatus_tv.setText("Connecting...");
         }
@@ -1028,7 +1022,7 @@ public class MainActivity extends Activity {
     protected void onStop() {
         super.onStop();
         if (bluetoothGatt != null) {
-            // For better reliability be careful to disconnect and close the connection.
+            // For better reliability be careful to disconnectClose and close the connection.
             bluetoothGatt.disconnect();
             bluetoothGatt.close();
             bluetoothGatt = null;
