@@ -75,7 +75,11 @@ public class BLEService extends Service {
     SharedPreferences pref_BLEService = getSharedPreferences("pref_BLEService",MODE_PRIVATE);
     SharedPreferences pref_currentScenario_info = getSharedPreferences("pref_currentScenario_info",MODE_PRIVATE);
     LocalBroadcastManager localBroadcastManager =  LocalBroadcastManager.getInstance(this);
-
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
 
     @Override
     public void onCreate() {
@@ -107,12 +111,6 @@ public class BLEService extends Service {
     public void onDestroy() {
         disconnectClose();
         super.onDestroy();
-    }
-
-    @Nullable
-    @Override
-    public IBinder onBind(Intent intent) {
-        return null;
     }
 
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
@@ -205,7 +203,7 @@ public class BLEService extends Service {
 
 
 
-
+    /** some other functions: */
     public boolean connect(final String address) {
         if (bluetoothAdapter == null || address == null) {
             Log.d(TAG, "BluetoothAdapter not initialized or unspecified address.");

@@ -530,6 +530,13 @@ public class MainActivity extends Activity {
         scenarioInfo_tv = findViewById(R.id.comm_info_tv);
         connectionStatus_tv = findViewById(R.id.connection_status);
         results_tv = findViewById(R.id.results_tv);
+        Button plp_btn = findViewById(R.id.plp_btn);
+        plp_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                calculate_plp();
+            }
+        });
 
         final Button clean_tv_btn = findViewById(R.id.clean_tv_btn);
         clean_tv_btn.setOnClickListener(new View.OnClickListener() {
@@ -768,12 +775,15 @@ public class MainActivity extends Activity {
                 }
                 String message = "r"+ roundNumber;
                 tx.setValue(message.getBytes(Charset.forName("UTF-8")));
-                bluetoothGatt.writeCharacteristic(tx);
-                Log.d("salis1", "run: sent r"+roundNumber);
-                results_tv.append("> sent r"+roundNumber+"\n");
+                if(bluetoothGatt.writeCharacteristic(tx)){
+                    Log.d("salis1", "run: sent r"+roundNumber);
+                    results_tv.append("> sent r"+roundNumber+"\n");
+                }else {
+                    Log.d(TAG, "run: Can not send!");
+                    results_tv.append("> can not sent");
+                }
                 Log.d("salis1", "run: end round");
                 results_tv.append("> end round<"+roundNumber+">\n");
-
                 send_by_connectionInterval(roundNumber-1,cint);
             }
         },cint);
@@ -905,7 +915,7 @@ public class MainActivity extends Activity {
                         }
                     }
                 }
-            },SCAN_PERIOD);
+            },SCAN_PERIOD); 
         }
         else {   // enable == false
             isFinishScan=true;
