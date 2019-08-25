@@ -2,6 +2,7 @@ package com.example.blesenarios;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.IntentService;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothAdapter.LeScanCallback;
@@ -473,12 +474,12 @@ public class MainActivity extends Activity {
                 editor2.apply();
                 showAtCommandsParameters();
 
-                Log.d(TAG, "onItemClick: selectedDevice: "+ selectedDevice);
+                Log.d(TAG, "MainActivity-onItemClick: selectedDevice: "+ selectedDevice);
                 //send selectedDevice to service to establish connection and start service
                 bleServiceIntent.putExtra("device", selectedDevice);
                 startService(bleServiceIntent);
 
-                Log.d(TAG,"BLEService is started by MainActivity,Connecting to "+ selectedDevice.getName()+"...");
+                Log.d(TAG,"MainActivity-onItemClick: BLEService start");
                 connectionStatus_tv.setText("Connecting...");
             }
         }); //setOnItemClickListener close
@@ -587,7 +588,106 @@ public class MainActivity extends Activity {
         prepare_org_packetsList(); //the ble module will send this strings and phone will evaluate them.
     }
 
-    //BluetoothGattCallback: determines BLE connection behaviors:
+//    //BluetoothGattCallback: determines BLE connection behaviors:
+//    private BluetoothGattCallback gattCallback = new BluetoothGattCallback(){
+//        @Override
+//        public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
+//            super.onConnectionStateChange(gatt, status, newState);
+//            Log.d(TAG,"onConnectionStateChange:");
+//            Log.d(TAG,"gatt:"+gatt);
+//            Log.d(TAG,"status:"+status);
+//            Log.d(TAG,"newState:"+newState);
+//            if (status == BluetoothGatt.GATT_SUCCESS && newState== BluetoothProfile.STATE_CONNECTED) {
+//                //this block runs after every connection:
+//                Log.d(TAG,"status=BluetoothGatt.GATT_SUCCESS && newState=BluetoothProfile.STATE_CONNECTED:");
+//                Log.d(TAG,"#GATT Connected.");
+//                if(gatt.discoverServices()){
+//                    Log.d(TAG,"#Discovered Services:"+gatt.getServices());
+//                }else{
+//                    Log.d(TAG,"#Failed to Discovering Services!");
+//                }
+//            }
+//            else if (status == BluetoothGatt.GATT_SUCCESS &&  newState == BluetoothProfile.STATE_CONNECTING) {
+//                Log.d(TAG, "Attempting to connect to GATT server...");
+//                connectionStatus_tv.setText("Connecting...");
+//            }
+//            else if (status == BluetoothGatt.GATT_SUCCESS && newState == BluetoothProfile.STATE_DISCONNECTED) {
+//                Log.d(TAG,"#status == BluetoothGatt.GATT_SUCCESS && newState == BluetoothProfile.STATE_DISCONNECTED:");
+//                Log.d(TAG,"Disconnected");
+//                connectionStatus_tv.setText("Disconnected");
+//            }
+//        }
+//        @Override
+//        public void onServicesDiscovered(BluetoothGatt gatt, int status) {
+//            super.onServicesDiscovered(gatt, status);
+//            /*
+//            onServicesDiscovered:Called when services have been discovered on the remote selectedDevice.
+//            It seems to be necessary to wait for this discovery to occur before
+//            manipulating any services or characteristics.
+//            */
+//            Log.d(TAG,"onServicesDiscovered: "+"status:"+status);
+//            if (status == BluetoothGatt.GATT_SUCCESS) {
+//                Log.d(TAG,"status == BluetoothGatt.GATT_SUCCESS");
+//                Log.d(TAG,"Service discovery completed");
+//            } else {
+//                Log.d(TAG,"status != BluetoothGatt.GATT_SUCCESS");
+//                Log.d(TAG,"Service discovery failed");
+//            }
+//
+//            BluetoothGattService gattService = gatt.getService(UART_UUID);
+//            if (gattService != null) {
+//                tx = gattService.getCharacteristic(TX_UUID);
+//                rx = gattService.getCharacteristic(RX_UUID);
+//            }
+//            if (gatt.setCharacteristicNotification(rx, true)) {
+//                Log.d(TAG,"gatt.setCharacteristicNotification(rx, true) --> OK");
+//            } else {
+//                Log.d(TAG,"gatt.setCharacteristicNotification(rx, true) --> FAILED!");
+//            }
+//            // Next update the RX characteristic's client descriptor to enable notifications.
+//            BluetoothGattDescriptor rxGattDescriptor = rx.getDescriptor(CLIENT_UUID);
+//            if (rxGattDescriptor == null) {
+//                Log.d(TAG,"rxGattDescriptor is null: Couldn't get RX client descriptor!");
+//            }
+//            else {
+//                Log.d(TAG,"RX client descriptor is OK");
+//                rxGattDescriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+//                if (gatt.writeDescriptor(rxGattDescriptor)) {
+//                    Log.d(TAG,"#Could write RX client descriptor value.");
+//                    String connectionStatus = selectedDevice.getName()+": READY TO USE";
+//                    connectionStatus_tv.setText(connectionStatus);
+//                } else {
+//                    Log.d(TAG,"##Could not write RX client descriptor value!");
+//                }
+//            }
+//        }
+//        @Override
+//        public void onCharacteristicChanged(BluetoothGatt gatt, final BluetoothGattCharacteristic characteristic) {
+//            super.onCharacteristicChanged(gatt, characteristic);
+//            // Called when a remote characteristic changes (like the RX characteristic).
+//            Log.d("salis1", "run: received");
+//            new Thread(new Runnable() {
+//                public void run(){
+//                    Log.d(TAG,"Receiving from the BLE Module...\n");
+//                    buffer_rcv += characteristic.getStringValue(0);
+//                    if(buffer_rcv.substring(buffer_rcv.length()-1).equals("*")){ //the * shows the end.
+//                        runOnUiThread(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                String endTimeStamp = getTimeStamp();
+//                                SharedPreferences.Editor editor = pref_currentScenario_info.edit();
+//                                editor.putString("endTimeStamp",endTimeStamp);
+//                                editor.apply();
+//                                showScenarioInformation();
+//                                calculate_plp();
+//                            }
+//                        });
+//                    }
+//                }
+//            }).start();
+//        }
+//    };
+
 
     public void send(String message){
         if (tx == null) {
@@ -859,17 +959,7 @@ public class MainActivity extends Activity {
 
 
     private void disconnectClose() {
-        if(bluetoothGatt!=null){
-            bluetoothGatt.disconnect();
-            bluetoothGatt.close();
-            bluetoothGatt=null;
-        }
-
-        tx = null;
-        rx = null;
-        selectedDevice = null;
-        setProgressBarIndeterminateVisibility(false);
-        isEndReceiving = true;
+        stopService(bleServiceIntent);
         connectionStatus_tv.setText("Disconnected");
     }
     private void clean() {

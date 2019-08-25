@@ -32,7 +32,6 @@ public class BLEService extends Service {
     private BluetoothAdapter bluetoothAdapter;
     private BluetoothGatt bluetoothGatt;
     private BluetoothDevice device;
-    private String deviceAddress;
     private BluetoothGattCharacteristic tx;
     private BluetoothGattCharacteristic rx;
     public final static String ACTION_GATT_CONNECTED = "com.example.blesenarios.ACTION_GATT_CONNECTED";
@@ -68,7 +67,7 @@ public class BLEService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.d(TAG, "Service onCreate: ");
+        Log.d(TAG, "Service-onCreate");
         BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(BLUETOOTH_SERVICE);
         bluetoothAdapter = bluetoothManager.getAdapter();
         localBroadcastManager =  LocalBroadcastManager.getInstance(this);
@@ -77,7 +76,7 @@ public class BLEService extends Service {
     @Override
     public void onStart(Intent intent, int startId) {
         super.onStart(intent, startId);
-        Log.d(TAG, "Service onStart: ");
+        Log.d(TAG, "Service-onStart ");
         device = intent.getExtras().getParcelable("device");
         Log.d(TAG, "Service onStart: selectedDevice"+device);
         device.connectGatt(this,true,mGattCallback);
@@ -85,6 +84,7 @@ public class BLEService extends Service {
 
     @Override
     public void onDestroy() {
+        Log.d(TAG, "Service-onDestroy: ");
         disconnectClose();
         super.onDestroy();
     }
@@ -94,18 +94,18 @@ public class BLEService extends Service {
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             if (status == BluetoothGatt.GATT_SUCCESS && newState == BluetoothProfile.STATE_CONNECTED) {
                 broadcastUpdate(ACTION_GATT_CONNECTED,null,null);
-                Log.d(TAG, "Connected to GATT server.");
+                Log.d(TAG, "Service-onConnectionStateChange: Connected to GATT server.");
                 // Attempts to discover services after successful connection.
                 if(gatt.discoverServices()){
-                    Log.d(TAG,"Services discovered.");
+                    Log.d(TAG,"Service-onConnectionStateChange: Services discovered.");
                 }
             }
             else if (status == BluetoothGatt.GATT_SUCCESS &&  newState == BluetoothProfile.STATE_CONNECTING) {
-                Log.i(TAG, "Attempting to connect to GATT server...");
+                Log.d(TAG, "Service-onConnectionStateChange: Attempting to connect to GATT server...");
                 broadcastUpdate(ACTION_GATT_CONNECTING,null,null);
             }
             else if (status == BluetoothGatt.GATT_SUCCESS && newState == BluetoothProfile.STATE_DISCONNECTED) {
-                Log.d(TAG, "Disconnected from GATT server.");
+                Log.d(TAG, "Service-onConnectionStateChange: Disconnected from GATT server.");
                 broadcastUpdate(ACTION_GATT_DISCONNECTED,null,null);
             }
         }
@@ -114,7 +114,7 @@ public class BLEService extends Service {
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 broadcastUpdate(ACTION_GATT_SERVICES_DISCOVERED,null,null);
             } else {
-                Log.w(TAG, "onServicesDiscovered received: " + status);
+                Log.w(TAG, "Service-onServicesDiscovered: onServicesDiscovered received: " + status);
             }
             BluetoothGattService gattService = gatt.getService(UART_UUID);
             if (gattService != null) {
@@ -122,23 +122,23 @@ public class BLEService extends Service {
                 rx = gattService.getCharacteristic(RX_UUID);
             }
             if (gatt.setCharacteristicNotification(rx, true)) {
-                Log.d(TAG,"gatt.setCharacteristicNotification(rx, true) --> OK");
+                Log.d(TAG,"Service-onServicesDiscovered: gatt.setCharacteristicNotification(rx, true) --> OK");
             } else {
-                Log.d(TAG,"gatt.setCharacteristicNotification(rx, true) --> FAILED!");
+                Log.d(TAG,"Service-onServicesDiscovered: gatt.setCharacteristicNotification(rx, true) --> FAILED!");
             }
             // Next update the RX characteristic's client descriptor to enable notifications.
             BluetoothGattDescriptor rxGattDescriptor = rx.getDescriptor(CLIENT_UUID);
             if (rxGattDescriptor == null) {
-                Log.d(TAG,"rxGattDescriptor is null: Couldn't get RX client descriptor!");
+                Log.d(TAG,"Service-onServicesDiscovered: rxGattDescriptor is null: Couldn't get RX client descriptor!");
             }
             else {
-                Log.d(TAG,"RX client descriptor is OK");
+                Log.d(TAG,"Service-onServicesDiscovered: RX client descriptor is OK");
                 rxGattDescriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
                 if (gatt.writeDescriptor(rxGattDescriptor)) {
-                    Log.d(TAG,"#Could write RX client descriptor value.");
+                    Log.d(TAG,"Service-onServicesDiscovered: Can write RX client descriptor value.");
                     broadcastUpdate(ACTION_CONNECTED_READY_TO_USE,null,null);
                 } else {
-                    Log.d("gattCallback","##Could not write RX client descriptor value!");
+                    Log.d(TAG,"Service-onServicesDiscovered: Can not write RX client descriptor value!");
                 }
             }
         }
@@ -147,6 +147,7 @@ public class BLEService extends Service {
             new Thread(new Runnable() {
                 public void run(){
                     broadcastUpdate(characteristic);
+                    Log.d(TAG, "Service-onCharacteristicChanged-run get characteristic");
                 }
             }).start();
         }
@@ -170,10 +171,12 @@ public class BLEService extends Service {
             bluetoothGatt.disconnect();
             bluetoothGatt.close();
             bluetoothGatt = null;
+            Log.d(TAG, "Service-disconnectClose step 1");
         }
         tx = null;
         rx = null;
         device = null;
+        Log.d(TAG, "Service-disconnectClose step 2");
         broadcastUpdate(ACTION_GATT_DISCONNECTED,null,null);
     }
 }
