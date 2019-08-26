@@ -9,10 +9,14 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothManager;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -20,6 +24,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -55,7 +60,10 @@ public class MainActivity extends Activity {
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE
     };
-
+    public final static String ACTION_DISCONNECTED = "com.example.blesenarios.ACTION_DISCONNECTED";
+    public final static String ACTION_CONNECTING = "com.example.blesenarios.ACTION_CONNECTING";
+    public final static String ACTION_CONNECTED = "com.example.blesenarios.ACTION_CONNECTED";
+    public final static String ACTION_DATA_AVAILABLE = "com.example.blesenarios.ACTION_DATA_AVAILABLE";
     BluetoothAdapter bluetoothAdapter;
     BluetoothGatt bluetoothGatt;
     BluetoothDevice selectedDevice;
@@ -473,9 +481,8 @@ public class MainActivity extends Activity {
                 //send selectedDevice to service to establish connection and start service
                 bleServiceIntent.putExtra("device", selectedDevice);
                 startService(bleServiceIntent);
-
+                setConnectionStatusTextView("CONNECTING...","#ffff00");
                 Log.d(TAG,"MainActivity-onItemClick: BLEService start");
-                connectionStatus_tv.setText("Connected");
             }
         }); //setOnItemClickListener close
 
@@ -566,7 +573,7 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View view) {
                 ScanLeDevice(false);
-                connectionStatus_tv.setText(R.string.disconnect);
+                setConnectionStatusTextView("DISCONNECTED","#ffff00");
             }
         });
         rescan_btn = findViewById(R.id.rescan_btn);
@@ -581,7 +588,42 @@ public class MainActivity extends Activity {
         pref_currentATCommands = getSharedPreferences("currentATCommands",MODE_PRIVATE);
         databaseHelper = new DatabaseHelper(this);
         prepare_org_packetsList(); //the ble module will send this strings and phone will evaluate them.
+        /** LocalBroadcast registering: */
+        IntentFilter Filter_connected = new IntentFilter(ACTION_CONNECTED);
+        BroadcastReceiver receiver_connected = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                setConnectionStatusTextView("CONNECTED TO "+selectedDevice.getName(),"#00ff00");
+            }
+        };
+        LocalBroadcastManager.getInstance(this).registerReceiver(receiver_connected,Filter_connected);
+
+        IntentFilter Filter_connecting = new IntentFilter(ACTION_CONNECTING);
+        BroadcastReceiver receiver_connecting = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                setConnectionStatusTextView("CONNECTING","#ffff00");
+            }
+        };
+        LocalBroadcastManager.getInstance(this).registerReceiver(receiver_connecting,Filter_connecting);
+
+        IntentFilter Filter_disconnected = new IntentFilter(ACTION_DISCONNECTED);
+        BroadcastReceiver receiver_disconnected = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if(!isFinishScan){
+                    setConnectionStatusTextView("DISCONNECTED","#ffff00");
+                }
+            }
+        };
+        LocalBroadcastManager.getInstance(this).registerReceiver(receiver_disconnected,Filter_disconnected);
     }
+
+    private void setConnectionStatusTextView(String status, String color) {
+        connectionStatus_tv.setText(status);
+        connectionStatus_tv.setTextColor(Color.parseColor(color));
+    }
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -928,7 +970,7 @@ public class MainActivity extends Activity {
             scannedDevicesList_layout.setVisibility(View.VISIBLE);
             setProgressBarIndeterminateVisibility(true);
             bluetoothAdapter.startLeScan(leScanCallback);
-            connectionStatus_tv.setText("Scanning...");
+            setConnectionStatusTextView("SCANNING","#ffff00");
             // Stops scanning after a pre-defined scan period.
             handler.postDelayed(new Runnable() {
                 @Override
@@ -939,7 +981,7 @@ public class MainActivity extends Activity {
                         rescan_btn.setEnabled(true);
                         if(selectedDevice ==null){
                             //The user has not yet selected the selectedDevice from result list.
-                            connectionStatus_tv.setText("Scanning finished");
+                            setConnectionStatusTextView("SCANNING FINISHED","#ffff00");
                         }
                     }
                 }
@@ -957,6 +999,7 @@ public class MainActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.action_scan:
+                isFinishScan = false;
                 disconnectClose();
                 ScanLeDevice(true);
                 break;
@@ -995,8 +1038,8 @@ public class MainActivity extends Activity {
 
 
     private void disconnectClose() {
-        connectionStatus_tv.setText("Disconnected");
         stopService(bleServiceIntent);
+        setConnectionStatusTextView("DISCONNECTED","#ffff00");
     }
     private void clean() {
         scenarioInfo_tv.setText("");
