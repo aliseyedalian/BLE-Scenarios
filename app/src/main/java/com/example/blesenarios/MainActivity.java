@@ -2,18 +2,13 @@ package com.example.blesenarios;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.IntentService;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothAdapter.LeScanCallback;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
-import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
-import android.bluetooth.BluetoothGattDescriptor;
-import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
-import android.bluetooth.BluetoothProfile;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -48,7 +43,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 
 public class MainActivity extends Activity {
     public static final String TAG = "salis";
@@ -419,6 +413,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "MainActivity-onCreate");
         //Prevent the keyboard from displaying on activity start:
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
         //progress
@@ -480,7 +475,7 @@ public class MainActivity extends Activity {
                 startService(bleServiceIntent);
 
                 Log.d(TAG,"MainActivity-onItemClick: BLEService start");
-                connectionStatus_tv.setText("Connecting...");
+                connectionStatus_tv.setText("Connected");
             }
         }); //setOnItemClickListener close
 
@@ -587,6 +582,47 @@ public class MainActivity extends Activity {
         databaseHelper = new DatabaseHelper(this);
         prepare_org_packetsList(); //the ble module will send this strings and phone will evaluate them.
     }
+    @Override
+    protected void onStart() {
+        super.onStart();
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d(TAG, "MainActivity-onResume");
+        if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+            //ble not supported by phone!
+            finish();
+        }
+        if(!bluetoothAdapter.isEnabled() || bluetoothAdapter == null){  //is BT off send request for enable BT
+            Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(intent,REQ_ENABLE_BT);
+        }
+        checkPermission_ACCESS_FINE_LOCATION();
+        verifyStoragePermissions(this);
+        showScenarioInformation();
+        showAtCommandsParameters();
+        //for reconnect after return to main activity
+    }
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.d(TAG, "MainActivity-onPause");
+        progressDialog.dismiss();
+        bluetoothAdapter.stopLeScan(leScanCallback);
+    }
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d(TAG, "MainActivity-onStop");
+    }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "MainActivity-onDestroy");
+        disconnectClose();
+    }
+
 
 //    //BluetoothGattCallback: determines BLE connection behaviors:
 //    private BluetoothGattCallback gattCallback = new BluetoothGattCallback(){
@@ -741,7 +777,6 @@ public class MainActivity extends Activity {
             }
         }
     }
-
     private void send_by_connectionInterval(final int roundNumber, final int cint) {
         /* A BLE connection interval is the time between two data transfer events (BLE connection events)
         between the central and the peripheral selectedDevice.*/
@@ -780,6 +815,31 @@ public class MainActivity extends Activity {
             }
         },cint);
     }
+    private void getHumidity() {
+        if (tx == null) {
+            return;
+        }
+        buffer_rcv ="";
+        //send request for humidityPercent...
+        String message = "%";
+        tx.setValue(message.getBytes(Charset.forName("UTF-8")));
+        if(bluetoothGatt.writeCharacteristic(tx)) {
+            input.getText().clear();
+        }
+        //wait until humidity received by buffer...
+        try {
+            Thread.sleep(150);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        //save humidity to preference:
+        String humidityPercent = buffer_rcv.trim();
+        SharedPreferences.Editor editor = pref_currentScenario_info.edit();
+        editor.putString("humidityPercent",humidityPercent+ "%");
+        editor.apply();
+        showScenarioInformation(); //update scenario info for showing Humidity
+    }
+
     private String getTimeStamp() {
         Long tsLong = System.currentTimeMillis();
         @SuppressLint("SimpleDateFormat") SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss.SSS");
@@ -828,30 +888,6 @@ public class MainActivity extends Activity {
         BigDecimal bd = new BigDecimal(Double.toString(value));
         bd = bd.setScale(places, RoundingMode.HALF_UP);
         return bd.doubleValue();
-    }
-    private void getHumidity() {
-        if (tx == null) {
-            return;
-        }
-        buffer_rcv ="";
-        //send request for humidityPercent...
-        String message = "%";
-        tx.setValue(message.getBytes(Charset.forName("UTF-8")));
-        if(bluetoothGatt.writeCharacteristic(tx)) {
-            input.getText().clear();
-        }
-        //wait until humidity received by buffer...
-        try {
-            Thread.sleep(150);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        //save humidity to preference:
-        String humidityPercent = buffer_rcv.trim();
-        SharedPreferences.Editor editor = pref_currentScenario_info.edit();
-        editor.putString("humidityPercent",humidityPercent+ "%");
-        editor.apply();
-        showScenarioInformation(); //update scenario info for showing Humidity
     }
     // BLE selectedDevice scanning callback.
     // run when a new selectedDevice found in scanning.
@@ -959,8 +995,8 @@ public class MainActivity extends Activity {
 
 
     private void disconnectClose() {
-        stopService(bleServiceIntent);
         connectionStatus_tv.setText("Disconnected");
+        stopService(bleServiceIntent);
     }
     private void clean() {
         scenarioInfo_tv.setText("");
@@ -982,42 +1018,7 @@ public class MainActivity extends Activity {
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-            //ble not supported by phone!
-            finish();
-        }
-        if(!bluetoothAdapter.isEnabled() || bluetoothAdapter == null){  //is BT off send request for enable BT
-            Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(intent,REQ_ENABLE_BT);
-        }
-        checkPermission_ACCESS_FINE_LOCATION();
-        verifyStoragePermissions(this);
-        showScenarioInformation();
-        showAtCommandsParameters();
-        //for reconnect after return to main activity
-    }
-    @Override
-    protected void onPause() {
-        super.onPause();
-        progressDialog.dismiss();
-        bluetoothAdapter.stopLeScan(leScanCallback);
-    }
-    // OnStop, called right before the activity loses foreground focus.  Close the BTLE connection.
-    @Override
-    protected void onStop() {
-        super.onStop();
-//        if (bluetoothGatt != null) {
-//            // For better reliability be careful to disconnectClose and close the connection.
-//            bluetoothGatt.disconnect();
-//            bluetoothGatt.close();
-//            bluetoothGatt = null;
-//            tx = null;
-//            rx = null;
-//        }
-    }
+
     public static void verifyStoragePermissions(Activity activity) {
         // Check if we have write permission
         int permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);

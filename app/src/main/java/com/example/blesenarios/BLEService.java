@@ -27,9 +27,8 @@ import java.util.UUID;
  */
 public class BLEService extends Service {
     private final static String TAG = "salis";
-    private static final int REQ_ENABLE_BT = 1221 ;
-    private static final int REQ_PERMISSION_LOC = 3663 ;
     private BluetoothAdapter bluetoothAdapter;
+    private BluetoothManager bluetoothManager;
     private BluetoothGatt bluetoothGatt;
     private BluetoothDevice device;
     private BluetoothGattCharacteristic tx;
@@ -54,13 +53,13 @@ public class BLEService extends Service {
     public final static UUID RX_UUID = UUID.fromString("0000FFE1-0000-1000-8000-00805F9B34FB");
     //UUID for the BLE client characteristic,necessary for notifications:
     public final static UUID CLIENT_UUID = UUID.fromString("00002902-0000-1000-8000-00805F9B34FB");
-    public String buffer_rcv;
     LocalBroadcastManager localBroadcastManager;
 
 
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
+        Log.d(TAG, "Service-onBind");
         return null;
     }
 
@@ -68,7 +67,7 @@ public class BLEService extends Service {
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "Service-onCreate");
-        BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(BLUETOOTH_SERVICE);
+        bluetoothManager = (BluetoothManager) getSystemService(BLUETOOTH_SERVICE);
         bluetoothAdapter = bluetoothManager.getAdapter();
         localBroadcastManager =  LocalBroadcastManager.getInstance(this);
     }
@@ -76,17 +75,22 @@ public class BLEService extends Service {
     @Override
     public void onStart(Intent intent, int startId) {
         super.onStart(intent, startId);
-        Log.d(TAG, "Service-onStart ");
         device = intent.getExtras().getParcelable("device");
-        Log.d(TAG, "Service onStart: selectedDevice"+device);
-        device.connectGatt(this,true,mGattCallback);
+        Log.d(TAG, "Service onStart:<Device:"+device+">");
+        bluetoothGatt =  device.connectGatt(this,true,mGattCallback);
     }
 
     @Override
     public void onDestroy() {
-        Log.d(TAG, "Service-onDestroy: ");
+        Log.d(TAG, "Service-onDestroy");
         disconnectClose();
         super.onDestroy();
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.d(TAG, "Service-onStartCommand");
+        return super.onStartCommand(intent, flags, startId);
     }
 
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
@@ -101,7 +105,7 @@ public class BLEService extends Service {
                 }
             }
             else if (status == BluetoothGatt.GATT_SUCCESS &&  newState == BluetoothProfile.STATE_CONNECTING) {
-                Log.d(TAG, "Service-onConnectionStateChange: Attempting to connect to GATT server...");
+                Log.d(TAG, "Service-onConnectionStateChange:Connecting to GATT server...");
                 broadcastUpdate(ACTION_GATT_CONNECTING,null,null);
             }
             else if (status == BluetoothGatt.GATT_SUCCESS && newState == BluetoothProfile.STATE_DISCONNECTED) {
@@ -113,6 +117,7 @@ public class BLEService extends Service {
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 broadcastUpdate(ACTION_GATT_SERVICES_DISCOVERED,null,null);
+                Log.d(TAG, "Service-onServicesDiscovered: Gatt Success.");
             } else {
                 Log.w(TAG, "Service-onServicesDiscovered: onServicesDiscovered received: " + status);
             }
@@ -120,25 +125,27 @@ public class BLEService extends Service {
             if (gattService != null) {
                 tx = gattService.getCharacteristic(TX_UUID);
                 rx = gattService.getCharacteristic(RX_UUID);
+                Log.d(TAG, "Service-onServicesDiscovered-tx:"+tx);
+                Log.d(TAG, "Service-onServicesDiscovered-rx:"+rx);
             }
             if (gatt.setCharacteristicNotification(rx, true)) {
-                Log.d(TAG,"Service-onServicesDiscovered: gatt.setCharacteristicNotification(rx, true) --> OK");
+                Log.d(TAG,"Service-onServicesDiscovered: Notification enabled.");
             } else {
-                Log.d(TAG,"Service-onServicesDiscovered: gatt.setCharacteristicNotification(rx, true) --> FAILED!");
+                Log.d(TAG,"Service-onServicesDiscovered: Error(Notification Not enable!)");
             }
             // Next update the RX characteristic's client descriptor to enable notifications.
             BluetoothGattDescriptor rxGattDescriptor = rx.getDescriptor(CLIENT_UUID);
             if (rxGattDescriptor == null) {
-                Log.d(TAG,"Service-onServicesDiscovered: rxGattDescriptor is null: Couldn't get RX client descriptor!");
+                Log.d(TAG,"Service-onServicesDiscovered:\nError:rxGattDescriptor is null-Couldn't get RX client descriptor!");
             }
             else {
                 Log.d(TAG,"Service-onServicesDiscovered: RX client descriptor is OK");
                 rxGattDescriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
                 if (gatt.writeDescriptor(rxGattDescriptor)) {
-                    Log.d(TAG,"Service-onServicesDiscovered: Can write RX client descriptor value.");
+                    Log.d(TAG,"Service-onServicesDiscovered: All things is OK.Can write RX client descriptor value.");
                     broadcastUpdate(ACTION_CONNECTED_READY_TO_USE,null,null);
                 } else {
-                    Log.d(TAG,"Service-onServicesDiscovered: Can not write RX client descriptor value!");
+                    Log.d(TAG,"Service-onServicesDiscovered: Error-Can not write RX client descriptor value!");
                 }
             }
         }
