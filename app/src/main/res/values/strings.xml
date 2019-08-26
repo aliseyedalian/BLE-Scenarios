@@ -3,7 +3,7 @@
 
     <string name="app_name">BLE Scenarios</string>
     <string name="action_settings">Settings</string>
-    <string name="ble_not_supported">BLE not supported !</string>
+    <string name="ble_not_supported">BLE not supported!</string>
     <string name="action_scan">Scan devices</string>
     <string name="send">Send</string>
     <string name="connected">Connected</string>
