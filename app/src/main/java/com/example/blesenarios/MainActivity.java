@@ -588,7 +588,7 @@ public class MainActivity extends Activity {
         pref_currentATCommands = getSharedPreferences("currentATCommands",MODE_PRIVATE);
         databaseHelper = new DatabaseHelper(this);
         prepare_org_packetsList(); //the ble module will send this strings and phone will evaluate them.
-        /** LocalBroadcast registering: */
+        /** LocalBroadcast registering for communication with BLEService: */
         IntentFilter Filter_connected = new IntentFilter(ACTION_CONNECTED);
         BroadcastReceiver receiver_connected = new BroadcastReceiver() {
             @Override
@@ -617,12 +617,43 @@ public class MainActivity extends Activity {
             }
         };
         LocalBroadcastManager.getInstance(this).registerReceiver(receiver_disconnected,Filter_disconnected);
+
+        IntentFilter Filter_data = new IntentFilter(ACTION_DATA_AVAILABLE);
+        BroadcastReceiver receiver_data = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, final Intent intent) {
+            new Thread(new Runnable() {
+                public void run(){
+                    Log.d(TAG,"Receiving from the BLE Module...\n");
+                    final String data = intent.getStringExtra("data");
+                    buffer_rcv += data;
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            results_tv.append(data);
+                        }
+                    });
+                    if(buffer_rcv.substring(buffer_rcv.length()-1).equals("*")){ //the * shows the end.
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                String endTimeStamp = getTimeStamp();
+                                SharedPreferences.Editor editor = pref_currentScenario_info.edit();
+                                editor.putString("endTimeStamp",endTimeStamp);
+                                editor.apply();
+                                showScenarioInformation();
+                                calculate_plp();
+                            }
+                        });
+                    }
+                }
+            }).start();
+
+            }
+        };
+        LocalBroadcastManager.getInstance(this).registerReceiver(receiver_data,Filter_data);
     }
 
-    private void setConnectionStatusTextView(String status, String color) {
-        connectionStatus_tv.setText(status);
-        connectionStatus_tv.setTextColor(Color.parseColor(color));
-    }
 
     @Override
     protected void onStart() {
@@ -665,106 +696,6 @@ public class MainActivity extends Activity {
         disconnectClose();
     }
 
-
-//    //BluetoothGattCallback: determines BLE connection behaviors:
-//    private BluetoothGattCallback gattCallback = new BluetoothGattCallback(){
-//        @Override
-//        public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
-//            super.onConnectionStateChange(gatt, status, newState);
-//            Log.d(TAG,"onConnectionStateChange:");
-//            Log.d(TAG,"gatt:"+gatt);
-//            Log.d(TAG,"status:"+status);
-//            Log.d(TAG,"newState:"+newState);
-//            if (status == BluetoothGatt.GATT_SUCCESS && newState== BluetoothProfile.STATE_CONNECTED) {
-//                //this block runs after every connection:
-//                Log.d(TAG,"status=BluetoothGatt.GATT_SUCCESS && newState=BluetoothProfile.STATE_CONNECTED:");
-//                Log.d(TAG,"#GATT Connected.");
-//                if(gatt.discoverServices()){
-//                    Log.d(TAG,"#Discovered Services:"+gatt.getServices());
-//                }else{
-//                    Log.d(TAG,"#Failed to Discovering Services!");
-//                }
-//            }
-//            else if (status == BluetoothGatt.GATT_SUCCESS &&  newState == BluetoothProfile.STATE_CONNECTING) {
-//                Log.d(TAG, "Attempting to connect to GATT server...");
-//                connectionStatus_tv.setText("Connecting...");
-//            }
-//            else if (status == BluetoothGatt.GATT_SUCCESS && newState == BluetoothProfile.STATE_DISCONNECTED) {
-//                Log.d(TAG,"#status == BluetoothGatt.GATT_SUCCESS && newState == BluetoothProfile.STATE_DISCONNECTED:");
-//                Log.d(TAG,"Disconnected");
-//                connectionStatus_tv.setText("Disconnected");
-//            }
-//        }
-//        @Override
-//        public void onServicesDiscovered(BluetoothGatt gatt, int status) {
-//            super.onServicesDiscovered(gatt, status);
-//            /*
-//            onServicesDiscovered:Called when services have been discovered on the remote selectedDevice.
-//            It seems to be necessary to wait for this discovery to occur before
-//            manipulating any services or characteristics.
-//            */
-//            Log.d(TAG,"onServicesDiscovered: "+"status:"+status);
-//            if (status == BluetoothGatt.GATT_SUCCESS) {
-//                Log.d(TAG,"status == BluetoothGatt.GATT_SUCCESS");
-//                Log.d(TAG,"Service discovery completed");
-//            } else {
-//                Log.d(TAG,"status != BluetoothGatt.GATT_SUCCESS");
-//                Log.d(TAG,"Service discovery failed");
-//            }
-//
-//            BluetoothGattService gattService = gatt.getService(UART_UUID);
-//            if (gattService != null) {
-//                tx = gattService.getCharacteristic(TX_UUID);
-//                rx = gattService.getCharacteristic(RX_UUID);
-//            }
-//            if (gatt.setCharacteristicNotification(rx, true)) {
-//                Log.d(TAG,"gatt.setCharacteristicNotification(rx, true) --> OK");
-//            } else {
-//                Log.d(TAG,"gatt.setCharacteristicNotification(rx, true) --> FAILED!");
-//            }
-//            // Next update the RX characteristic's client descriptor to enable notifications.
-//            BluetoothGattDescriptor rxGattDescriptor = rx.getDescriptor(CLIENT_UUID);
-//            if (rxGattDescriptor == null) {
-//                Log.d(TAG,"rxGattDescriptor is null: Couldn't get RX client descriptor!");
-//            }
-//            else {
-//                Log.d(TAG,"RX client descriptor is OK");
-//                rxGattDescriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-//                if (gatt.writeDescriptor(rxGattDescriptor)) {
-//                    Log.d(TAG,"#Could write RX client descriptor value.");
-//                    String connectionStatus = selectedDevice.getName()+": READY TO USE";
-//                    connectionStatus_tv.setText(connectionStatus);
-//                } else {
-//                    Log.d(TAG,"##Could not write RX client descriptor value!");
-//                }
-//            }
-//        }
-//        @Override
-//        public void onCharacteristicChanged(BluetoothGatt gatt, final BluetoothGattCharacteristic characteristic) {
-//            super.onCharacteristicChanged(gatt, characteristic);
-//            // Called when a remote characteristic changes (like the RX characteristic).
-//            Log.d("salis1", "run: received");
-//            new Thread(new Runnable() {
-//                public void run(){
-//                    Log.d(TAG,"Receiving from the BLE Module...\n");
-//                    buffer_rcv += characteristic.getStringValue(0);
-//                    if(buffer_rcv.substring(buffer_rcv.length()-1).equals("*")){ //the * shows the end.
-//                        runOnUiThread(new Runnable() {
-//                            @Override
-//                            public void run() {
-//                                String endTimeStamp = getTimeStamp();
-//                                SharedPreferences.Editor editor = pref_currentScenario_info.edit();
-//                                editor.putString("endTimeStamp",endTimeStamp);
-//                                editor.apply();
-//                                showScenarioInformation();
-//                                calculate_plp();
-//                            }
-//                        });
-//                    }
-//                }
-//            }).start();
-//        }
-//    };
 
 
     public void send(String message){
@@ -1054,6 +985,10 @@ public class MainActivity extends Activity {
         editor2.clear();
         editor2.apply();
         buffer_rcv = "";
+    }
+    private void setConnectionStatusTextView(String status, String color) {
+        connectionStatus_tv.setText(status);
+        connectionStatus_tv.setTextColor(Color.parseColor(color));
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
