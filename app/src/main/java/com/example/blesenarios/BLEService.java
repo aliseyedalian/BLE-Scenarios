@@ -10,13 +10,18 @@ import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import org.jetbrains.annotations.Nullable;
 
+import java.nio.charset.Charset;
 import java.util.UUID;
 
 /**
@@ -34,6 +39,7 @@ public class BLEService extends Service {
     public final static String ACTION_CONNECTING = "com.example.blesenarios.ACTION_CONNECTING";
     public final static String ACTION_CONNECTED = "com.example.blesenarios.ACTION_CONNECTED";
     public final static String ACTION_DATA_AVAILABLE = "com.example.blesenarios.ACTION_DATA_AVAILABLE";
+    public final static String ACTION_DATA_FOR_SEND = "com.example.blesenarios.ACTION_DATA_FOR_SEND";
     // UUIDs for UART service and associated characteristics.
     public final static UUID UART_UUID = UUID.fromString("0000FFE0-0000-1000-8000-00805F9B34FB");
     public final static UUID TX_UUID = UUID.fromString("0000FFE1-0000-1000-8000-00805F9B34FB");
@@ -57,6 +63,21 @@ public class BLEService extends Service {
         if(!bluetoothAdapter.enable()){
             stopSelf();
         }
+        IntentFilter Filter_sendMessage = new IntentFilter(ACTION_DATA_FOR_SEND);
+        BroadcastReceiver receiver_sendMessage = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String message = intent.getStringExtra("message");
+                if(tx == null || message ==null || message.trim().isEmpty()){
+                    return;
+                }
+                tx.setValue(message.getBytes(Charset.forName("UTF-8")));
+                if(bluetoothGatt.writeCharacteristic(tx)) {
+                    Log.d(TAG,"$ sent");
+                }
+            }
+        };
+        LocalBroadcastManager.getInstance(this).registerReceiver(receiver_sendMessage,Filter_sendMessage);
     }
     @Override
     public void onStart(Intent intent, int startId) {
@@ -81,7 +102,7 @@ public class BLEService extends Service {
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             if (status == BluetoothGatt.GATT_SUCCESS && newState == BluetoothProfile.STATE_CONNECTED) {
-                broadcastUpdate(ACTION_CONNECTED);
+                broadcastAction(ACTION_CONNECTED);
                 Log.d(TAG, "Service-onConnectionStateChange: Connected to GATT server.");
                 // Attempts to discover services after successful connection.
                 if(gatt.discoverServices()){
@@ -90,11 +111,11 @@ public class BLEService extends Service {
             }
             else if (status == BluetoothGatt.GATT_SUCCESS &&  newState == BluetoothProfile.STATE_CONNECTING) {
                 Log.d(TAG, "Service-onConnectionStateChange:Connecting to GATT server...");
-                broadcastUpdate(ACTION_CONNECTING);
+                broadcastAction(ACTION_CONNECTING);
             }
             else if (status == BluetoothGatt.GATT_SUCCESS && newState == BluetoothProfile.STATE_DISCONNECTED) {
                 Log.d(TAG, "Service-onConnectionStateChange: Disconnected from GATT server.");
-                broadcastUpdate(ACTION_DISCONNECTED);
+                broadcastAction(ACTION_DISCONNECTED);
             }
         }
         @Override
@@ -126,7 +147,7 @@ public class BLEService extends Service {
                 rxGattDescriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
                 if (gatt.writeDescriptor(rxGattDescriptor)) {
                     Log.d(TAG,"Service-onServicesDiscovered: All things is OK.Can write RX client descriptor value.");
-                    broadcastUpdate(ACTION_CONNECTED);
+                    broadcastAction(ACTION_CONNECTED);
                 } else {
                     Log.d(TAG,"Service-onServicesDiscovered: Error-Can not write RX client descriptor value!");
                 }
@@ -136,18 +157,18 @@ public class BLEService extends Service {
         public void onCharacteristicChanged(BluetoothGatt gatt, final BluetoothGattCharacteristic characteristic) {
             new Thread(new Runnable() {
                 public void run(){
-                    broadcastUpdate(characteristic);
+                    broadcastChar(characteristic);
                     Log.d(TAG, "Service-onCharacteristicChanged-run get characteristic");
                 }
             }).start();
         }
     };
 
-    private void broadcastUpdate(String action ) {
+    private void broadcastAction(String action) {
         Intent intent = new Intent(action);
         localBroadcastManager.sendBroadcast(intent);
     }
-    private void broadcastUpdate(BluetoothGattCharacteristic characteristic) {
+    private void broadcastChar(BluetoothGattCharacteristic characteristic) {
         Intent intent = new Intent(BLEService.ACTION_DATA_AVAILABLE);
         String data = characteristic.getStringValue(0);
         intent.putExtra("data", data);
@@ -164,6 +185,6 @@ public class BLEService extends Service {
         rx = null;
         device = null;
         Log.d(TAG, "Service-disconnectClose step 2");
-        broadcastUpdate(ACTION_DISCONNECTED);
+        broadcastAction(ACTION_DISCONNECTED);
     }
 }

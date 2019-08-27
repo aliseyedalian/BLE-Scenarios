@@ -56,19 +56,21 @@ public class MainActivity extends Activity {
     //For Energy efficiency stops scanning after 4 seconds.
     private static final long SCAN_PERIOD = 4000;
     private static final int REQUEST_EXTERNAL_STORAGE = 1235;
-    private static String[] PERMISSIONS_STORAGE = {
+    private static String[] PERMISSIONS_STORAGE={
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE
     };
+    //actions for communication with BLEService by broadcasting
     public final static String ACTION_DISCONNECTED = "com.example.blesenarios.ACTION_DISCONNECTED";
     public final static String ACTION_CONNECTING = "com.example.blesenarios.ACTION_CONNECTING";
     public final static String ACTION_CONNECTED = "com.example.blesenarios.ACTION_CONNECTED";
     public final static String ACTION_DATA_AVAILABLE = "com.example.blesenarios.ACTION_DATA_AVAILABLE";
+    public final static String ACTION_DATA_FOR_SEND = "com.example.blesenarios.ACTION_DATA_FOR_SEND";
+    private LocalBroadcastManager localBroadcastManager;
+
     BluetoothAdapter bluetoothAdapter;
     BluetoothGatt bluetoothGatt;
     BluetoothDevice selectedDevice;
-    BluetoothGattCharacteristic tx;
-    BluetoothGattCharacteristic rx;
     ArrayList<BLEDevice> discoveredDevices;
     ArrayList< BluetoothDevice > discoveredBluetoothDevices;
     ListView listView;
@@ -500,14 +502,12 @@ public class MainActivity extends Activity {
         send_btn.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                if(bluetoothGatt!=null){
-                    String[] inputs = input.getText().toString().trim().split(",");
-                    if(inputs.length == 2){
-                        int roundNumber = Integer.parseInt(inputs[0]);
-                        int cint = Integer.parseInt(inputs[1]);
-                        results_tv.setText("");
-                        send_by_connectionInterval(roundNumber,cint);
-                    }
+                String[] inputs = input.getText().toString().trim().split(",");
+                if(inputs.length == 2){
+                    int roundNumber = Integer.parseInt(inputs[0]);
+                    int cint = Integer.parseInt(inputs[1]);
+                    results_tv.setText("");
+                    send_by_connectionInterval(roundNumber,cint);
                 }
                 return false;
             }
@@ -588,7 +588,7 @@ public class MainActivity extends Activity {
         pref_currentATCommands = getSharedPreferences("currentATCommands",MODE_PRIVATE);
         databaseHelper = new DatabaseHelper(this);
         prepare_org_packetsList(); //the ble module will send this strings and phone will evaluate them.
-        /** LocalBroadcast registering for communication with BLEService: */
+        /**registering LocalBroadcast for receiving data from BLEService: */
         IntentFilter Filter_connected = new IntentFilter(ACTION_CONNECTED);
         BroadcastReceiver receiver_connected = new BroadcastReceiver() {
             @Override
@@ -624,7 +624,7 @@ public class MainActivity extends Activity {
             public void onReceive(Context context, final Intent intent) {
             new Thread(new Runnable() {
                 public void run(){
-                    Log.d(TAG,"Receiving from the BLE Module...\n");
+                    Log.d(TAG,"MainActivity-Receiving from the BLE Module...\n");
                     final String data = intent.getStringExtra("data");
                     buffer_rcv += data;
                     runOnUiThread(new Runnable() {
@@ -648,11 +648,14 @@ public class MainActivity extends Activity {
                     }
                 }
             }).start();
-
             }
         };
         LocalBroadcastManager.getInstance(this).registerReceiver(receiver_data,Filter_data);
+
+        /**localBroadcastManager for sending data to BLEService: */
+        localBroadcastManager =  LocalBroadcastManager.getInstance(this);
     }
+
 
 
     @Override
@@ -697,13 +700,15 @@ public class MainActivity extends Activity {
     }
 
 
-
+    private void broadcastMessage(String message) {
+        Intent intent = new Intent(ACTION_DATA_FOR_SEND);
+        intent.putExtra("message",message);
+        localBroadcastManager.sendBroadcast(intent);
+    }
     public void send(String message){
-        if (tx == null) {
-            // Do nothing if there is no selectedDevice or message.
+        if(message.trim().isEmpty()){
             return;
         }
-        //clear send and received data text view and clear buffer
         results_tv.setText("");
         buffer_rcv = "";
         if(message.equals("$")){ //start scenario command
@@ -715,11 +720,7 @@ public class MainActivity extends Activity {
             showScenarioInformation();
             setProgressBarIndeterminateVisibility(true);
             isEndReceiving = false;
-            buffer_rcv = "";
-            tx.setValue("$".getBytes(Charset.forName("UTF-8")));
-            if(bluetoothGatt.writeCharacteristic(tx)) {
-                Log.d(TAG,"$ sent");
-            }
+            broadcastMessage(message);
             //terminate scenario after 15 s
             handler.postDelayed(new Runnable() {
                 @Override
@@ -738,16 +739,18 @@ public class MainActivity extends Activity {
         //send message
         else {
             //Update TX characteristic value.  Note the setValue overload that takes a byte array must be used.
-            tx.setValue(message.getBytes(Charset.forName("UTF-8")));
-            if (bluetoothGatt.writeCharacteristic(tx)) {
-                input.getText().clear();
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        results_tv.append(buffer_rcv);
-                    }
-                },message.length()*150);
-            }
+            broadcastMessage(message);
+            input.getText().clear();
+//            //tx.setValue(message.getBytes(Charset.forName("UTF-8")));
+//            if (bluetoothGatt.writeCharacteristic(tx)) {
+//                input.getText().clear();
+//                handler.postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        results_tv.append(buffer_rcv);
+//                    }
+//                },message.length()*150);
+//            }
         }
     }
     private void send_by_connectionInterval(final int roundNumber, final int cint) {
@@ -774,14 +777,7 @@ public class MainActivity extends Activity {
                     e.printStackTrace();
                 }
                 String message = "r"+ roundNumber;
-                tx.setValue(message.getBytes(Charset.forName("UTF-8")));
-                if(bluetoothGatt.writeCharacteristic(tx)){
-                    Log.d("salis1", "run: sent r"+roundNumber);
-                    results_tv.append("> sent r"+roundNumber+"\n");
-                }else {
-                    Log.d(TAG, "run: Can not send!");
-                    results_tv.append("> can not sent");
-                }
+                broadcastMessage(message);
                 Log.d("salis1", "run: end round");
                 results_tv.append("> end round<"+roundNumber+">\n");
                 send_by_connectionInterval(roundNumber-1,cint);
@@ -789,16 +785,14 @@ public class MainActivity extends Activity {
         },cint);
     }
     private void getHumidity() {
-        if (tx == null) {
-            return;
-        }
         buffer_rcv ="";
         //send request for humidityPercent...
         String message = "%";
-        tx.setValue(message.getBytes(Charset.forName("UTF-8")));
-        if(bluetoothGatt.writeCharacteristic(tx)) {
-            input.getText().clear();
-        }
+        broadcastMessage(message);
+//        tx.setValue(message.getBytes(Charset.forName("UTF-8")));
+//        if(bluetoothGatt.writeCharacteristic(tx)) {
+//            input.getText().clear();
+//        }
         //wait until humidity received by buffer...
         try {
             Thread.sleep(150);
