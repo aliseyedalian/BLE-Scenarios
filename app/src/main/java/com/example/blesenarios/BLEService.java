@@ -73,7 +73,7 @@ public class BLEService extends Service {
                 }
                 tx.setValue(message.getBytes(Charset.forName("UTF-8")));
                 if(bluetoothGatt.writeCharacteristic(tx)) {
-                    Log.d(TAG,"$ sent");
+                    Log.d(TAG,"Service-receiver_sendMessage: Message sent to module");
                 }
             }
         };
@@ -158,7 +158,7 @@ public class BLEService extends Service {
             new Thread(new Runnable() {
                 public void run(){
                     broadcastChar(characteristic);
-                    Log.d(TAG, "Service-onCharacteristicChanged-run get characteristic");
+                    Log.d(TAG, "Service-onCharacteristicChanged: get characteristic from module");
                 }
             }).start();
         }

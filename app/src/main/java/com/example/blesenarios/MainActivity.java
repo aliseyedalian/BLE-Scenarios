@@ -6,8 +6,6 @@ import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothAdapter.LeScanCallback;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothGatt;
-import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -42,7 +40,6 @@ import android.widget.Toast;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.nio.charset.Charset;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -69,10 +66,9 @@ public class MainActivity extends Activity {
     private LocalBroadcastManager localBroadcastManager;
 
     BluetoothAdapter bluetoothAdapter;
-    BluetoothGatt bluetoothGatt;
     BluetoothDevice selectedDevice;
-    ArrayList<BLEDevice> discoveredDevices;
-    ArrayList< BluetoothDevice > discoveredBluetoothDevices;
+    ArrayList<BLEDevice> discoveredDevices_properties;
+    ArrayList< BluetoothDevice > discoveredDevices_objects;
     ListView listView;
     LinearLayout scannedDevicesList_layout;
     ArrayAdapter<BLEDevice> discoveredDevicesAdapter;
@@ -86,16 +82,16 @@ public class MainActivity extends Activity {
     TextView connectionStatus_tv;
     TextView results_tv;
     Button rescan_btn;
-    SharedPreferences pref_currentScenario_info;
+    SharedPreferences pref_current_Scen_info;
     SharedPreferences pref_currentATCommands;
     DatabaseHelper databaseHelper;
     Boolean isEndReceiving;
     Boolean isFinishScan;
-    String buffer_rcv;
-    Intent bleServiceIntent;
+    String receive_Buffer;
+    Intent bleService_intent;
 
 
-    private void prepare_org_packetsList() {
+    private void prepare_original_packetsList() {
         org_packetsList.add("salam");
         org_packetsList.add("morad");
         org_packetsList.add("hamta");
@@ -199,26 +195,26 @@ public class MainActivity extends Activity {
     }
     private void showScenarioInformation() {
         scenarioInfo_tv.setText("");
-        if(pref_currentScenario_info==null){
+        if(pref_current_Scen_info ==null){
             return;
         }
         //obtain parameters from preferences
-        String rssi = pref_currentScenario_info.getString("rssi", null);
-        String phoneName = pref_currentScenario_info.getString("phoneName", null);
-        String phoneManufacturer = pref_currentScenario_info.getString("phoneManufacturer", null);
-        String phoneBLEVersion = pref_currentScenario_info.getString("phoneBLEVersion",null);
-        String distanceMin = pref_currentScenario_info.getString("distanceMin", null);
-        String distanceMax = pref_currentScenario_info.getString("distanceMax", null);
-        String place = pref_currentScenario_info.getString("place", null); //indoor/outdoor
-        String obstacleNo = pref_currentScenario_info.getString("obstacleNo", null);
-        String obstacle = pref_currentScenario_info.getString("obstacle", null);
-        String wifi = pref_currentScenario_info.getString("wifi", null);
-        String ipv6 = pref_currentScenario_info.getString("ipv6", null);
-        String explanation = pref_currentScenario_info.getString("explanation", null);
-        String humidityPercent = pref_currentScenario_info.getString("humidityPercent", null);
-        String startTimeStamp =pref_currentScenario_info.getString("startTimeStamp",null);
-        String endTimeStamp =pref_currentScenario_info.getString("endTimeStamp",null);
-        String packetLossPercent = pref_currentScenario_info.getString("packetLossPercent",null);
+        String rssi = pref_current_Scen_info.getString("rssi", null);
+        String phoneName = pref_current_Scen_info.getString("phoneName", null);
+        String phoneManufacturer = pref_current_Scen_info.getString("phoneManufacturer", null);
+        String phoneBLEVersion = pref_current_Scen_info.getString("phoneBLEVersion",null);
+        String distanceMin = pref_current_Scen_info.getString("distanceMin", null);
+        String distanceMax = pref_current_Scen_info.getString("distanceMax", null);
+        String place = pref_current_Scen_info.getString("place", null); //indoor/outdoor
+        String obstacleNo = pref_current_Scen_info.getString("obstacleNo", null);
+        String obstacle = pref_current_Scen_info.getString("obstacle", null);
+        String wifi = pref_current_Scen_info.getString("wifi", null);
+        String ipv6 = pref_current_Scen_info.getString("ipv6", null);
+        String explanation = pref_current_Scen_info.getString("explanation", null);
+        String humidityPercent = pref_current_Scen_info.getString("humidityPercent", null);
+        String startTimeStamp = pref_current_Scen_info.getString("startTimeStamp",null);
+        String endTimeStamp = pref_current_Scen_info.getString("endTimeStamp",null);
+        String packetLossPercent = pref_current_Scen_info.getString("packetLossPercent",null);
         //show parameters in scenarioInfo textView
         if (rssi != null) {
             scenarioInfo_tv.append("rssi: "+rssi);
@@ -338,10 +334,10 @@ public class MainActivity extends Activity {
     }
     private void saveToDB() {
         //get all String data from preferences:
-        String rssi = pref_currentScenario_info.getString("rssi", null);
-        String phoneName = pref_currentScenario_info.getString("phoneName", null);
-        String phoneManufacturer = pref_currentScenario_info.getString("phoneManufacturer", null);
-        String phoneBLEVersion = pref_currentScenario_info.getString("phoneBLEVersion",null);
+        String rssi = pref_current_Scen_info.getString("rssi", null);
+        String phoneName = pref_current_Scen_info.getString("phoneName", null);
+        String phoneManufacturer = pref_current_Scen_info.getString("phoneManufacturer", null);
+        String phoneBLEVersion = pref_current_Scen_info.getString("phoneBLEVersion",null);
         String moduleName = pref_currentATCommands.getString("moduleName", null);
         String moduleBLEVersion = pref_currentATCommands.getString("moduleBLEVersion",null);
         String ATDEFAULT = pref_currentATCommands.getString("ATDEFAULT", null);
@@ -353,18 +349,18 @@ public class MainActivity extends Activity {
         String led = pref_currentATCommands.getString("led", null);
         String baudRate = pref_currentATCommands.getString("baudRate", null);
         String pm = pref_currentATCommands.getString("pm", null);
-        String distanceMin = pref_currentScenario_info.getString("distanceMin", null);
-        String distanceMax = pref_currentScenario_info.getString("distanceMax", null);
-        String place = pref_currentScenario_info.getString("place", null); //indoor/outdoor
-        String obstacleNo =pref_currentScenario_info.getString("obstacleNo", null);
-        String obstacle = pref_currentScenario_info.getString("obstacle", null);
-        String humidityPercent = pref_currentScenario_info.getString("humidityPercent", null);
-        String wifi = pref_currentScenario_info.getString("wifi", null);
-        String ipv6 = pref_currentScenario_info.getString("ipv6", null);
-        String startTimeStamp =pref_currentScenario_info.getString("startTimeStamp",null);
-        String endTimeStamp =pref_currentScenario_info.getString("endTimeStamp",null);
-        String explanation = pref_currentScenario_info.getString("explanation", null);
-        String packetLossPercent =pref_currentScenario_info.getString("packetLossPercent",null);
+        String distanceMin = pref_current_Scen_info.getString("distanceMin", null);
+        String distanceMax = pref_current_Scen_info.getString("distanceMax", null);
+        String place = pref_current_Scen_info.getString("place", null); //indoor/outdoor
+        String obstacleNo = pref_current_Scen_info.getString("obstacleNo", null);
+        String obstacle = pref_current_Scen_info.getString("obstacle", null);
+        String humidityPercent = pref_current_Scen_info.getString("humidityPercent", null);
+        String wifi = pref_current_Scen_info.getString("wifi", null);
+        String ipv6 = pref_current_Scen_info.getString("ipv6", null);
+        String startTimeStamp = pref_current_Scen_info.getString("startTimeStamp",null);
+        String endTimeStamp = pref_current_Scen_info.getString("endTimeStamp",null);
+        String explanation = pref_current_Scen_info.getString("explanation", null);
+        String packetLossPercent = pref_current_Scen_info.getString("packetLossPercent",null);
         //check existence of data before insertion:
         if(startTimeStamp == null || humidityPercent==null || packetLossPercent==null ||
                 led == null || moduleName ==null || distanceMin==null || distanceMax==null){
@@ -436,30 +432,34 @@ public class MainActivity extends Activity {
         progressDialog.setCancelable(false);
         BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(BLUETOOTH_SERVICE);
         bluetoothAdapter = bluetoothManager.getAdapter();
-        bleServiceIntent = new Intent(this,BLEService.class);
 
-        //handler for timing delay
+        //handler used for create delay
         handler = new Handler();
 
-        //list view which shows discovered Bluetooth Devices:
-        listView = findViewById(R.id.lv_devices);
+        //create shared preference for saving current scenario information and at commands...
+        pref_current_Scen_info = getSharedPreferences("currentScenario_info",MODE_PRIVATE);
+        pref_currentATCommands = getSharedPreferences("currentATCommands",MODE_PRIVATE);
 
-        scannedDevicesList_layout = findViewById(R.id.scannedDevicesList_layout);
+        initViews();
 
-        //discoveredDevices is a array which has found bluetooth devices 'name' and 'mac address'.
-        discoveredDevices = new ArrayList<>();
-        //discoveredBluetoothDevices is a array which has found bluetooth devices.
-        discoveredBluetoothDevices =new ArrayList<>();
-        discoveredDevicesAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, discoveredDevices);
+        //create a intent for BLEService
+        bleService_intent = new Intent(this,BLEService.class);
+
+        //discoveredDevices_properties is a array which has 'name' and 'mac address' and 'rssi' of each found device.
+        discoveredDevices_properties = new ArrayList<>();
+        //discoveredDevices_objects is a array which has found bluetooth devices.
+        discoveredDevices_objects =new ArrayList<>();
+        discoveredDevicesAdapter = new ArrayAdapter<>(
+                this, android.R.layout.simple_list_item_1, discoveredDevices_properties);
         listView.setAdapter(discoveredDevicesAdapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @SuppressLint("SetTextI18n")
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                 ScanLeDevice(false);
-                selectedDevice = discoveredBluetoothDevices.get(position);
+                selectedDevice = discoveredDevices_objects.get(position);
                 //save rssi in scenario information
-                SharedPreferences.Editor editor1 = pref_currentScenario_info.edit();
+                SharedPreferences.Editor editor1 = pref_current_Scen_info.edit();
                 String rssi = rssiList.get(position);
                 editor1.putString("rssi",rssi+" dBm");
                 editor1.apply();
@@ -467,6 +467,8 @@ public class MainActivity extends Activity {
                 //save moduleName and moduleBLEVersion in at commands
                 SharedPreferences.Editor editor2 = pref_currentATCommands.edit();
                 String moduleName = selectedDevice.getName();
+
+                //show version of bluetooth according to its name. it can develop more...
                 String moduleBLEVersion;
                 if(moduleName!=null && moduleName.contains("42")) //HC-42
                     moduleBLEVersion = "v5.0";
@@ -474,120 +476,28 @@ public class MainActivity extends Activity {
                     moduleBLEVersion = "v4.0";
                 else
                     moduleBLEVersion="unKnown";
+                //save moduleName and moduleBLEVersion
                 editor2.putString("moduleName",moduleName);
                 editor2.putString("moduleBLEVersion",moduleBLEVersion);
                 editor2.apply();
                 showAtCommandsParameters();
 
+                //send selected device to BLEService for start connection
                 Log.d(TAG, "MainActivity-onItemClick: selectedDevice: "+ selectedDevice);
                 //send selectedDevice to service to establish connection and start service
-                bleServiceIntent.putExtra("device", selectedDevice);
-                startService(bleServiceIntent);
+                bleService_intent.putExtra("device", selectedDevice);
+                startService(bleService_intent);
                 setConnectionStatusTextView("CONNECTING...","#ffff00");
                 Log.d(TAG,"MainActivity-onItemClick: BLEService start");
             }
-        }); //setOnItemClickListener close
+        }); //setOnItemClickListener closed
 
-        input = findViewById(R.id.input);
-        Button send_btn = findViewById(R.id.btn_send);
-        send_btn.setOnClickListener(new View.OnClickListener() {
-            @RequiresApi(api = Build.VERSION_CODES.N)
-            @Override
-            public void onClick(View view) {
-                //get message from input
-                String message = input.getText().toString().trim();
-                send(message);
-            }
-        });
-        send_btn.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-                String[] inputs = input.getText().toString().trim().split(",");
-                if(inputs.length == 2){
-                    int roundNumber = Integer.parseInt(inputs[0]);
-                    int cint = Integer.parseInt(inputs[1]);
-                    results_tv.setText("");
-                    send_by_connectionInterval(roundNumber,cint);
-                }
-                return false;
-            }
-        });
-        Button start_btn = findViewById(R.id.btn_startScenario);
-        start_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                send("$");
-            }
-        });
-
-        at_commands_tv = findViewById(R.id.at_commands_tv);
-        scenarioInfo_tv = findViewById(R.id.comm_info_tv);
-        connectionStatus_tv = findViewById(R.id.connection_status);
-        results_tv = findViewById(R.id.results_tv);
-        Button plp_btn = findViewById(R.id.plp_btn);
-        plp_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                calculate_plp();
-            }
-        });
-
-        final Button clean_tv_btn = findViewById(R.id.clean_tv_btn);
-        clean_tv_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                results_tv.setText("");
-                buffer_rcv="";
-            }
-        });
-        clean_tv_btn.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-                clean();
-                return false;
-            }
-        });
-        Button saveToDB_btn = findViewById(R.id.btn_saveToDB);
-        saveToDB_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                saveToDB();
-            }
-        });
-        Button get_humidity_btn=findViewById(R.id.get_humidity_btn);
-        get_humidity_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                getHumidity();
-            }
-        });
-        Button showBuffer_btn = findViewById(R.id.buffer_btn);
-        showBuffer_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                results_tv.setText(buffer_rcv);
-            }
-        });
-        Button close_scanList_btn = findViewById(R.id.close_scanList_btn);
-        close_scanList_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ScanLeDevice(false);
-                setConnectionStatusTextView("DISCONNECTED","#ffff00");
-            }
-        });
-        rescan_btn = findViewById(R.id.rescan_btn);
-        rescan_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ScanLeDevice(true);
-            }
-        });
-
-        pref_currentScenario_info = getSharedPreferences("currentScenario_info",MODE_PRIVATE);
-        pref_currentATCommands = getSharedPreferences("currentATCommands",MODE_PRIVATE);
+        //use database for final saving scenario
         databaseHelper = new DatabaseHelper(this);
-        prepare_org_packetsList(); //the ble module will send this strings and phone will evaluate them.
+
+        //the ble module will send some strings and phone will evaluate them.so phone must know them.
+        prepare_original_packetsList();
+
         /**registering LocalBroadcast for receiving data from BLEService: */
         IntentFilter Filter_connected = new IntentFilter(ACTION_CONNECTED);
         BroadcastReceiver receiver_connected = new BroadcastReceiver() {
@@ -626,19 +536,19 @@ public class MainActivity extends Activity {
                 public void run(){
                     Log.d(TAG,"MainActivity-Receiving from the BLE Module...\n");
                     final String data = intent.getStringExtra("data");
-                    buffer_rcv += data;
+                    receive_Buffer += data;
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             results_tv.append(data);
                         }
                     });
-                    if(buffer_rcv.substring(buffer_rcv.length()-1).equals("*")){ //the * shows the end.
+                    if(receive_Buffer.substring(receive_Buffer.length()-1).equals("*")){ //the * shows the end.
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 String endTimeStamp = getTimeStamp();
-                                SharedPreferences.Editor editor = pref_currentScenario_info.edit();
+                                SharedPreferences.Editor editor = pref_current_Scen_info.edit();
                                 editor.putString("endTimeStamp",endTimeStamp);
                                 editor.apply();
                                 showScenarioInformation();
@@ -656,29 +566,119 @@ public class MainActivity extends Activity {
         localBroadcastManager =  LocalBroadcastManager.getInstance(this);
     }
 
+    private void initViews() {
+        listView = findViewById(R.id.lv_devices);//list view which shows discovered Bluetooth Devices:
+        scannedDevicesList_layout = findViewById(R.id.scannedDevicesList_layout);
+        input = findViewById(R.id.input);
+        Button send_btn = findViewById(R.id.btn_send);
+        send_btn.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.N)
+            @Override
+            public void onClick(View view) {
+                //get message from input
+                String message = input.getText().toString().trim();
+                send(message);
+            }
+        });
 
+        Button start_btn = findViewById(R.id.btn_startScenario);
+        start_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                send("$");
+            }
+        });
+
+        at_commands_tv = findViewById(R.id.at_commands_tv);
+        scenarioInfo_tv = findViewById(R.id.comm_info_tv);
+        connectionStatus_tv = findViewById(R.id.connection_status);
+        results_tv = findViewById(R.id.results_tv);
+        Button plp_btn = findViewById(R.id.plp_btn);
+        plp_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                calculate_plp();
+            }
+        });
+
+        final Button clean_tv_btn = findViewById(R.id.clean_tv_btn);
+        clean_tv_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                results_tv.setText("");
+                receive_Buffer ="";
+            }
+        });
+        clean_tv_btn.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                clean();
+                return false;
+            }
+        });
+        Button saveToDB_btn = findViewById(R.id.btn_saveToDB);
+        saveToDB_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                saveToDB();
+            }
+        });
+        Button get_humidity_btn=findViewById(R.id.get_humidity_btn);
+        get_humidity_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getHumidity();
+            }
+        });
+        Button showBuffer_btn = findViewById(R.id.buffer_btn);
+        showBuffer_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                results_tv.setText(receive_Buffer);
+            }
+        });
+        Button close_scanList_btn = findViewById(R.id.close_scanList_btn);
+        close_scanList_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ScanLeDevice(false);
+                setConnectionStatusTextView("DISCONNECTED","#ffff00");
+            }
+        });
+        rescan_btn = findViewById(R.id.rescan_btn);
+        rescan_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ScanLeDevice(true);
+            }
+        });
+    }
 
     @Override
     protected void onStart() {
         super.onStart();
     }
+
     @Override
     protected void onResume() {
         super.onResume();
         Log.d(TAG, "MainActivity-onResume");
+        //check system has bluetooth
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
             //ble not supported by phone!
             finish();
         }
-        if(!bluetoothAdapter.isEnabled() || bluetoothAdapter == null){  //is BT off send request for enable BT
+        //check bluetooth is ON
+        if(!bluetoothAdapter.isEnabled() || bluetoothAdapter == null){
             Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(intent,REQ_ENABLE_BT);
         }
         checkPermission_ACCESS_FINE_LOCATION();
         verifyStoragePermissions(this);
+
+        //update AT Commands and Scenario Information Text Views:
         showScenarioInformation();
         showAtCommandsParameters();
-        //for reconnect after return to main activity
     }
     @Override
     protected void onPause() {
@@ -710,24 +710,27 @@ public class MainActivity extends Activity {
             return;
         }
         results_tv.setText("");
-        buffer_rcv = "";
+        receive_Buffer = "";
         if(message.equals("$")){ //start scenario command
             //getting timeStamp and save it to preferences:
+            Log.d(TAG, "MainActivity-send: Scenario Start");
             String timeStamp = getTimeStamp();
-            SharedPreferences.Editor editor = pref_currentScenario_info.edit();
+            SharedPreferences.Editor editor = pref_current_Scen_info.edit();
             editor.putString("startTimeStamp",timeStamp);
             editor.apply();
             showScenarioInformation();
             setProgressBarIndeterminateVisibility(true);
             isEndReceiving = false;
             broadcastMessage(message);
-            //terminate scenario after 15 s
+            Log.d(TAG, "MainActivity-send: $ sent to BLEService");
+            //force terminate scenario after 15 seconds
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     if(!isEndReceiving){
+                        Log.d(TAG, "MainActivity-run: force terminate scenario after 15 seconds");
                         String timeStamp = getTimeStamp();
-                        SharedPreferences.Editor editor = pref_currentScenario_info.edit();
+                        SharedPreferences.Editor editor = pref_current_Scen_info.edit();
                         editor.putString("endTimeStamp",timeStamp);
                         editor.apply();
                         showScenarioInformation();
@@ -741,70 +744,33 @@ public class MainActivity extends Activity {
             //Update TX characteristic value.  Note the setValue overload that takes a byte array must be used.
             broadcastMessage(message);
             input.getText().clear();
-//            //tx.setValue(message.getBytes(Charset.forName("UTF-8")));
-//            if (bluetoothGatt.writeCharacteristic(tx)) {
-//                input.getText().clear();
-//                handler.postDelayed(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        results_tv.append(buffer_rcv);
-//                    }
-//                },message.length()*150);
-//            }
         }
     }
-    private void send_by_connectionInterval(final int roundNumber, final int cint) {
-        /* A BLE connection interval is the time between two data transfer events (BLE connection events)
-        between the central and the peripheral selectedDevice.*/
-        if(roundNumber<=0){
-            results_tv.append("\n> finished");
-            return;
-        }
-        Log.d("salis1", "begin round<"+roundNumber+">");
-        results_tv.append("\n> begin round<"+roundNumber+">\n");
-        bluetoothGatt.disconnect();
-        results_tv.append("> disconnected\n");
-        Log.d("salis1", "send_by_connectionInterval: disconneced");
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                bluetoothGatt.connect();
-                Log.d("salis1", "run: connected");
-                results_tv.append("> connected\n");
-                try {
-                    Thread.sleep(4000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                String message = "r"+ roundNumber;
-                broadcastMessage(message);
-                Log.d("salis1", "run: end round");
-                results_tv.append("> end round<"+roundNumber+">\n");
-                send_by_connectionInterval(roundNumber-1,cint);
-            }
-        },cint);
-    }
+
     private void getHumidity() {
-        buffer_rcv ="";
+        Log.d(TAG, "getHumidity: ");
+        receive_Buffer ="";
+        results_tv.setText("");
         //send request for humidityPercent...
         String message = "%";
         broadcastMessage(message);
-//        tx.setValue(message.getBytes(Charset.forName("UTF-8")));
-//        if(bluetoothGatt.writeCharacteristic(tx)) {
-//            input.getText().clear();
-//        }
-        //wait until humidity received by buffer...
-        try {
-            Thread.sleep(150);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        //save humidity to preference:
-        String humidityPercent = buffer_rcv.trim();
-        SharedPreferences.Editor editor = pref_currentScenario_info.edit();
-        editor.putString("humidityPercent",humidityPercent+ "%");
-        editor.apply();
-        showScenarioInformation(); //update scenario info for showing Humidity
+        //after a few millisecond read the humidity from buffer
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                //save humidity to preference:
+                String humidityPercent = receive_Buffer.trim();
+                String result = humidityPercent+" % humidity";
+                results_tv.setText(result);
+                Log.d(TAG, "humidityPercent="+humidityPercent);
+                if(!humidityPercent.isEmpty()){
+                    SharedPreferences.Editor editor = pref_current_Scen_info.edit();
+                    editor.putString("humidityPercent",humidityPercent+ "%");
+                    editor.apply();
+                    showScenarioInformation(); //update scenario info for showing Humidity
+                }
+            }
+        },300);
     }
 
     private String getTimeStamp() {
@@ -817,16 +783,16 @@ public class MainActivity extends Activity {
     private void calculate_plp() {
         isEndReceiving=true;
         setProgressBarIndeterminateVisibility(false);
-        if(buffer_rcv==null || buffer_rcv.length()==0){
+        if(receive_Buffer ==null || receive_Buffer.length()==0){
             return;
         }
         //eliminate *s from end of buffer
-        while (buffer_rcv.substring(buffer_rcv.length()-1).equals("*")) {
-            buffer_rcv = buffer_rcv.replace(buffer_rcv.substring(buffer_rcv.length() - 1), "");
+        while (receive_Buffer.substring(receive_Buffer.length()-1).equals("*")) {
+            receive_Buffer = receive_Buffer.replace(receive_Buffer.substring(receive_Buffer.length() - 1), "");
         }
         //calculate plp:
         int correctPacket = 0;
-        String[] rcv_packetsList = buffer_rcv.split("-");
+        String[] rcv_packetsList = receive_Buffer.split("-");
         for (String s : rcv_packetsList) {
             if (org_packetsList.contains(s)) {
                 correctPacket++;
@@ -836,7 +802,7 @@ public class MainActivity extends Activity {
         double plp = (pl / 2000) * 100;
         plp = round(plp,2);
 
-        Log.d(TAG,"cal_plp_buffer:\n"+buffer_rcv);
+        Log.d(TAG,"cal_plp_buffer:\n"+ receive_Buffer);
         Log.d(TAG,"rcv_packetsList:\n"+ Arrays.toString(rcv_packetsList));
         Log.d(TAG,"packetLoss: "+ pl);
         Log.d(TAG,"rcv_packetsList.length: "+ rcv_packetsList.length);
@@ -845,7 +811,7 @@ public class MainActivity extends Activity {
         //show and save result:
         String result = "Received packets number: " + correctPacket+"\nLost packets number: "+pl ;
         results_tv.setText(result);
-        SharedPreferences.Editor editor = pref_currentScenario_info.edit();
+        SharedPreferences.Editor editor = pref_current_Scen_info.edit();
         editor.putString("packetLossPercent", plp+" %");
         editor.apply();
         showScenarioInformation();
@@ -865,15 +831,15 @@ public class MainActivity extends Activity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    if(!discoveredBluetoothDevices.contains(bluetoothDevice)) {
-                        discoveredBluetoothDevices.add(bluetoothDevice);
+                    if(!discoveredDevices_objects.contains(bluetoothDevice)) {
+                        discoveredDevices_objects.add(bluetoothDevice);
                         //BLEDevice class which have each BLE selectedDevice's name and mac address Strings
                         BLEDevice newDevice = new BLEDevice();
                         newDevice.setName(bluetoothDevice.getName());
                         newDevice.setMac(bluetoothDevice.getAddress());
                         newDevice.setRssi("RSSI: "+ rssi +"dBm");
-                        //discoveredDevices has selectedDevice name and address and rssi for showing
-                        discoveredDevices.add(newDevice);
+                        //discoveredDevices_properties has selectedDevice name and address and rssi for showing
+                        discoveredDevices_properties.add(newDevice);
                         discoveredDevicesAdapter.notifyDataSetChanged();
                         rssiList.add(String.valueOf(rssi));
                     }
@@ -887,8 +853,8 @@ public class MainActivity extends Activity {
             isFinishScan = false;
             rescan_btn.setEnabled(false);
             disconnectClose();
-            discoveredDevices.clear();
-            discoveredBluetoothDevices.clear();
+            discoveredDevices_properties.clear();
+            discoveredDevices_objects.clear();
             rssiList.clear();
             selectedDevice = null;
             discoveredDevicesAdapter.notifyDataSetChanged();
@@ -934,7 +900,8 @@ public class MainActivity extends Activity {
                 if(moduleName!=null){
                     startActivity(new Intent(MainActivity.this , ATCommandParametersActivity.class));
                 }else {
-                    results_tv.setText("Error: bluetooth Module is not recognized!");
+                    results_tv.setText("Error: bluetooth Module is not recognized!\n" +
+                            "hint: First Connect to a module device.");
                 }
                 break;
             case R.id.ScenarioInformation:
@@ -963,7 +930,7 @@ public class MainActivity extends Activity {
 
 
     private void disconnectClose() {
-        stopService(bleServiceIntent);
+        stopService(bleService_intent);
         setConnectionStatusTextView("DISCONNECTED","#ffff00");
     }
     private void clean() {
@@ -975,10 +942,10 @@ public class MainActivity extends Activity {
         editor1.clear();
         editor1.apply();
         SharedPreferences.Editor editor2;
-        editor2 = pref_currentScenario_info.edit();
+        editor2 = pref_current_Scen_info.edit();
         editor2.clear();
         editor2.apply();
-        buffer_rcv = "";
+        receive_Buffer = "";
     }
     private void setConnectionStatusTextView(String status, String color) {
         connectionStatus_tv.setText(status);

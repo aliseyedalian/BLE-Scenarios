@@ -187,7 +187,7 @@ public class ScenariosReports extends AppCompatActivity {
         titlesList = new ArrayList<>();
         StringBuffer buffer = new StringBuffer();
         //for each row in scenario resultCursor :
-        // 1-get row and save in buffer_rcv
+        // 1-get row and save in receive_Buffer
         // 2-add a key in scenariosKeyList
         // 3-add corresponding value in scenariosContentList
         while (resultCursor.moveToNext()){
