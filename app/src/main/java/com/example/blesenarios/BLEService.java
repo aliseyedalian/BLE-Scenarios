@@ -101,6 +101,8 @@ public class BLEService extends Service {
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
+            Log.d(TAG, "Service-onConnectionStateChange: status="+status+" newState="+newState);
+            super.onConnectionStateChange(gatt, status, newState);
             if (status == BluetoothGatt.GATT_SUCCESS && newState == BluetoothProfile.STATE_CONNECTED) {
                 broadcastAction(ACTION_CONNECTED);
                 Log.d(TAG, "Service-onConnectionStateChange: Connected to GATT server.");
@@ -116,6 +118,11 @@ public class BLEService extends Service {
             else if (status == BluetoothGatt.GATT_SUCCESS && newState == BluetoothProfile.STATE_DISCONNECTED) {
                 Log.d(TAG, "Service-onConnectionStateChange: Disconnected from GATT server.");
                 broadcastAction(ACTION_DISCONNECTED);
+            }
+            else if(status == BluetoothGatt.GATT_SERVER){
+                Log.d(TAG, "Service-onConnectionStateChange: Connection lost");
+                broadcastAction(ACTION_DISCONNECTED);
+                disconnectClose();
             }
         }
         @Override
