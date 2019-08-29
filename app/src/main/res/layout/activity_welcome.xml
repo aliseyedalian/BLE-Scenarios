@@ -1,18 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
-    android:padding="16dp"
+    android:padding="5dp"
     android:gravity="center"
     android:background="#0000A5"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".WelcomeActivity">
+
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="10"
         android:src="@mipmap/ic_launcher1"/>
+
     <TextView
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -33,5 +35,16 @@
         android:typeface="monospace"
         android:gravity="center"
         android:text="Version 2.0"/>
+    <TextView
+        android:id="@+id/progress_tv"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:textSize="35sp"
+        android:textColor="#FFFFFF"
+        android:textStyle="bold"
+        android:typeface="monospace"
+        android:gravity="start"
+        android:text=""/>
 
 </LinearLayout>
