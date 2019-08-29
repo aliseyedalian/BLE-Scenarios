@@ -521,9 +521,7 @@ public class MainActivity extends Activity {
         BroadcastReceiver receiver_disconnected = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                if(!isFinishScan){
-                    setConnectionStatusTextView("DISCONNECTED","#ffff00");
-                }
+                setConnectionStatusTextView("DISCONNECTED","#ffff00");
             }
         };
         LocalBroadcastManager.getInstance(this).registerReceiver(receiver_disconnected,Filter_disconnected);
@@ -886,6 +884,18 @@ public class MainActivity extends Activity {
             rescan_btn.setEnabled(true);
         }
     }
+
+    @Override
+    public void onBackPressed() {
+        if(scannedDevicesList_layout.getVisibility()== View.VISIBLE){
+            ScanLeDevice(false);
+            setConnectionStatusTextView("DISCONNECTED","#ffff00");
+            scannedDevicesList_layout.setVisibility(View.INVISIBLE);
+            return;
+        }
+        super.onBackPressed();
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
