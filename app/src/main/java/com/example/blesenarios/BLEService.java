@@ -40,6 +40,7 @@ public class BLEService extends Service {
     public final static String ACTION_CONNECTED = "com.example.blesenarios.ACTION_CONNECTED";
     public final static String ACTION_DATA_AVAILABLE = "com.example.blesenarios.ACTION_DATA_AVAILABLE";
     public final static String ACTION_DATA_FOR_SEND = "com.example.blesenarios.ACTION_DATA_FOR_SEND";
+    public final static String ACTION_RSSI = "com.example.blesenarios.ACTION_RSSI";
     // UUIDs for UART service and associated characteristics.
     public final static UUID UART_UUID = UUID.fromString("0000FFE0-0000-1000-8000-00805F9B34FB");
     public final static UUID TX_UUID = UUID.fromString("0000FFE1-0000-1000-8000-00805F9B34FB");
