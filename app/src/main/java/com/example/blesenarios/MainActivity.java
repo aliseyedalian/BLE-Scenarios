@@ -562,6 +562,7 @@ public class MainActivity extends Activity {
 
         /**localBroadcastManager for sending data to BLEService: */
         localBroadcastManager =  LocalBroadcastManager.getInstance(this);
+        startScan();
     }
 
     private void initViews() {
@@ -698,11 +699,7 @@ public class MainActivity extends Activity {
     }
 
 
-    private void broadcastMessage(String message) {
-        Intent intent = new Intent(ACTION_DATA_FOR_SEND);
-        intent.putExtra("message",message);
-        localBroadcastManager.sendBroadcast(intent);
-    }
+
     public void send(String message){
         if(message.trim().isEmpty()){
             return;
@@ -744,7 +741,6 @@ public class MainActivity extends Activity {
             input.getText().clear();
         }
     }
-
     private void getHumidity() {
         Log.d(TAG, "getHumidity: ");
         receive_Buffer ="";
@@ -770,7 +766,11 @@ public class MainActivity extends Activity {
             }
         },300);
     }
-
+    private void broadcastMessage(String message) {
+        Intent intent = new Intent(ACTION_DATA_FOR_SEND);
+        intent.putExtra("message",message);
+        localBroadcastManager.sendBroadcast(intent);
+    }
     private String getTimeStamp() {
         Long tsLong = System.currentTimeMillis();
         @SuppressLint("SimpleDateFormat") SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss.SSS");
@@ -899,10 +899,8 @@ public class MainActivity extends Activity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
-            case R.id.action_scan:
-                isFinishScan = false;
-                disconnectClose();
-                ScanLeDevice(true);
+            case R.id.start_scan:
+                startScan();
                 break;
             case R.id.AtCommandConfigs:
                 //go to At-command setting activity if moduleName is recognized
@@ -910,8 +908,9 @@ public class MainActivity extends Activity {
                 if(moduleName!=null){
                     startActivity(new Intent(MainActivity.this , ATCommandParametersActivity.class));
                 }else {
-                    results_tv.setText("Error: bluetooth Module is not recognized!\n" +
-                            "hint: First Connect to a module device.");
+                    results_tv.setText("Error: bluetooth Module is not recognized!\n");
+                    results_tv.append("hint: First Connect to a module device.");
+
                 }
                 break;
             case R.id.ScenarioInformation:
@@ -936,6 +935,12 @@ public class MainActivity extends Activity {
                 break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void startScan() {
+        isFinishScan = false;
+        disconnectClose();
+        ScanLeDevice(true);
     }
 
 

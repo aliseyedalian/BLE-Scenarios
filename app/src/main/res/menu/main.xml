@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.tonydicola.bleSenarios.app.MainActivity" >
 
-    <item android:id="@+id/action_scan"
+    <item android:id="@+id/start_scan"
         android:title="Scan BLE Devices"
         android:orderInCategory="100"
         app:showAsAction="never" />
