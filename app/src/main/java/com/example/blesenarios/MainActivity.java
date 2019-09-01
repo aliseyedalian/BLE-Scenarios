@@ -807,10 +807,14 @@ public class MainActivity extends Activity {
         Log.d(TAG,"PacketLossPercent: "+ plp);
 
         //show and save result:
-        String result = "Received packets number: " + correctPacket+"\nLost packets number: "+pl ;
+        String result = "Received packets number: " + correctPacket+"\nLost packets number: "+(int)pl ;
         results_tv.setText(result);
         SharedPreferences.Editor editor = pref_current_Scen_info.edit();
-        editor.putString("packetLossPercent", plp+" %");
+        if(plp == (int)plp){
+            editor.putString("packetLossPercent", (int)plp+" %");
+        }else {
+            editor.putString("packetLossPercent", plp+" %");
+        }
         editor.apply();
         showScenarioInformation();
     }
@@ -859,7 +863,7 @@ public class MainActivity extends Activity {
             scannedDevicesList_layout.setVisibility(View.VISIBLE);
             setProgressBarIndeterminateVisibility(true);
             bluetoothAdapter.startLeScan(leScanCallback);
-            setConnectionStatusTextView("SCANNING","#ffff00");
+            setConnectionStatusTextView("SCANNING...","#ffff00");
             // Stops scanning after a pre-defined scan period.
             handler.postDelayed(new Runnable() {
                 @Override
