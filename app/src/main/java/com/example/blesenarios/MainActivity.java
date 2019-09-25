@@ -522,6 +522,7 @@ public class MainActivity extends Activity {
             @Override
             public void onReceive(Context context, Intent intent) {
                 setConnectionStatusTextView("DISCONNECTED","#ffff00");
+                disconnectClose();
             }
         };
         LocalBroadcastManager.getInstance(this).registerReceiver(receiver_disconnected,Filter_disconnected);
@@ -562,7 +563,6 @@ public class MainActivity extends Activity {
 
         /**localBroadcastManager for sending data to BLEService: */
         localBroadcastManager =  LocalBroadcastManager.getInstance(this);
-        startScan();
     }
 
     private void initViews() {
@@ -950,6 +950,8 @@ public class MainActivity extends Activity {
 
     private void disconnectClose() {
         stopService(bleService_intent);
+        setProgressBarIndeterminateVisibility(true);
+
         setConnectionStatusTextView("DISCONNECTED","#ffff00");
     }
     private void clean() {
