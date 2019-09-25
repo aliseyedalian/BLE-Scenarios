@@ -732,7 +732,7 @@ public class MainActivity extends Activity {
                         calculate_plp();
                     }
                 }
-            },15000);
+            },10000);
         }
         //send message
         else {
@@ -796,8 +796,8 @@ public class MainActivity extends Activity {
                 correctPacket++;
             }
         }
-        float pl = 2000 - correctPacket;
-        double plp = (pl / 2000) * 100;
+        float pl = 1000 - correctPacket;
+        double plp = (pl / 1000) * 100;
         plp = round(plp,2);
 
         Log.d(TAG,"cal_plp_buffer:\n"+ receive_Buffer);
