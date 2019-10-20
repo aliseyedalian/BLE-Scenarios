@@ -47,7 +47,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class MainActivity extends Activity {
-    public static final String TAG = "salis";
+    public static final String TAG = "TAG";
     private static final int REQ_ENABLE_BT = 1221 ;
     private static final int REQ_PERMISSION_LOC = 3663 ;
     //For Energy efficiency stops scanning after 4 seconds.
@@ -82,13 +82,15 @@ public class MainActivity extends Activity {
     TextView connectionStatus_tv;
     TextView results_tv;
     Button rescan_btn;
-    SharedPreferences pref_current_Scen_info;
+    SharedPreferences pref_current_Scenario_info;
     SharedPreferences pref_currentATCommands;
     DatabaseHelper databaseHelper;
     Boolean isEndReceiving;
-    Boolean isFinishScan;
+    Boolean isFinishScan=true;
+    Boolean isScenarioRunning=false;
     String receive_Buffer;
     Intent bleService_intent;
+
 
 
     private void prepare_original_packetsList() {
@@ -195,26 +197,26 @@ public class MainActivity extends Activity {
     }
     private void showScenarioInformation() {
         scenarioInfo_tv.setText("");
-        if(pref_current_Scen_info ==null){
+        if(pref_current_Scenario_info ==null){
             return;
         }
         //obtain parameters from preferences
-        String rssi = pref_current_Scen_info.getString("rssi", null);
-        String phoneName = pref_current_Scen_info.getString("phoneName", null);
-        String phoneManufacturer = pref_current_Scen_info.getString("phoneManufacturer", null);
-        String phoneBLEVersion = pref_current_Scen_info.getString("phoneBLEVersion",null);
-        String distanceMin = pref_current_Scen_info.getString("distanceMin", null);
-        String distanceMax = pref_current_Scen_info.getString("distanceMax", null);
-        String place = pref_current_Scen_info.getString("place", null); //indoor/outdoor
-        String obstacleNo = pref_current_Scen_info.getString("obstacleNo", null);
-        String obstacle = pref_current_Scen_info.getString("obstacle", null);
-        String wifi = pref_current_Scen_info.getString("wifi", null);
-        String ipv6 = pref_current_Scen_info.getString("ipv6", null);
-        String explanation = pref_current_Scen_info.getString("explanation", null);
-        String humidityPercent = pref_current_Scen_info.getString("humidityPercent", null);
-        String startTimeStamp = pref_current_Scen_info.getString("startTimeStamp",null);
-        String endTimeStamp = pref_current_Scen_info.getString("endTimeStamp",null);
-        String packetLossPercent = pref_current_Scen_info.getString("packetLossPercent",null);
+        String rssi = pref_current_Scenario_info.getString("rssi", null);
+        String phoneName = pref_current_Scenario_info.getString("phoneName", null);
+        String phoneManufacturer = pref_current_Scenario_info.getString("phoneManufacturer", null);
+        String phoneBLEVersion = pref_current_Scenario_info.getString("phoneBLEVersion",null);
+        String distanceMin = pref_current_Scenario_info.getString("distanceMin", null);
+        String distanceMax = pref_current_Scenario_info.getString("distanceMax", null);
+        String place = pref_current_Scenario_info.getString("place", null); //indoor/outdoor
+        String obstacleNo = pref_current_Scenario_info.getString("obstacleNo", null);
+        String obstacle = pref_current_Scenario_info.getString("obstacle", null);
+        String wifi = pref_current_Scenario_info.getString("wifi", null);
+        String ipv6 = pref_current_Scenario_info.getString("ipv6", null);
+        String explanation = pref_current_Scenario_info.getString("explanation", null);
+        String humidityPercent = pref_current_Scenario_info.getString("humidityPercent", null);
+        String startTimeStamp = pref_current_Scenario_info.getString("startTimeStamp",null);
+        String endTimeStamp = pref_current_Scenario_info.getString("endTimeStamp",null);
+        String packetLossPercent = pref_current_Scenario_info.getString("packetLossPercent",null);
         //show parameters in scenarioInfo textView
         if (rssi != null) {
             scenarioInfo_tv.append("rssi: "+rssi);
@@ -332,12 +334,13 @@ public class MainActivity extends Activity {
             at_commands_tv.append("\n");
         }
     }
+    @SuppressLint("SetTextI18n")
     private void saveToDB() {
         //get all String data from preferences:
-        String rssi = pref_current_Scen_info.getString("rssi", null);
-        String phoneName = pref_current_Scen_info.getString("phoneName", null);
-        String phoneManufacturer = pref_current_Scen_info.getString("phoneManufacturer", null);
-        String phoneBLEVersion = pref_current_Scen_info.getString("phoneBLEVersion",null);
+        String rssi = pref_current_Scenario_info.getString("rssi", null);
+        String phoneName = pref_current_Scenario_info.getString("phoneName", null);
+        String phoneManufacturer = pref_current_Scenario_info.getString("phoneManufacturer", null);
+        String phoneBLEVersion = pref_current_Scenario_info.getString("phoneBLEVersion",null);
         String moduleName = pref_currentATCommands.getString("moduleName", null);
         String moduleBLEVersion = pref_currentATCommands.getString("moduleBLEVersion",null);
         String ATDEFAULT = pref_currentATCommands.getString("ATDEFAULT", null);
@@ -349,18 +352,18 @@ public class MainActivity extends Activity {
         String led = pref_currentATCommands.getString("led", null);
         String baudRate = pref_currentATCommands.getString("baudRate", null);
         String pm = pref_currentATCommands.getString("pm", null);
-        String distanceMin = pref_current_Scen_info.getString("distanceMin", null);
-        String distanceMax = pref_current_Scen_info.getString("distanceMax", null);
-        String place = pref_current_Scen_info.getString("place", null); //indoor/outdoor
-        String obstacleNo = pref_current_Scen_info.getString("obstacleNo", null);
-        String obstacle = pref_current_Scen_info.getString("obstacle", null);
-        String humidityPercent = pref_current_Scen_info.getString("humidityPercent", null);
-        String wifi = pref_current_Scen_info.getString("wifi", null);
-        String ipv6 = pref_current_Scen_info.getString("ipv6", null);
-        String startTimeStamp = pref_current_Scen_info.getString("startTimeStamp",null);
-        String endTimeStamp = pref_current_Scen_info.getString("endTimeStamp",null);
-        String explanation = pref_current_Scen_info.getString("explanation", null);
-        String packetLossPercent = pref_current_Scen_info.getString("packetLossPercent",null);
+        String distanceMin = pref_current_Scenario_info.getString("distanceMin", null);
+        String distanceMax = pref_current_Scenario_info.getString("distanceMax", null);
+        String place = pref_current_Scenario_info.getString("place", null); //indoor/outdoor
+        String obstacleNo = pref_current_Scenario_info.getString("obstacleNo", null);
+        String obstacle = pref_current_Scenario_info.getString("obstacle", null);
+        String humidityPercent = pref_current_Scenario_info.getString("humidityPercent", null);
+        String wifi = pref_current_Scenario_info.getString("wifi", null);
+        String ipv6 = pref_current_Scenario_info.getString("ipv6", null);
+        String startTimeStamp = pref_current_Scenario_info.getString("startTimeStamp",null);
+        String endTimeStamp = pref_current_Scenario_info.getString("endTimeStamp",null);
+        String explanation = pref_current_Scenario_info.getString("explanation", null);
+        String packetLossPercent = pref_current_Scenario_info.getString("packetLossPercent",null);
         //check existence of data before insertion:
         if(startTimeStamp == null || humidityPercent==null || packetLossPercent==null ||
                 led == null || moduleName ==null || distanceMin==null || distanceMax==null){
@@ -437,7 +440,7 @@ public class MainActivity extends Activity {
         handler = new Handler();
 
         //create shared preference for saving current scenario information and at commands...
-        pref_current_Scen_info = getSharedPreferences("currentScenario_info",MODE_PRIVATE);
+        pref_current_Scenario_info = getSharedPreferences("currentScenario_info",MODE_PRIVATE);
         pref_currentATCommands = getSharedPreferences("currentATCommands",MODE_PRIVATE);
 
         initViews();
@@ -459,7 +462,7 @@ public class MainActivity extends Activity {
                 ScanLeDevice(false);
                 selectedDevice = discoveredDevices_objects.get(position);
                 //save rssi in scenario information
-                SharedPreferences.Editor editor1 = pref_current_Scen_info.edit();
+                SharedPreferences.Editor editor1 = pref_current_Scenario_info.edit();
                 String rssi = rssiList.get(position);
                 editor1.putString("rssi",rssi+" dBm");
                 editor1.apply();
@@ -498,7 +501,7 @@ public class MainActivity extends Activity {
         //the ble module will send some strings and phone will evaluate them.so phone must know them.
         prepare_original_packetsList();
 
-        /**registering LocalBroadcast for receiving data from BLEService: */
+        //registering LocalBroadcast for receiving data from BLEService:
         IntentFilter Filter_connected = new IntentFilter(ACTION_CONNECTED);
         BroadcastReceiver receiver_connected = new BroadcastReceiver() {
             @Override
@@ -546,8 +549,10 @@ public class MainActivity extends Activity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                isScenarioRunning = false;
+                                isEndReceiving=true;
                                 String endTimeStamp = getTimeStamp();
-                                SharedPreferences.Editor editor = pref_current_Scen_info.edit();
+                                SharedPreferences.Editor editor = pref_current_Scenario_info.edit();
                                 editor.putString("endTimeStamp",endTimeStamp);
                                 editor.apply();
                                 showScenarioInformation();
@@ -561,7 +566,7 @@ public class MainActivity extends Activity {
         };
         LocalBroadcastManager.getInstance(this).registerReceiver(receiver_data,Filter_data);
 
-        /**localBroadcastManager for sending data to BLEService: */
+        //localBroadcastManager for sending data to BLEService:
         localBroadcastManager =  LocalBroadcastManager.getInstance(this);
     }
 
@@ -574,9 +579,11 @@ public class MainActivity extends Activity {
             @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onClick(View view) {
-                //get message from input
-                String message = input.getText().toString().trim();
-                send(message);
+                if(!isScenarioRunning){
+                    //get message from input
+                    String message = input.getText().toString().trim();
+                    send(message);
+                }
             }
         });
 
@@ -584,7 +591,10 @@ public class MainActivity extends Activity {
         start_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                send("$");
+                if(!isScenarioRunning){
+                    send("$");
+                    isScenarioRunning = true;
+                }
             }
         });
 
@@ -654,11 +664,6 @@ public class MainActivity extends Activity {
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-    }
-
-    @Override
     protected void onResume() {
         super.onResume();
         Log.d(TAG, "MainActivity-onResume");
@@ -710,7 +715,7 @@ public class MainActivity extends Activity {
             //getting timeStamp and save it to preferences:
             Log.d(TAG, "MainActivity-send: Scenario Start");
             String timeStamp = getTimeStamp();
-            SharedPreferences.Editor editor = pref_current_Scen_info.edit();
+            SharedPreferences.Editor editor = pref_current_Scenario_info.edit();
             editor.putString("startTimeStamp",timeStamp);
             editor.apply();
             showScenarioInformation();
@@ -723,16 +728,17 @@ public class MainActivity extends Activity {
                 @Override
                 public void run() {
                     if(!isEndReceiving){
+                        isScenarioRunning = false;
                         Log.d(TAG, "MainActivity-run: force terminate scenario after 15 seconds");
                         String timeStamp = getTimeStamp();
-                        SharedPreferences.Editor editor = pref_current_Scen_info.edit();
+                        SharedPreferences.Editor editor = pref_current_Scenario_info.edit();
                         editor.putString("endTimeStamp",timeStamp);
                         editor.apply();
                         showScenarioInformation();
                         calculate_plp();
                     }
                 }
-            },16000);
+            },15000);
         }
         //send message
         else {
@@ -758,7 +764,7 @@ public class MainActivity extends Activity {
                 results_tv.setText(result);
                 Log.d(TAG, "humidityPercent="+humidityPercent);
                 if(!humidityPercent.isEmpty()){
-                    SharedPreferences.Editor editor = pref_current_Scen_info.edit();
+                    SharedPreferences.Editor editor = pref_current_Scenario_info.edit();
                     editor.putString("humidityPercent",humidityPercent+ "%");
                     editor.apply();
                     showScenarioInformation(); //update scenario info for showing Humidity
@@ -775,11 +781,9 @@ public class MainActivity extends Activity {
         Long tsLong = System.currentTimeMillis();
         @SuppressLint("SimpleDateFormat") SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss.SSS");
         Date resultDate = new Date(tsLong);
-        String timeStamp = sdf.format(resultDate);
-        return timeStamp;
+        return sdf.format(resultDate);
     }
     private void calculate_plp() {
-        isEndReceiving=true;
         setProgressBarIndeterminateVisibility(false);
         if(receive_Buffer ==null || receive_Buffer.length()==0){
             return;
@@ -796,9 +800,9 @@ public class MainActivity extends Activity {
                 correctPacket++;
             }
         }
-        float pl = 2000 - correctPacket;
-        double plp = (pl / 2000) * 100;
-        plp = round(plp,2);
+        float pl = 1000 - correctPacket;
+        double plp = (pl / 1000) * 100;
+        plp = round(plp);
 
         Log.d(TAG,"cal_plp_buffer:\n"+ receive_Buffer);
         Log.d(TAG,"rcv_packetsList:\n"+ Arrays.toString(rcv_packetsList));
@@ -809,7 +813,7 @@ public class MainActivity extends Activity {
         //show and save result:
         String result = "Received packets number: " + correctPacket+"\nLost packets number: "+(int)pl ;
         results_tv.setText(result);
-        SharedPreferences.Editor editor = pref_current_Scen_info.edit();
+        SharedPreferences.Editor editor = pref_current_Scenario_info.edit();
         if(plp == (int)plp){
             editor.putString("packetLossPercent", (int)plp+" %");
         }else {
@@ -818,10 +822,9 @@ public class MainActivity extends Activity {
         editor.apply();
         showScenarioInformation();
     }
-    private static double round(double value, int places) {
-        if (places < 0) throw new IllegalArgumentException();
+    private static double round(double value) {
         BigDecimal bd = new BigDecimal(Double.toString(value));
-        bd = bd.setScale(places, RoundingMode.HALF_UP);
+        bd = bd.setScale(2, RoundingMode.HALF_UP);
         return bd.doubleValue();
     }
     // BLE selectedDevice scanning callback.
@@ -946,8 +949,6 @@ public class MainActivity extends Activity {
         disconnectClose();
         ScanLeDevice(true);
     }
-
-
     private void disconnectClose() {
         stopService(bleService_intent);
         setProgressBarIndeterminateVisibility(false);
@@ -962,7 +963,7 @@ public class MainActivity extends Activity {
         editor1.clear();
         editor1.apply();
         SharedPreferences.Editor editor2;
-        editor2 = pref_current_Scen_info.edit();
+        editor2 = pref_current_Scenario_info.edit();
         editor2.clear();
         editor2.apply();
         receive_Buffer = "";

@@ -13,7 +13,7 @@ public class WelcomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_welcome);
         progress_tv = findViewById(R.id.progress_tv);
-        writeDot(15,100);
+        writeDot(20,100);
     }
 
     private void writeDot(final int number, final int delay) {

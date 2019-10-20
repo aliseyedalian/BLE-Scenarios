@@ -14,14 +14,16 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.IBinder;
+import android.support.annotation.RequiresApi;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.charset.Charset;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -29,7 +31,7 @@ import java.util.UUID;
  * given Bluetooth LE selectedDevice.
  */
 public class BLEService extends Service {
-    private final static String TAG = "salis";
+    private final static String TAG = "TAG";
     private BluetoothGatt bluetoothGatt;
     private BluetoothDevice device;
     private BluetoothGattCharacteristic tx;
@@ -40,7 +42,6 @@ public class BLEService extends Service {
     public final static String ACTION_CONNECTED = "com.example.blesenarios.ACTION_CONNECTED";
     public final static String ACTION_DATA_AVAILABLE = "com.example.blesenarios.ACTION_DATA_AVAILABLE";
     public final static String ACTION_DATA_FOR_SEND = "com.example.blesenarios.ACTION_DATA_FOR_SEND";
-    public final static String ACTION_RSSI = "com.example.blesenarios.ACTION_RSSI";
     // UUIDs for UART service and associated characteristics.
     public final static UUID UART_UUID = UUID.fromString("0000FFE0-0000-1000-8000-00805F9B34FB");
     public final static UUID TX_UUID = UUID.fromString("0000FFE1-0000-1000-8000-00805F9B34FB");
@@ -80,22 +81,27 @@ public class BLEService extends Service {
         };
         LocalBroadcastManager.getInstance(this).registerReceiver(receiver_sendMessage,Filter_sendMessage);
     }
-    @Override
-    public void onStart(Intent intent, int startId) {
-        super.onStart(intent, startId);
-        device = intent.getExtras().getParcelable("device");
-        Log.d(TAG, "Service onStart:<Device:"+device+">");
-        bluetoothGatt =  device.connectGatt(this,true,mGattCallback);
-    }
+//    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+//    @Override
+//    public void onStart(Intent intent, int startId) {
+//        super.onStart(intent, startId);
+////        device = Objects.requireNonNull(intent.getExtras()).getParcelable("device");
+////        Log.d(TAG, "Service onStart:<Device:"+device+">");
+////        bluetoothGatt =  device.connectGatt(this,true,mGattCallback);
+//    }
     @Override
     public void onDestroy() {
         Log.d(TAG, "Service-onDestroy");
         disconnectClose();
         super.onDestroy();
     }
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "Service-onStartCommand");
+        device = Objects.requireNonNull(intent.getExtras()).getParcelable("device");
+        Log.d(TAG, "Service onStart:<Device:"+device+">");
+        bluetoothGatt =  device.connectGatt(this,true,mGattCallback);
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -123,7 +129,7 @@ public class BLEService extends Service {
             else if(status == BluetoothGatt.GATT_SERVER){
                 Log.d(TAG, "Service-onConnectionStateChange: Connection lost");
                 broadcastAction(ACTION_DISCONNECTED);
-                disconnectClose();
+                //disconnectClose();
             }
         }
         @Override
