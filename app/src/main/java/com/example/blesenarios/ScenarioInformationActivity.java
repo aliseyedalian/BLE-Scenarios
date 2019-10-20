@@ -116,7 +116,7 @@ public class ScenarioInformationActivity extends AppCompatActivity {
         } else{
             ipv6 = "No";
         }
-        if(obstacle == "LOS"){
+        if(obstacle.equals("LOS")){
             obstacleNo="0";
         }
 

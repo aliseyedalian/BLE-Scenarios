@@ -1,11 +1,10 @@
 package com.example.blesenarios;
 //http://codesfor.in/how-to-export-sqlite-database-to-a-csv-file/
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
 
 
-public class CSVWriter {
+class CSVWriter {
 
     private PrintWriter pw;
     private char separator;
@@ -13,19 +12,19 @@ public class CSVWriter {
     private String lineEnd;
     private char quotechar;
 
-    public static final char DEFAULT_SEPARATOR = ',';
-    public static final char NO_QUOTE_CHARACTER = '\u0000';
-    public static final char NO_ESCAPE_CHARACTER = '\u0000';
-    public static final String DEFAULT_LINE_END = "\n";
-    public static final char DEFAULT_QUOTE_CHARACTER = '"';
-    public static final char DEFAULT_ESCAPE_CHARACTER = '"';
+    private static final char DEFAULT_SEPARATOR = ',';
+    private static final char NO_QUOTE_CHARACTER = '\u0000';
+    private static final char NO_ESCAPE_CHARACTER = '\u0000';
+    private static final String DEFAULT_LINE_END = "\n";
+    private static final char DEFAULT_QUOTE_CHARACTER = '"';
+    private static final char DEFAULT_ESCAPE_CHARACTER = '"';
 
-    public CSVWriter(Writer writer) {
+    CSVWriter(Writer writer) {
         this(writer, DEFAULT_SEPARATOR, DEFAULT_QUOTE_CHARACTER,
                 DEFAULT_ESCAPE_CHARACTER, DEFAULT_LINE_END);
     }
 
-    public CSVWriter(Writer writer, char separator, char quotechar, char escapechar, String lineEnd) {
+    private CSVWriter(Writer writer, char separator, char quotechar, char escapechar, String lineEnd) {
         this.pw = new PrintWriter(writer);
         this.separator = separator;
         this.quotechar = quotechar;
@@ -33,7 +32,7 @@ public class CSVWriter {
         this.lineEnd = lineEnd;
     }
 
-    public void writeNext(String[] nextLine) {
+    void writeNext(String[] nextLine) {
 
         if (nextLine == null)
             return;
@@ -69,13 +68,11 @@ public class CSVWriter {
 
     }
 
-    public void close() throws IOException {
+    void close() {
         pw.flush();
         pw.close();
     }
 
-    public void flush() throws IOException {
-        pw.flush();
-    }
+
 
 }

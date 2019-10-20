@@ -104,9 +104,9 @@ public class ScenariosReports extends AppCompatActivity {
         StringBuffer buffer = new StringBuffer();
         while (resultCursor.moveToNext()){
             buffer.delete(0, buffer.length());
-            buffer.append("phoneName : "+resultCursor.getString(0)+"\n");
-            buffer.append("phoneManufacturer : "+resultCursor.getString(1)+"\n");
-            buffer.append("phoneBLEVersion : "+resultCursor.getString(2)+"\n");
+            buffer.append("phoneName : ").append(resultCursor.getString(0)).append("\n");
+            buffer.append("phoneManufacturer : ").append(resultCursor.getString(1)).append("\n");
+            buffer.append("phoneBLEVersion : ").append(resultCursor.getString(2)).append("\n");
             titlesList.add(resultCursor.getString(0));
             contentsList.add(buffer.toString());
         }
@@ -127,11 +127,11 @@ public class ScenariosReports extends AppCompatActivity {
         }
         contentsList = new ArrayList<>();
         titlesList = new ArrayList<>();
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         while (resultCursor.moveToNext()){
             buffer.delete(0, buffer.length());
-            buffer.append("moduleName : "+resultCursor.getString(0)+"\n");
-            buffer.append("moduleBLEVersion : "+resultCursor.getString(1)+"\n");
+            buffer.append("moduleName : ").append(resultCursor.getString(0)).append("\n");
+            buffer.append("moduleBLEVersion : ").append(resultCursor.getString(1)).append("\n");
             titlesList.add(resultCursor.getString(0));
             contentsList.add(buffer.toString());
         }
@@ -152,19 +152,19 @@ public class ScenariosReports extends AppCompatActivity {
         }
         contentsList = new ArrayList<>();
         titlesList = new ArrayList<>();
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         while (resultCursor.moveToNext()){
             buffer.delete(0, buffer.length());
-            buffer.append("configId : "+resultCursor.getString(0)+"\n");
-            buffer.append("ATDEFAULT : "+resultCursor.getString(1)+"\n");
-            buffer.append("cintMin : "+resultCursor.getString(2)+"\n");
-            buffer.append("cintMax : "+resultCursor.getString(3)+"\n");
-            buffer.append("rfpm : "+resultCursor.getString(4)+"\n");
-            buffer.append("aint : "+resultCursor.getString(5)+"\n");
-            buffer.append("ctout : "+resultCursor.getString(6)+"\n");
-            buffer.append("led : "+resultCursor.getString(7)+"\n");
-            buffer.append("baudRate : "+resultCursor.getString(8)+"\n");
-            buffer.append("pm : "+resultCursor.getString(9)+"\n");
+            buffer.append("configId : ").append(resultCursor.getString(0)).append("\n");
+            buffer.append("ATDEFAULT : ").append(resultCursor.getString(1)).append("\n");
+            buffer.append("cintMin : ").append(resultCursor.getString(2)).append("\n");
+            buffer.append("cintMax : ").append(resultCursor.getString(3)).append("\n");
+            buffer.append("rfpm : ").append(resultCursor.getString(4)).append("\n");
+            buffer.append("aint : ").append(resultCursor.getString(5)).append("\n");
+            buffer.append("ctout : ").append(resultCursor.getString(6)).append("\n");
+            buffer.append("led : ").append(resultCursor.getString(7)).append("\n");
+            buffer.append("baudRate : ").append(resultCursor.getString(8)).append("\n");
+            buffer.append("pm : ").append(resultCursor.getString(9)).append("\n");
             titlesList.add("Config "+resultCursor.getString(0));
             contentsList.add(buffer.toString());
         }
@@ -185,30 +185,30 @@ public class ScenariosReports extends AppCompatActivity {
         }
         contentsList = new ArrayList<>();
         titlesList = new ArrayList<>();
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         //for each row in scenario resultCursor :
         // 1-get row and save in receive_Buffer
         // 2-add a key in scenariosKeyList
         // 3-add corresponding value in scenariosContentList
         while (resultCursor.moveToNext()){
             buffer.delete(0, buffer.length());
-            buffer.append("scenId : "+resultCursor.getString(0)+"\n");
-            buffer.append("configId : "+resultCursor.getString(1)+"\n");
-            buffer.append("phoneName : "+resultCursor.getString(2)+"\n");
-            buffer.append("moduleName : "+resultCursor.getString(3)+"\n");
-            buffer.append("rssi : "+resultCursor.getString(4)+"\n");
-            buffer.append("distanceMin : "+resultCursor.getString(5)+"\n");
-            buffer.append("distanceMax : "+resultCursor.getString(6)+"\n");
-            buffer.append("place : "+resultCursor.getString(7)+"\n");
-            buffer.append("obstacleNo : "+resultCursor.getString(8)+"\n");
-            buffer.append("obstacle : "+resultCursor.getString(9)+"\n");
-            buffer.append("humidityPercent : "+resultCursor.getString(10)+"\n");
-            buffer.append("wifi : "+resultCursor.getString(11)+"\n");
-            buffer.append("ipv6 : "+resultCursor.getString(12)+"\n");
-            buffer.append("startTimeStamp : "+resultCursor.getString(13)+"\n");
-            buffer.append("endTimeStamp : "+resultCursor.getString(14)+"\n");
-            buffer.append("packetLossPercent : "+resultCursor.getString(15)+"\n");
-            buffer.append("explanation : "+resultCursor.getString(16)+"\n");
+            buffer.append("scenId : ").append(resultCursor.getString(0)).append("\n");
+            buffer.append("configId : ").append(resultCursor.getString(1)).append("\n");
+            buffer.append("phoneName : ").append(resultCursor.getString(2)).append("\n");
+            buffer.append("moduleName : ").append(resultCursor.getString(3)).append("\n");
+            buffer.append("rssi : ").append(resultCursor.getString(4)).append("\n");
+            buffer.append("distanceMin : ").append(resultCursor.getString(5)).append("\n");
+            buffer.append("distanceMax : ").append(resultCursor.getString(6)).append("\n");
+            buffer.append("place : ").append(resultCursor.getString(7)).append("\n");
+            buffer.append("obstacleNo : ").append(resultCursor.getString(8)).append("\n");
+            buffer.append("obstacle : ").append(resultCursor.getString(9)).append("\n");
+            buffer.append("humidityPercent : ").append(resultCursor.getString(10)).append("\n");
+            buffer.append("wifi : ").append(resultCursor.getString(11)).append("\n");
+            buffer.append("ipv6 : ").append(resultCursor.getString(12)).append("\n");
+            buffer.append("startTimeStamp : ").append(resultCursor.getString(13)).append("\n");
+            buffer.append("endTimeStamp : ").append(resultCursor.getString(14)).append("\n");
+            buffer.append("packetLossPercent : ").append(resultCursor.getString(15)).append("\n");
+            buffer.append("explanation : ").append(resultCursor.getString(16)).append("\n");
             titlesList.add("Scenario "+resultCursor.getString(0));
             contentsList.add(buffer.toString());
         }

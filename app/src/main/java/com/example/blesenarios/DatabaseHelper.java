@@ -207,7 +207,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return myDb.rawQuery(query,null);
     }
 
-    public Cursor exportScenario() {
+    Cursor exportScenario() {
         String query = "select scenId,ATDEFAULT,cintMin,cintMax,rfpm,aint,ctout,led,baudRate,pm," +
                 "Phone.phoneName,phoneManufacturer,phoneBLEVersion,Module.moduleName,moduleBLEVersion,rssi," +
                 "distanceMin,distanceMax,place,obstacleNo,obstacle,humidityPercent,wifi,ipv6,startTimeStamp,endTimeStamp,packetLossPercent," +
@@ -218,11 +218,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return myDb.rawQuery(query,null);
     }
 
-    private void rebuild() {
-        myDb.execSQL("drop table if exists Phone");
-        myDb.execSQL("drop table if exists Module");
-        myDb.execSQL("drop table if exists Config");
-        myDb.execSQL("drop table if exists Scenario");
-        onCreate(myDb);
-    }
+//    private void rebuild() {
+//        myDb.execSQL("drop table if exists Phone");
+//        myDb.execSQL("drop table if exists Module");
+//        myDb.execSQL("drop table if exists Config");
+//        myDb.execSQL("drop table if exists Scenario");
+//        onCreate(myDb);
+//    }
 }
