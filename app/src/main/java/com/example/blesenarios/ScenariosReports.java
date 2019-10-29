@@ -101,7 +101,7 @@ public class ScenariosReports extends AppCompatActivity {
         }
         contentsList = new ArrayList<>();
         titlesList = new ArrayList<>();
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         while (resultCursor.moveToNext()){
             buffer.delete(0, buffer.length());
             buffer.append("phoneName : ").append(resultCursor.getString(0)).append("\n");
@@ -240,13 +240,17 @@ public class ScenariosReports extends AppCompatActivity {
             File exportDir = new File(Environment.getExternalStorageDirectory(), "/scens");
             if (!exportDir.exists()) {
                 Log.d("salis","exportDir not exists");
-                exportDir.mkdirs();
+                if(exportDir.mkdirs()){
+                    Log.d("salis","exportDir.mkdirs()");
+                }
             }
 
             File file = new File(exportDir, "scenarios.csv");
             Log.d("salis","file: "+file);
             try {
-                file.createNewFile();
+                if(file.createNewFile()){
+                    Log.d("salis","file.createNewFile()");
+                }
                 Log.d("salis","new file created");
                 CSVWriter csvWrite = new CSVWriter(new FileWriter(file));
                 Cursor curCSV = databaseHelper.exportScenario();

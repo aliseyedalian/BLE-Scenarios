@@ -73,7 +73,7 @@
                 android:layout_weight="1"
                 android:layout_height="match_parent"
                 android:textColor="#FFFFFF"
-                android:text="clean"
+                android:text="Clean"
                 android:textSize="8sp"/>
             <Button
                 android:id="@+id/plp_btn"

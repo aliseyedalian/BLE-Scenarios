@@ -73,7 +73,7 @@ public class MainActivity extends Activity {
     LinearLayout scannedDevicesList_layout;
     ArrayAdapter<BLEDevice> discoveredDevicesAdapter;
     List<String> org_packetsList = new ArrayList<>();
-    List<String> rssiList = new ArrayList<>();
+    List<String> RSSIList = new ArrayList<>();
     ProgressDialog progressDialog;
     Handler handler;
     EditText input;
@@ -88,7 +88,8 @@ public class MainActivity extends Activity {
     Boolean isEndReceiving;
     Boolean isFinishScan=true;
     Boolean isScenarioRunning=false;
-    String receive_Buffer;
+    Boolean isConnected = false;
+    String receive_Buffer="";
     Intent bleService_intent;
 
 
@@ -365,11 +366,25 @@ public class MainActivity extends Activity {
         String explanation = pref_current_Scenario_info.getString("explanation", null);
         String packetLossPercent = pref_current_Scenario_info.getString("packetLossPercent",null);
         //check existence of data before insertion:
-        if(startTimeStamp == null || humidityPercent==null || packetLossPercent==null ||
-                led == null || moduleName ==null || distanceMin==null || distanceMax==null){
-            results_tv.setText("Error: Some data does not exist for saving!");
+        if(endTimeStamp==null){
+            results_tv.setText("Error:\nFailed to save\nThere is no scenario to save!");
             return;
         }
+        if( ATDEFAULT == null){
+            results_tv.setText("Error:\nFailed to save\nCheck existence of the 'AT Commands'! " +
+                    " Go to the 'AT COMMAND Configs' page through the menu.\n");
+            return;
+        }
+        if( phoneName == null){
+            results_tv.setText("Error:\nFailed to save\nCheck existence of the 'Scenario Information'! " +
+                    " Go to the 'Scenario Information' page through the menu.\n");
+            return;
+        }
+        if(humidityPercent==null){
+            results_tv.setText("Error:\nFailed to save\nThe Humidity percent is required!");
+            return;
+        }
+
         //Phone insert
         if (!databaseHelper.insertNewPhone(phoneName,phoneManufacturer,phoneBLEVersion)) {
             Log.d(TAG, "saveToDB: This Phone currently Exists in the database!");
@@ -463,7 +478,7 @@ public class MainActivity extends Activity {
                 selectedDevice = discoveredDevices_objects.get(position);
                 //save rssi in scenario information
                 SharedPreferences.Editor editor1 = pref_current_Scenario_info.edit();
-                String rssi = rssiList.get(position);
+                String rssi = RSSIList.get(position);
                 editor1.putString("rssi",rssi+" dBm");
                 editor1.apply();
                 showScenarioInformation();
@@ -507,6 +522,8 @@ public class MainActivity extends Activity {
             @Override
             public void onReceive(Context context, Intent intent) {
                 setConnectionStatusTextView("CONNECTED TO "+selectedDevice.getName(),"#00ff00");
+                results_tv.setText("");
+                isConnected = true;
             }
         };
         LocalBroadcastManager.getInstance(this).registerReceiver(receiver_connected,Filter_connected);
@@ -571,7 +588,7 @@ public class MainActivity extends Activity {
     }
 
     private void initViews() {
-        listView = findViewById(R.id.lv_devices);//list view which shows discovered Bluetooth Devices:
+        listView = findViewById(R.id.lv_devices);//list view shows discovered Bluetooth Devices:
         scannedDevicesList_layout = findViewById(R.id.scannedDevicesList_layout);
         input = findViewById(R.id.input);
         Button send_btn = findViewById(R.id.btn_send);
@@ -579,6 +596,10 @@ public class MainActivity extends Activity {
             @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onClick(View view) {
+                if(!isConnected){
+                    results_tv.setText("Error:\nNot Connected to a BLE Module!");
+                    return;
+                }
                 if(!isScenarioRunning){
                     //get message from input
                     String message = input.getText().toString().trim();
@@ -591,6 +612,10 @@ public class MainActivity extends Activity {
         start_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if(!isConnected){
+                    results_tv.setText("Error:\nNot Connected to a BLE Module!");
+                    return;
+                }
                 if(!isScenarioRunning){
                     send("$");
                     isScenarioRunning = true;
@@ -602,11 +627,14 @@ public class MainActivity extends Activity {
         scenarioInfo_tv = findViewById(R.id.comm_info_tv);
         connectionStatus_tv = findViewById(R.id.connection_status);
         results_tv = findViewById(R.id.results_tv);
+        results_tv.setText(""); //clean result tv in every onCreate
         Button plp_btn = findViewById(R.id.plp_btn);
         plp_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                calculate_plp();
+                if(!isScenarioRunning){
+                    calculate_plp();
+                }
             }
         });
 
@@ -614,14 +642,19 @@ public class MainActivity extends Activity {
         clean_tv_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                results_tv.setText("");
-                receive_Buffer ="";
+                if(!isScenarioRunning){
+                    results_tv.setText("");
+                    receive_Buffer ="";
+                }
             }
         });
         clean_tv_btn.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                clean();
+                if(!isScenarioRunning){
+                    clean();
+                    return false;
+                }
                 return false;
             }
         });
@@ -629,21 +662,31 @@ public class MainActivity extends Activity {
         saveToDB_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                saveToDB();
+                if(!isScenarioRunning){
+                    saveToDB();
+                }
             }
         });
         Button get_humidity_btn=findViewById(R.id.get_humidity_btn);
         get_humidity_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                getHumidity();
+                if(!isConnected){
+                    results_tv.setText("Error:\nNot Connected to a BLE Module!");
+                    return;
+                }
+                if(!isScenarioRunning){
+                    getHumidity();
+                }
             }
         });
         Button showBuffer_btn = findViewById(R.id.buffer_btn);
         showBuffer_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                results_tv.setText(receive_Buffer);
+                if(!isScenarioRunning){
+                    results_tv.setText(receive_Buffer);
+                }
             }
         });
         Button close_scanList_btn = findViewById(R.id.close_scanList_btn);
@@ -785,10 +828,10 @@ public class MainActivity extends Activity {
     }
     private void calculate_plp() {
         setProgressBarIndeterminateVisibility(false);
-        if(receive_Buffer ==null || receive_Buffer.length()==0){
+        if(receive_Buffer ==null || receive_Buffer.isEmpty()){
             return;
         }
-        //eliminate *s from end of buffer
+        //eliminate *s from end of the buffer
         while (receive_Buffer.substring(receive_Buffer.length()-1).equals("*")) {
             receive_Buffer = receive_Buffer.replace(receive_Buffer.substring(receive_Buffer.length() - 1), "");
         }
@@ -811,7 +854,9 @@ public class MainActivity extends Activity {
         Log.d(TAG,"PacketLossPercent: "+ plp);
 
         //show and save result:
-        String result = "Received packets number: " + correctPacket+"\nLost packets number: "+(int)pl ;
+        String result = "Received packets number: " + correctPacket+"\nLost packets number: "+(int)pl+
+                "\nYou can click on the 'Buffer' button to see the received packets. Also you can " +
+                "click on the 'Save' button to store the current scenario to the database." ;
         results_tv.setText(result);
         SharedPreferences.Editor editor = pref_current_Scenario_info.edit();
         if(plp == (int)plp){
@@ -846,7 +891,7 @@ public class MainActivity extends Activity {
                         //discoveredDevices_properties has selectedDevice name and address and rssi for showing
                         discoveredDevices_properties.add(newDevice);
                         discoveredDevicesAdapter.notifyDataSetChanged();
-                        rssiList.add(String.valueOf(rssi));
+                        RSSIList.add(String.valueOf(rssi));
                     }
                 }
             });
@@ -860,7 +905,7 @@ public class MainActivity extends Activity {
             disconnectClose();
             discoveredDevices_properties.clear();
             discoveredDevices_objects.clear();
-            rssiList.clear();
+            RSSIList.clear();
             selectedDevice = null;
             discoveredDevicesAdapter.notifyDataSetChanged();
             scannedDevicesList_layout.setVisibility(View.VISIBLE);
@@ -903,6 +948,7 @@ public class MainActivity extends Activity {
         super.onBackPressed();
     }
 
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
@@ -915,8 +961,9 @@ public class MainActivity extends Activity {
                 if(moduleName!=null){
                     startActivity(new Intent(MainActivity.this , ATCommandParametersActivity.class));
                 }else {
-                    results_tv.setText("Error: bluetooth Module is not recognized!\n");
-                    results_tv.append("hint: First Connect to a module device.");
+                    results_tv.setText("Error:\nBLE Module is not recognized by the application!");
+                    results_tv.append(" Going into the 'AT COMMAND Configs' page requires the BLE Module name to be registered.\n");
+                    results_tv.append("Resolve: Connect again to BLE module.\n");
 
                 }
                 break;
@@ -950,6 +997,7 @@ public class MainActivity extends Activity {
         ScanLeDevice(true);
     }
     private void disconnectClose() {
+        isConnected = false ;
         stopService(bleService_intent);
         setProgressBarIndeterminateVisibility(false);
         setConnectionStatusTextView("DISCONNECTED","#ffff00");
