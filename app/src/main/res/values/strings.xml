@@ -28,7 +28,7 @@
     <string name="phone_ble_version">Phone BLE Version:</string>
     <string name="distance_meter">Distance (meter)</string>
     <string name="number_of_obstacles">Number of Obstacles</string>
-    <string name="explanations">Explanations</string>
+    <string name="explanations">Explanation(optional)</string>
     <string name="disconnect">Disconnected</string>
 
 </resources>

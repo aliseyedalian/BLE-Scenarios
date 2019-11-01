@@ -120,7 +120,7 @@ public class ATCommandParametersActivity extends AppCompatActivity {
             if(cintMin.isEmpty()){
                 if(moduleName.equals("HC-08")){
                     input_CINT_MIN.requestFocus();
-                    showDialog("Error","CINT Min required!");
+                    showDialog("Error","CINT Min is required!");
                     return;
                 }
                 if(moduleName.equals("HC-42")){
@@ -134,7 +134,7 @@ public class ATCommandParametersActivity extends AppCompatActivity {
             if(cintMax.isEmpty()){
                 if(moduleName.equals("HC-08")){
                     input_CINT_MAX.requestFocus();
-                    showDialog("Error","CINT Max required!");
+                    showDialog("Error","CINT Max is required!");
                     return;
                 }
                 if(moduleName.equals("HC-42")){
@@ -148,7 +148,7 @@ public class ATCommandParametersActivity extends AppCompatActivity {
             if(ctout.isEmpty()){
                 if(moduleName.equals("HC-08")){
                     input_CTOUT.requestFocus();
-                    showDialog("Error","CTOUT required!");
+                    showDialog("Error","CTOUT is required!");
                     return;
                 }
                 if(moduleName.equals("HC-42")){
@@ -161,7 +161,7 @@ public class ATCommandParametersActivity extends AppCompatActivity {
             }
             if(aint.isEmpty()){
                 input_AINT.requestFocus();
-                showDialog("Error","AINT required!");
+                showDialog("Error","AINT is required!");
                 return;
             }
             editor.putString("ATDEFAULT","No");

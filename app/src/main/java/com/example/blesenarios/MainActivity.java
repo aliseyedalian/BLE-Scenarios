@@ -856,7 +856,7 @@ public class MainActivity extends Activity {
         //show and save result:
         String result = "Received packets number: " + correctPacket+"\nLost packets number: "+(int)pl+
                 "\nYou can click on the 'Buffer' button to see the received packets. Also you can " +
-                "click on the 'Save' button to store the current scenario to the database." ;
+                "click on the 'Save' button to store the current scenario in the database." ;
         results_tv.setText(result);
         SharedPreferences.Editor editor = pref_current_Scenario_info.edit();
         if(plp == (int)plp){

@@ -128,14 +128,14 @@
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:text="Wi-Fi"
+                    android:text="Wi-Fi Interference"
                     android:textStyle="bold"/>
                 <CheckBox
                     android:id="@+id/ipv6_cb"
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:text="IP-v6"
+                    android:text="IP-v6 Utilization"
                     android:textStyle="bold"/>
             </LinearLayout>
 

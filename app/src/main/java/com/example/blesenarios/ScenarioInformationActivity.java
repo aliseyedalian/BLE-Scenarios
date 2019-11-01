@@ -3,6 +3,7 @@ package com.example.blesenarios;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,7 +17,7 @@ import android.widget.Spinner;
 public class ScenarioInformationActivity extends AppCompatActivity {
     Spinner phoneBleVersion_spinner;
     ArrayAdapter<String> phoneBleVersion_adapter;
-    String [] phoneBleVersion_list = {"v4.0","v4.1","v4.2","v5.0"};
+    String [] phoneBleVersion_list = {"v4.0","v4.1","v4.2","v5.0","v5.1"};
     Spinner place_spinner;
     ArrayAdapter<String> place_adapter;
     String [] indoor_outdoor_list = {"Indoor","Outdoor"};
@@ -120,7 +121,7 @@ public class ScenarioInformationActivity extends AppCompatActivity {
             obstacleNo="0";
         }
 
-        if(isNotEmptyParameters(distanceMin,distanceMax,obstacleNo,obstacle)){
+        if(isValidParameters(distanceMin,distanceMax,obstacleNo,obstacle)){
             SharedPreferences.Editor editor = pref_currentScenario_info.edit();
             editor.putString("phoneName",android.os.Build.MODEL);
             editor.putString("phoneManufacturer", Build.MANUFACTURER);
@@ -139,7 +140,7 @@ public class ScenarioInformationActivity extends AppCompatActivity {
         }
     }
 
-    private boolean isNotEmptyParameters(String distanceMin,String distanceMax, String obstacle_count,String obstacle) {
+    private boolean isValidParameters(String distanceMin, String distanceMax, String obstacle_count, String obstacle) {
         //check validation of inputs
         if(distanceMin.isEmpty()){
             input_distanceMin.requestFocus();
@@ -149,12 +150,18 @@ public class ScenarioInformationActivity extends AppCompatActivity {
             input_distanceMax.requestFocus();
             return false;
         }
-        else if(obstacle_count.isEmpty() && !obstacle.equals("LOS(Without Obstacles)")){
+        if(Float.parseFloat(distanceMin) > Float.parseFloat(distanceMax)){
+            showDialog("Minimum distance can not be greater than Maximum distance!");
+            input_distanceMin.requestFocus();
+            return false;
+        }
+        if((obstacle_count.isEmpty()||Integer.parseInt(obstacle_count) == 0)
+                && !obstacle.equals("LOS")){
+            showDialog("'Number of obstacles' is invalid!");
             input_obstacleNo.requestFocus();
             return false;
-        }else {
-            return true;
         }
+        return true;
     }
     private void init() {
         phoneBleVersion_spinner = findViewById(R.id.phoneBleVersion);
@@ -181,11 +188,18 @@ public class ScenarioInformationActivity extends AppCompatActivity {
         ipv6_cb =findViewById(R.id.ipv6_cb);
         save_btn = findViewById(R.id.btn_Save);
     }
-    //back Arrow:
+    //return Arrow:
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if(item.getItemId()==android.R.id.home)
             finish();
         return super.onOptionsItemSelected(item);
+    }
+    private void showDialog(String message) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Error");
+        builder.setMessage(message);
+        builder.setCancelable(true);
+        builder.show();
     }
 }
